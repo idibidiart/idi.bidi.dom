@@ -4,18 +4,18 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * NattyJS - NiNu's Anti-Templating
+ * idi.bidi.dom - Javascript Anti-Templating 
  *
  * "All the separation and none of the baggage" 
  *
  * What is it? 
  *
- * Data-Driven DOM-Based "Templating" Without The Templates    
+ * Data-Driven DOM "Templating" Without The Templates    
  *
  * How Does It Work?
  * 
- * Natty works by caching the virgin innerHTML (the Node Prototype) of all DOM 
- * elements (the Nodes) that have a 'natty-node-id' attribute at window.onload 
+ * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
+ * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
  * or $(document).ready. Each Node must contain exactly one direct child at time 
  * of caching, i.e. the Node Prototype, which must contain special variables (in 
  * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
@@ -26,7 +26,7 @@
  * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
  * reference (called Linked Nodes)
  *
- * Natty works by creating an instance of the Node Prototype and populating the 
+ * idi.bidi.dom works by creating an instance of the Node Prototype and populating the 
  * special variables in it with dynamic JSON data (where the JSON keys must 
  * correspond to the special variables in the Node Prototype) and then inserting 
  * the newly populated instance into the Node itself, using replace (default on 
@@ -35,7 +35,7 @@
  * that were previously inserted into the Node) or specific, previously inserted
  * instance(s) of the Node Prototype.
  *
- * Natty allows the DOM to be decomposed into Nodes each having a Node Prototype
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype
  * from which instances (copies) can be created, populated with JSON data and then 
  * inserted into the Node (in append, prepend, and replace modes, with the 
  * ability to target specific, previously inserted instances of the Node Prototype 
@@ -47,21 +47,21 @@
  *
  * Take a look at test.html
  *
- * See Notes under String.prototype._nattyMapValues for the expected JSON format
+ * See Notes under String.prototype._idomMapValues for the expected JSON format
  * 
  * Main Invocation Pattern
  *
- * .n$ 
+ * .idom$ 
  *
- * document.querySelector('#someNode').n$(data [, options])
+ * document.querySelector('#someNode').idom$(data [, options])
  *
  * behavior: creates new instance of Prototype Node using data to populate the 
  * special variables in Prototype Node, then append/prepend to (or replace) 
  * existing instance(s) in the Node
  *
  * >> data: {key: value, key: value, key: value, etc} 
- * where the keys must match the natty node variables in the Node Prototype minus
- * the n$ prefix
+ * where the keys must match the idi.bidi.dom node variables in the Node Prototype minus
+ * the idom$ prefix
  *
  * >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 
  * ownSelector: value, nodeSelector: value, targetState: value, ownState: value, 
@@ -74,37 +74,37 @@
  * an error, so unless you are sure, you may want to call .$isPopulated() before 
  * invoking this method with targetSelector or stateSelector options)
  *
- * targetSelector: optional natty-selector value for instance(s) of Prototpe Node
+ * targetSelector: optional idom-selector value for instance(s) of Prototpe Node
  * to insert the new instance at in append and prepend modes. If null, then 
  * append/prepend new instance at last/1st instance
  *
- * targetSelector: optional natty-selector value for instance(s) of Prototpe 
+ * targetSelector: optional idom-selector value for instance(s) of Prototpe 
  * Node to insert into in replace mode. If null, replace entire content of Node
  *
- * ownSelector: new value of natty-selector value for instance of Prototpe Node 
+ * ownSelector: new value of idom-selector value for instance of Prototpe Node 
  * being inserted
  *
- * ownState: new value of natty-state attribute for instance of Prototpe Node 
+ * ownState: new value of idom-state attribute for instance of Prototpe Node 
  * being inserted
  *
- * targetState: optional natty-selector value for instance of Prototpe Node to in
- * sert at in append and prepend modes targetState: optional natty-selector value
+ * targetState: optional idom-selector value for instance of Prototpe Node to in
+ * sert at in append and prepend modes targetState: optional idom-selector value
  * for instance of Prototpe Node to insert at in replace mode
  *
- * nodeSelector: new value of natty-selector for the Node itself
+ * nodeSelector: new value of idom-selector for the Node itself
  *
- * nodeState: new value of natty-state for the Node itself
+ * nodeState: new value of idom-state for the Node itself
  * 
  *
  *********************************************************************************
  * 
  * Other available are methods are 
  *
- * .n$delete([options]) which can delete certain instances of the Node Prototype 
+ * .idom$delete([options]) which can delete certain instances of the Node Prototype 
  * or all instances children (this method is untested as of this release but it 
  * should work fine, report bugs)
  *
- * .n$isPopulated() may be queried before specifying targetSelector or targetState 
+ * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  *
  * 

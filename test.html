@@ -1,18 +1,24 @@
 <!DOCTYPE html>
 <head>
-<script src="natty.js"></script>	
+<script src="idom.js"></script>	
 </head>
 <body>
 	
 <pre>
 <div style='padding: 20px; background-color: black; color: green; font-size: 16px; white-space: pre'>
 	
-/*! NattyJS -- NiNu's Anti-Templating 
-
-Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012
-
-BSD License
-
+/*! idi.bidi.dom 
+* 
+* DOM Anti-Templating 
+*
+* Copyright (c) Marc Fawzi 2012
+* 
+* http://javacrypt.wordpress.com
+*
+* BSD License 
+* 
+* derived from idomJS v0.08: an open source precursor by the same author 
+*
 */
 
 /******************************************************************************
@@ -21,18 +27,18 @@ BSD License
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * NattyJS - NiNu's Anti-Templating
+ * idi.bidi.dom - Javascript Anti-Templating 
  *
  * "All the separation and none of the baggage" 
  *
  * What is it? 
  *
- * Data-Driven DOM-Based "Templating" Without The Templates    
+ * Data-Driven DOM "Templating" Without The Templates    
  *
  * How Does It Work?
  * 
- * Natty works by caching the virgin innerHTML (the Node Prototype) of all DOM 
- * elements (the Nodes) that have a 'natty-node-id' attribute at window.onload 
+ * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
+ * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
  * or $(document).ready. Each Node must contain exactly one direct child at time 
  * of caching, i.e. the Node Prototype, which must contain special variables (in 
  * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
@@ -43,7 +49,7 @@ BSD License
  * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
  * reference (called Linked Nodes)
  *
- * Natty works by creating an instance of the Node Prototype and populating the 
+ * idi.bidi.dom works by creating an instance of the Node Prototype and populating the 
  * special variables in it with dynamic JSON data (where the JSON keys must 
  * correspond to the special variables in the Node Prototype) and then inserting 
  * the newly populated instance into the Node itself, using replace (default on 
@@ -52,7 +58,7 @@ BSD License
  * that were previously inserted into the Node) or specific, previously inserted
  * instance(s) of the Node Prototype.
  *
- * Natty allows the DOM to be decomposed into Nodes each having a Node Prototype
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype
  * from which instances (copies) can be created, populated with JSON data and then 
  * inserted into the Node (in append, prepend, and replace modes, with the 
  * ability to target specific, previously inserted instances of the Node Prototype 
@@ -64,21 +70,21 @@ BSD License
  *
  * Take a look at test.html
  *
- * See Notes under String.prototype._nattyMapValues for the expected JSON format
+ * See Notes under String.prototype._idomMapValues for the expected JSON format
  * 
  * Main Invocation Pattern
  *
- * .n$ 
+ * .idom$ 
  *
- * document.querySelector('#someNode').n$(data [, options])
+ * document.querySelector('#someNode').idom$(data [, options])
  *
  * behavior: creates new instance of Prototype Node using data to populate the 
  * special variables in Prototype Node, then append/prepend to (or replace) 
  * existing instance(s) in the Node
  *
  * >> data: {key: value, key: value, key: value, etc} 
- * where the keys must match the natty node variables in the Node Prototype minus
- * the n$ prefix
+ * where the keys must match the idi.bidi.dom node variables in the Node Prototype minus
+ * the idom$ prefix
  *
  * >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 
  * ownSelector: value, nodeSelector: value, targetState: value, ownState: value, 
@@ -91,37 +97,37 @@ BSD License
  * an error, so unless you are sure, you may want to call .$isPopulated() before 
  * invoking this method with targetSelector or stateSelector options)
  *
- * targetSelector: optional natty-selector value for instance(s) of Prototpe Node
+ * targetSelector: optional idom-selector value for instance(s) of Prototpe Node
  * to insert the new instance at in append and prepend modes. If null, then 
  * append/prepend new instance at last/1st instance
  *
- * targetSelector: optional natty-selector value for instance(s) of Prototpe 
+ * targetSelector: optional idom-selector value for instance(s) of Prototpe 
  * Node to insert into in replace mode. If null, replace entire content of Node
  *
- * ownSelector: new value of natty-selector value for instance of Prototpe Node 
+ * ownSelector: new value of idom-selector value for instance of Prototpe Node 
  * being inserted
  *
- * ownState: new value of natty-state attribute for instance of Prototpe Node 
+ * ownState: new value of idom-state attribute for instance of Prototpe Node 
  * being inserted
  *
- * targetState: optional natty-selector value for instance of Prototpe Node to in
- * sert at in append and prepend modes targetState: optional natty-selector value
+ * targetState: optional idom-selector value for instance of Prototpe Node to in
+ * sert at in append and prepend modes targetState: optional idom-selector value
  * for instance of Prototpe Node to insert at in replace mode
  *
- * nodeSelector: new value of natty-selector for the Node itself
+ * nodeSelector: new value of idom-selector for the Node itself
  *
- * nodeState: new value of natty-state for the Node itself
+ * nodeState: new value of idom-state for the Node itself
  * 
  *
  *********************************************************************************
  * 
  * Other available are methods are 
  *
- * .n$delete([options]) which can delete certain instances of the Node Prototype 
+ * .idom$delete([options]) which can delete certain instances of the Node Prototype 
  * or all instances children (this method is untested as of this release but it 
  * should work fine, report bugs)
  *
- * .n$isPopulated() may be queried before specifying targetSelector or targetState 
+ * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  *
  * 
@@ -130,19 +136,19 @@ BSD License
 <div style='font-size: 17px; background-color: rgb(39,39,43);border-radius: 4px; padding: 16px;box-shadow: 0 0 13px rgba(250,250,250, 0.5)'>
 The current test operates on the following DOM structure: 
 
-&lt;div class='<span>i</span>$someClass' natty-node-id='someNode' style='display: none'&gt;
+&lt;div class='<span>i</span>$someClass' idom-node-id='someNode' style='display: none'&gt;
                 	
 	&lt;div class='n$someClass'&gt;
 		&lt;span onclick='n$someHandler'&gt;n$someInfo&lt;/span&gt;
 		&lt;div class='someClass n$statusClass' onclick='n$someHandler'&gt;
 		&lt;div id='n$someDiv'&gt;n$content&lt;/div&gt;
 		&lt;/div&gt;
-		&lt;!-- @natty someOtherNode --&gt;
+		&lt;!-- @idom someOtherNode --&gt;
 	&lt;/div&gt;
 	
 &lt;/div&gt;
 
-&lt;div natty-node-id='someOtherNode' style='display: none'&gt;
+&lt;div idom-node-id='someOtherNode' style='display: none'&gt;
                 	
 	&lt;div&gt;
 		&lt;span onclick='n$someHandler'&gt;n$someStuff&lt;/span&gt;
@@ -154,10 +160,10 @@ where <span>i</span>$variables are initialization-time variables and n$variables
 
 using the following Javascript:
 
-// cache DOM elements with natty-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
-Natty.init({someClass: 'newClass'});			
+// cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
+idom.init({someClass: 'newClass'});			
 
-// Selectors are merely the value of the natty-selector attribute within the node (not actual CSS selectors)
+// Selectors are merely the value of the idom-selector attribute within the node (not actual CSS selectors)
 // They may match none, one or many populated child nodes. if no populated instances of Node Prototype were 
 // inserted into the Node or if the selector string doesn't match any instance then an error is thrown
 
@@ -165,7 +171,7 @@ Natty.init({someClass: 'newClass'});
 // inserting it into the Node
 
 // populate the Node Prototype of the Linked Node first  	
-document.querySelector('[natty-node-id=someOtherNode]').n$(
+document.querySelector('[idom-node-id=someOtherNode]').n$(
 	{
 		someStuff: 'dynamically linked node contents', 
 		someHandler: 'clickMe(this)'
@@ -177,7 +183,7 @@ document.querySelector('[natty-node-id=someOtherNode]').n$(
 	})
 
 // normal replace on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 1', 
 		content: "div content 1",
@@ -191,7 +197,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // normal append on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 3', 
 		content: "div content 3",
@@ -204,7 +210,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 0', 
 		content: 'div content 0',
@@ -219,7 +225,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 
 // random access append on the Node ... pass Node variables (n$var)
 
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 2', 
 		content: "div content 2",
@@ -233,7 +239,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -246,7 +252,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // random access replace on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content sub-0', 
 		content: "div content sub-0",
@@ -260,7 +266,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // random access append on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -273,7 +279,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // random access prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 2.5', 
 		content: "div content 2.5",
@@ -286,20 +292,20 @@ document.querySelector('[natty-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance2.5' 
 	})
 	
-document.querySelector('[natty-node-id=someNode]').style.display = 'block'
+document.querySelector('[idom-node-id=someNode]').style.display = 'block'
 
-// natty will append "_linked" to the natty-selector and natty-state attributes of Linked Nodes (upon linking) which are 
-// otherwise clones of the Nodes being linked (which are left untouched) Natty also removes the natty-node-id in the
+// idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
+// otherwise clones of the Nodes being linked (which are left untouched) idom also removes the idom-node-id in the
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
-// make visible all instances of the Linked Node, using the forEachExec natty method (no eval, safe)
-document.querySelectorAll('[natty-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+// make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
+document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
 
 // for this demo
 function multiReplace() {
 	
 	// random access multi-replace on the Node ... pass Node variables (n$var)
-	document.querySelector('[natty-node-id=someNode]').n$(
+	document.querySelector('[idom-node-id=someNode]').n$(
 		{
 			someInfo: 'span content REPLACED', 
 			content: "div content REPLACED",
@@ -313,17 +319,17 @@ function multiReplace() {
 		})
 	
 	// make visible all instances of the Linked Node	
-	document.querySelectorAll('[natty-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+	document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
 	
 }
 
 function clickMe(elem) {
 	
 	var str = 'my ownSelector = ' + 
-			elem.parentNode.getAttribute('natty-selector') + 
+			elem.parentNode.getAttribute('idom-selector') + 
 			'\n' + 
 			'my nodeSelector = ' 
-			+ elem.parentNode.parentNode.getAttribute('natty-selector')
+			+ elem.parentNode.parentNode.getAttribute('idom-selector')
 	
 	
 }
@@ -336,16 +342,16 @@ function clickMe(elem) {
 <p>a more animated/complete	test will replace this ghetto test soon...
 </p>
 	
-<div class='i$someClass' natty-node-id='someNode' style='display: none'>
+<div class='i$someClass' idom-node-id='someNode' style='display: none'>
                 	
 	<div class='n$someClass'>
 		<span onclick='n$someHandler'>n$someInfo</span><div class='someClass n$statusClass' onclick='n$someHandler'><div id='n$someDiv'>n$content</div></div>
-		<!-- @natty someOtherNode -->
+		<!-- @idom someOtherNode -->
 	</div>
 	
 </div>
 
-<div natty-node-id='someOtherNode' style='display: none'>
+<div idom-node-id='someOtherNode' style='display: none'>
                 	
 	<div>
 		<span onclick='n$someHandler'>n$someStuff</span>
@@ -361,10 +367,10 @@ function clickMe(elem) {
 
 <script type="text/javascript">
 
-// cache DOM elements with natty-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
-Natty.init({someClass: 'newClass'});			
+// cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
+idom.init({someClass: 'newClass'});			
 
-// Selectors are merely the value of the natty-selector attribute within the node (not actual CSS selectors)
+// Selectors are merely the value of the idom-selector attribute within the node (not actual CSS selectors)
 // They may match none, one or many populated child nodes. if no populated instances of Node Prototype were 
 // inserted into the Node or if the selector string doesn't match any instance then an error is thrown
 
@@ -372,7 +378,7 @@ Natty.init({someClass: 'newClass'});
 // inserting it into the Node
 
 // populate the Node Prototype of the Linked Node first  	
-document.querySelector('[natty-node-id=someOtherNode]').n$(
+document.querySelector('[idom-node-id=someOtherNode]').n$(
 	{
 		someStuff: 'dynamically linked node contents', 
 		someHandler: 'clickMe(this)'
@@ -384,7 +390,7 @@ document.querySelector('[natty-node-id=someOtherNode]').n$(
 	})
 
 // normal replace on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 1', 
 		content: "div content 1",
@@ -398,7 +404,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // normal append on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 3', 
 		content: "div content 3",
@@ -411,7 +417,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 0', 
 		content: 'div content 0',
@@ -426,7 +432,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 
 // random access append on the Node ... pass Node variables (n$var)
 
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 2', 
 		content: "div content 2",
@@ -440,7 +446,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -453,7 +459,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // random access replace on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content sub-0', 
 		content: "div content sub-0",
@@ -467,7 +473,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // random access append on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -480,7 +486,7 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 
 // random access prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[natty-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').n$(
 	{
 		someInfo: 'span content 2.5', 
 		content: "div content 2.5",
@@ -494,20 +500,20 @@ document.querySelector('[natty-node-id=someNode]').n$(
 	})
 	
 
-document.querySelector('[natty-node-id=someNode]').style.display = 'block'
+document.querySelector('[idom-node-id=someNode]').style.display = 'block'
 
-// natty will append "_linked" to the natty-selector and natty-state attributes of Linked Nodes (upon linking) which are 
-// otherwise clones of the Nodes being linked (which are left untouched) Natty also removes the natty-node-id in the
+// idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
+// otherwise clones of the Nodes being linked (which are left untouched) idom also removes the idom-node-id in the
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
-// make visible all instances of the Linked Node, using the forEachExec natty method (no eval, safe)
-document.querySelectorAll('[natty-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+// make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
+document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
 
 // for this demo
 function multiReplace() {
 	
 	// random access multi-replace on the Node ... pass Node variables (n$var)
-	document.querySelector('[natty-node-id=someNode]').n$(
+	document.querySelector('[idom-node-id=someNode]').n$(
 		{
 			someInfo: 'span content REPLACED', 
 			content: "div content REPLACED",
@@ -521,13 +527,13 @@ function multiReplace() {
 		})
 	
 	// make visible all instances of the Linked Node	
-	document.querySelectorAll('[natty-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+	document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
 	
 }
 
 function clickMe(elem) {
 	
-	alert('my ownSelector = ' + elem.parentNode.getAttribute("natty-selector") + "\n" + 'my nodeSelector = ' + elem.parentNode.parentNode.getAttribute("natty-selector"))
+	alert('my ownSelector = ' + elem.parentNode.getAttribute("idom-selector") + "\n" + 'my nodeSelector = ' + elem.parentNode.parentNode.getAttribute("idom-selector"))
 	
 	
 }

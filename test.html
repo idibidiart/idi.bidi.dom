@@ -138,10 +138,10 @@ The current test operates on the following DOM structure:
 
 &lt;div class='<span>i</span>$someClass' idom-node-id='someNode' style='display: none'&gt;
                 	
-	&lt;div class='n$someClass'&gt;
-		&lt;span onclick='n$someHandler'&gt;n$someInfo&lt;/span&gt;
-		&lt;div class='someClass n$statusClass' onclick='n$someHandler'&gt;
-		&lt;div id='n$someDiv'&gt;n$content&lt;/div&gt;
+	&lt;div class='idom$someClass'&gt;
+		&lt;span onclick='idom$someHandler'&gt;idom$someInfo&lt;/span&gt;
+		&lt;div class='someClass idom$statusClass' onclick='idom$someHandler'&gt;
+		&lt;div id='idom$someDiv'&gt;idom$content&lt;/div&gt;
 		&lt;/div&gt;
 		&lt;!-- @idom someOtherNode --&gt;
 	&lt;/div&gt;
@@ -151,12 +151,12 @@ The current test operates on the following DOM structure:
 &lt;div idom-node-id='someOtherNode' style='display: none'&gt;
                 	
 	&lt;div&gt;
-		&lt;span onclick='n$someHandler'&gt;n$someStuff&lt;/span&gt;
+		&lt;span onclick='idom$someHandler'&gt;idom$someStuff&lt;/span&gt;
 	&lt;/div&gt;
 	
 &lt;/div&gt;
 
-where <span>i</span>$variables are initialization-time variables and n$variables are dynamic Node variables 
+where <span>i</span>$variables are initialization-time variables and idom$variables are dynamic Node variables 
 
 using the following Javascript:
 
@@ -171,7 +171,7 @@ idom.init({someClass: 'newClass'});
 // inserting it into the Node
 
 // populate the Node Prototype of the Linked Node first  	
-document.querySelector('[idom-node-id=someOtherNode]').n$(
+document.querySelector('[idom-node-id=someOtherNode]').idom$(
 	{
 		someStuff: 'dynamically linked node contents', 
 		someHandler: 'clickMe(this)'
@@ -182,8 +182,8 @@ document.querySelector('[idom-node-id=someOtherNode]').n$(
 		nodeSelector: 'someOtherNode'
 	})
 
-// normal replace on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal replace on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 1', 
 		content: "div content 1",
@@ -196,8 +196,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		nodeSelector: 'someNode' 
 	})
 
-// normal append on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal append on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 3', 
 		content: "div content 3",
@@ -209,8 +209,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance3' 
 	})
 
-// normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal prepend on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 0', 
 		content: 'div content 0',
@@ -223,9 +223,9 @@ document.querySelector('[idom-node-id=someNode]').n$(
 	})
 	
 
-// random access append on the Node ... pass Node variables (n$var)
+// random access append on the Node ... pass Node variables (idom$var)
 
-document.querySelector('[idom-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 2', 
 		content: "div content 2",
@@ -238,8 +238,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance2' 
 	})
 
-// normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal prepend on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -251,8 +251,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance-1' 
 	})
 
-// random access replace on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// random access replace on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content sub-0', 
 		content: "div content sub-0",
@@ -265,8 +265,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance-sub-zero' 
 	})
 
-// random access append on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// random access append on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -278,8 +278,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance-1' 
 	})
 
-// random access prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// random access prepend on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 2.5', 
 		content: "div content 2.5",
@@ -304,8 +304,8 @@ document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("s
 // for this demo
 function multiReplace() {
 	
-	// random access multi-replace on the Node ... pass Node variables (n$var)
-	document.querySelector('[idom-node-id=someNode]').n$(
+	// random access multi-replace on the Node ... pass Node variables (idom$var)
+	document.querySelector('[idom-node-id=someNode]').idom$(
 		{
 			someInfo: 'span content REPLACED', 
 			content: "div content REPLACED",
@@ -344,8 +344,8 @@ function clickMe(elem) {
 	
 <div class='i$someClass' idom-node-id='someNode' style='display: none'>
                 	
-	<div class='n$someClass'>
-		<span onclick='n$someHandler'>n$someInfo</span><div class='someClass n$statusClass' onclick='n$someHandler'><div id='n$someDiv'>n$content</div></div>
+	<div class='idom$someClass'>
+		<span onclick='idom$someHandler'>idom$someInfo</span><div class='someClass idom$statusClass' onclick='idom$someHandler'><div id='idom$someDiv'>idom$content</div></div>
 		<!-- @idom someOtherNode -->
 	</div>
 	
@@ -354,7 +354,7 @@ function clickMe(elem) {
 <div idom-node-id='someOtherNode' style='display: none'>
                 	
 	<div>
-		<span onclick='n$someHandler'>n$someStuff</span>
+		<span onclick='idom$someHandler'>idom$someStuff</span>
 	</div>
 	
 </div>
@@ -378,7 +378,7 @@ idom.init({someClass: 'newClass'});
 // inserting it into the Node
 
 // populate the Node Prototype of the Linked Node first  	
-document.querySelector('[idom-node-id=someOtherNode]').n$(
+document.querySelector('[idom-node-id=someOtherNode]').idom$(
 	{
 		someStuff: 'dynamically linked node contents', 
 		someHandler: 'clickMe(this)'
@@ -389,8 +389,8 @@ document.querySelector('[idom-node-id=someOtherNode]').n$(
 		nodeSelector: 'someOtherNode'
 	})
 
-// normal replace on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal replace on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 1', 
 		content: "div content 1",
@@ -403,8 +403,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		nodeSelector: 'someNode' 
 	})
 
-// normal append on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal append on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 3', 
 		content: "div content 3",
@@ -416,8 +416,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance3' 
 	})
 
-// normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal prepend on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 0', 
 		content: 'div content 0',
@@ -430,9 +430,9 @@ document.querySelector('[idom-node-id=someNode]').n$(
 	})
 	
 
-// random access append on the Node ... pass Node variables (n$var)
+// random access append on the Node ... pass Node variables (idom$var)
 
-document.querySelector('[idom-node-id=someNode]').n$(
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 2', 
 		content: "div content 2",
@@ -445,8 +445,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance2' 
 	})
 
-// normal prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// normal prepend on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -458,8 +458,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance-1' 
 	})
 
-// random access replace on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// random access replace on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content sub-0', 
 		content: "div content sub-0",
@@ -472,8 +472,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance-sub-zero' 
 	})
 
-// random access append on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// random access append on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -485,8 +485,8 @@ document.querySelector('[idom-node-id=someNode]').n$(
 		ownSelector: 'NodePrototypeInstance-1' 
 	})
 
-// random access prepend on the Node ... pass Node variables (n$var)
-document.querySelector('[idom-node-id=someNode]').n$(
+// random access prepend on the Node ... pass Node variables (idom$var)
+document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		someInfo: 'span content 2.5', 
 		content: "div content 2.5",
@@ -512,8 +512,8 @@ document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("s
 // for this demo
 function multiReplace() {
 	
-	// random access multi-replace on the Node ... pass Node variables (n$var)
-	document.querySelector('[idom-node-id=someNode]').n$(
+	// random access multi-replace on the Node ... pass Node variables (idom$var)
+	document.querySelector('[idom-node-id=someNode]').idom$(
 		{
 			someInfo: 'span content REPLACED', 
 			content: "div content REPLACED",

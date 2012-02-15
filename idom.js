@@ -131,16 +131,16 @@ var idom = {}
 // Example: idom.user.someFunction = function () { ... }
 idom.user = {}
  
-idom.version = "0.08"
+idom.version = "0.01"
 
-// define regular expression (RegEx) pattern for Prototype variables. use n$ since that can't be confused 
-idom.regex = /(n\$\w+)/g;
+// define regular expression (RegEx) pattern for Prototype variables. use idom$ since that can't be confused 
+idom.regex = /(idom\$\w+)/g;
 
 // define length of Prototype variables pattern
-idom.regexLength = 2;
+idom.regexLength = 5;
 
 // define regular expression (RegEx) pattern for idom.init() variables. use i$ since that can't be confused 
-idom.presetRegEx =  /(i\$\w+)/g;
+idom.initRegEx =  /(i\$\w+)/g;
 
 // define length of DOM presets pattern
 idom.initRegexLength = 2;
@@ -298,7 +298,7 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 	
 	var jsonStr, jsonErr; 
 	
-	var pattern = idom.internal.initDone ? idom.regex : idom.presetRegEx;
+	var pattern = idom.internal.initDone ? idom.regex : idom.initRegEx;
 	
 	var patternLength = idom.internal.initDone ? idom.regexLength : idom.initRegexLength;
 	
@@ -362,7 +362,7 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 		
 	}	else {
 		
-		return this.replace(idom.presetRegEx, function(match) { 
+		return this.replace(idom.initRegEx, function(match) { 
 			
 			// if special variable exists and has a value, replace with JSON value for corresponding key
 			
@@ -460,14 +460,14 @@ Object.prototype.forEachExec = Object.prototype.forEachExec || function() {
  	}	
 };
 
-// .n$  (main idom method)
+// .idom$  (main idom method)
 //
-// format: document.querySelector('#someNode').n$(data [, options])
+// format: document.querySelector('#someNode').idom$(data [, options])
 // action: create new instance of Node Prototype using 'data' (json) to populate the special variables in the Node,
 // then append/prepend to (or replace) existing instance(s) of Node Prototype in the Node
 //
 // data: {key: value, key: value, key: value, etc} 
-// where the keys must match the Node variable minus the n$ prefix
+// where the keys must match the Node variable minus the idom$ prefix
 //
 // options: {mode: 'replace'|'append'|'prepend', targetSelector: value, ownSelector: value,
 // nodeSelector: value, targetState: value, ownState: value, nodeState: value}
@@ -494,13 +494,13 @@ Object.prototype.forEachExec = Object.prototype.forEachExec || function() {
 // 
 // nodeState: new value of idom-state for the Node itself
 
-Element.prototype.n$ = Element.prototype.n$ || function() {
+Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
 	if (!idom.internal.initDone) {
 		
 		var err = new Error;
 			
-		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .n$ methods"
+		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .idom$ methods"
 					 
 		throw err.message + '\n' + err.stack;
 	}
@@ -900,9 +900,9 @@ Element.prototype.n$ = Element.prototype.n$ || function() {
 	}
 };
 
-// format: document.querySelector('#someNode').n$isPopulated() 
+// format: document.querySelector('#someNode').idom$isPopulated() 
 
-Element.prototype.n$isPopulated = Element.prototype.n$isPopulated || function() {
+Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || function() {
 	
 	// .$isPopulated() may be used within loops, so it should be as light as possible
 	
@@ -910,7 +910,7 @@ Element.prototype.n$isPopulated = Element.prototype.n$isPopulated || function() 
 		
 		var err = new Error;
 			
-		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .n$ methods"
+		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .idom$ methods"
 					 
 		throw err.message + '\n' + err.stack;
 	}
@@ -934,9 +934,9 @@ Element.prototype.n$isPopulated = Element.prototype.n$isPopulated || function() 
 	return true;
 }
 
-// .n$delete
+// .idom$delete
 //
-// format: document.querySelector('#someNode').n$delete([options]) 
+// format: document.querySelector('#someNode').idom$delete([options]) 
 // options: {'targetSelector': value, targetState: value, nodeState: value, nodeSelector: value}
 //
 // targetSelector: optional: for specifying instance(s) of Node Prototype to delete. If null, delete node's entire innerHTML
@@ -946,13 +946,13 @@ Element.prototype.n$isPopulated = Element.prototype.n$isPopulated || function() 
 // nodeState: optional: new value of Node's idom-state attribute after modification
 // nodeSelector: optional: new value Node's idom-selector attribute after modification
 
-Element.prototype.n$delete = Element.prototype.n$delete || function() {
+Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
 	
 	if (!idom.internal.initDone) {
 		
 		var err = new Error;
 			
-		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .n$ methods"
+		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .idom$ methods"
 					 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1119,7 +1119,7 @@ if (typeof(jQuery) == 'function') {
 		
 		// idom functions as plugins for jQuery 
 		
-		$.fn.n$ = function() {
+		$.fn.idom$ = function() {
 			
 			// get Javascript's version of 'this' for Element
 			var thisJS = this.get(0);
@@ -1128,7 +1128,7 @@ if (typeof(jQuery) == 'function') {
 		}
 		
 		// isPopulated
-		$.fn.n$isPopulated = function() {
+		$.fn.idom$isPopulated = function() {
 			
 			// get Javascript's version of 'this' for Element
 			var thisJS = this.get(0);
@@ -1137,7 +1137,7 @@ if (typeof(jQuery) == 'function') {
 		}
 	
 		// delete
-		$.fn.n$delete = function() {
+		$.fn.idom$delete = function() {
 		
 			// get Javascript's version of 'this' for Element
 			var thisJS = this.get(0);		

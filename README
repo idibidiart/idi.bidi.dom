@@ -1,125 +1,122 @@
 /*! idi.bidi.dom 
-* 
-* DOM Anti-Templating 
-*
-* Copyright (c) Marc Fawzi 2012
-* 
-* http://javacrypt.wordpress.com
-*
-* BSD License 
-* 
-* derived from NattyJS v0.08: an open source precursor by the same author 
-*
+ 
+ DOM Anti-Templating 
+
+ Copyright (c) Marc Fawzi 2012
+ 
+ http://javacrypt.wordpress.com
+
+ BSD License 
+ 
+ derived from NattyJS v0.08: an open source precursor by the same author 
+
 */
 
-/******************************************************************************
- * 
- * README:
- * 
- * This version works in Gecko and Webkit, not tested on IE
- *
- * idi.bidi.dom - Javascript Anti-Templating 
- *
- * "All the separation and none of the baggage" 
- *
- * What is it? 
- *
- * Data-Driven DOM "Templating" Without The Templates    
- *
- * How Does It Work?
- * 
- * idi.bidi.dom (idom for short) works by caching the virgin innerHTML 
- * (the Node Prototype) of all DOM elements (the Nodes) that have a 'idom-node-id' 
- * attribute at window.onload or $(document).ready. Each Node must contain exactly 
- * one direct child at time of caching, i.e. the Node Prototype, which must contain 
- * special variables (in its inner/outer HTML) to be replaced, in a global, dynamic 
- * fashion, with JSON data (with the scope being the inner/outer HTML of a newly 
- * created instance of the Node Prototype)
- *
- * The Node Prototype may hold an arbitrarily complex DOM structure, and one in 
- * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
- * reference (called Linked Nodes)
- *
- * idom works by creating an instance of the Node Prototype and populating the 
- * special variables in it with dynamic JSON data (where the JSON keys must 
- * correspond to the special variables in the Node Prototype) and then inserting 
- * the newly populated instance into the Node itself, using replace (default on 
- * first insertion), append or prepend methods, as applied to the Node's entire 
- * content (the virgin innerHTML or all populated instances of the Node Prototype
- * that were previously inserted into the Node) or specific, previously inserted
- * instance(s) of the Node Prototype.
- *
- * idom allows the DOM to be decomposed into Nodes each having a Node Prototype
- * from which instances (copies) can be created, populated with JSON data and then 
- * inserted into the Node (in append, prepend, and replace modes, with the 
- * ability to target specific, previously inserted instances of the Node Prototype 
- * or the Node's entire content, i.e. the entire set of instances of the Node 
- * Prototype) and where the Node itself can be dynamically linked into other Nodes, 
- * which can be linked into other Nodes, and so on...
- * 
- * Examples: 
- *
- * Take a look at test.html
- *
- * See Notes under String.prototype._idomMapValues for the expected JSON format
- * 
- * Main Invocation Pattern
- *
- * .idom$ 
- *
- * document.querySelector('#someNode').idom$(data [, options])
- *
- * behavior: creates new instance of Prototype Node using data to populate the 
- * special variables in Prototype Node, then append/prepend to (or replace) 
- * existing instance(s) in the Node
- *
- * >> data: {key: value, key: value, key: value, etc} 
- * where the keys must match the idom node variables in the Node Prototype minus
- * the idom$ prefix
- *
- * >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 
- * ownSelector: value, nodeSelector: value, targetState: value, ownState: value, 
- * nodeState: value}
- *
- * if there no populated instances of Prototype Node exist (or if the Node's 
- * innerHTML was deleted after or before populated instances of Prototype Node 
- * were inserted) then append/prepend/replace will all replace the Node's 
- * entire content (if targetSelector is supplied in this case it will throw 
- * an error, so unless you are sure, you may want to call .$isPopulated() before 
- * invoking this method with targetSelector or stateSelector options)
- *
- * targetSelector: optional idom-selector value for instance(s) of Prototpe Node
- * to insert the new instance at in append and prepend modes. If null, then 
- * append/prepend new instance at last/1st instance
- *
- * targetSelector: optional idom-selector value for instance(s) of Prototpe 
- * Node to insert into in replace mode. If null, replace entire content of Node
- *
- * ownSelector: new value of idom-selector value for instance of Prototpe Node 
- * being inserted
- *
- * ownState: new value of idom-state attribute for instance of Prototpe Node 
- * being inserted
- *
- * targetState: optional idom-selector value for instance of Prototpe Node to in
- * sert at in append and prepend modes targetState: optional idom-selector value
- * for instance of Prototpe Node to insert at in replace mode
- *
- * nodeSelector: new value of idom-selector for the Node itself
- *
- * nodeState: new value of idom-state for the Node itself
- * 
- *
- *********************************************************************************
- * 
- * Other available are methods are 
- *
- * .idom$delete([options]) which can delete certain instances of the Node Prototype 
- * or all instances children (this method is untested as of this release but it 
- * should work fine, report bugs)
- *
- * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
- * to verify existence of populated instance(s) of Node Prototype (the targets) 
- *
- * 
- *********************************************************************************/
+/*
+ 
+ README:
+ 
+ This version works in Gecko and Webkit, not tested on IE
+ 
+ idi.bidi.dom - Javascript Anti-Templating 
+ 
+ "All the separation and none of the baggage" 
+ 
+ What is it? 
+ 
+ Data-Driven DOM "Templating" Without The Templates    
+ 
+ How Does It Work?
+ 
+ idi.bidi.dom (idom for short) works by caching the virgin innerHTML 
+ (the Node Prototype) of all DOM elements (the Nodes) that have a 'idom-node-id' 
+ attribute at window.onload or $(document).ready. Each Node must contain exactly 
+ one direct child at time of caching, i.e. the Node Prototype, which must 
+ contain special variables (in its inner/outer HTML) to be replaced, in global, 
+ dynamic fashion, with JSON data (with the scope being the inner/outer HTML of 
+ a newly created instance of the Node Prototype)
+ 
+ The Node Prototype may hold an arbitrarily complex DOM structure, and one in 
+ which Node(s) defined elsewhere in the DOM may be dynamically linked by 
+ reference (called Linked Nodes)
+ 
+ idom works by creating an instance of the Node Prototype and populating the 
+ special variables in it with dynamic JSON data (where the JSON keys must 
+ correspond to the special variables in the Node Prototype) and then inserting 
+ the newly populated instance into the Node itself, using replace (default on 
+ first insertion), append or prepend methods, as applied to the Node's entire 
+ content (the virgin innerHTML or all populated instances of the Node Prototype
+ that were previously inserted into the Node) or specific, previously inserted
+ instance(s) of the Node Prototype.
+ 
+ idom allows the DOM to be decomposed into Nodes each having a Node Prototype
+ from which instances (copies) can be created, populated with JSON data and then 
+ inserted into the Node (in append, prepend, and replace modes, with the 
+ ability to target specific, previously inserted instances of the Node Prototype 
+ or the Node's entire content, i.e. the entire set of instances of the Node 
+ Prototype) and where the Node itself can be dynamically linked into other Nodes, 
+ which can be linked into other Nodes, and so on...
+ 
+ Examples: 
+ 
+ Take a look at test.html
+ 
+ See Notes under String.prototype._idomMapValues for the expected JSON format
+ 
+ Main Invocation Pattern
+ 
+ .idom$ 
+ 
+ document.querySelector('#someNode').idom$(data [, options])
+ 
+ behavior: creates new instance of Prototype Node using data to populate the 
+ special variables in Prototype Node, then append/prepend to (or replace) 
+ existing instance(s) in the Node
+ 
+ >> data: {key: value, key: value, key: value, etc} 
+ where the keys must match the idom node variables in the Node Prototype minus
+ the idom$ prefix
+ 
+ >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 
+ ownSelector: value, nodeSelector: value, targetState: value, ownState: value, 
+ nodeState: value}
+ 
+ if there no populated instances of Prototype Node exist (or if the Node's 
+ innerHTML was deleted after or before populated instances of Prototype Node 
+ were inserted) then append/prepend/replace will all replace the Node's 
+ entire content (if targetSelector is supplied in this case it will throw 
+ an error, so unless you are sure, you may want to call .$isPopulated() before 
+ invoking this method with targetSelector or stateSelector options)
+ 
+ targetSelector: optional idom-selector value for instance(s) of Prototpe Node
+ to insert the new instance at in append and prepend modes. If null, then 
+ append/prepend new instance at last/1st instance
+ 
+ targetSelector: optional idom-selector value for instance(s) of Prototpe 
+ Node to insert into in replace mode. If null, replace entire content of Node
+ 
+ ownSelector: new value of idom-selector value for instance of Prototpe Node 
+ being inserted
+ 
+ ownState: new value of idom-state attribute for instance of Prototpe Node 
+ being inserted
+ 
+ targetState: optional idom-selector value for instance of Prototpe Node to in
+ sert at in append and prepend modes targetState: optional idom-selector value
+ for instance of Prototpe Node to insert at in replace mode
+ 
+ nodeSelector: new value of idom-selector for the Node itself
+ 
+ nodeState: new value of idom-state for the Node itself
+ 
+ Other available are methods are 
+ 
+ .idom$delete([options]) which can delete certain instances of the Node Prototype 
+ or all instances children (this method is untested as of this release but it 
+ should work fine, report bugs)
+ 
+ .idom$isPopulated() may be queried before specifying targetSelector or targetState 
+ to verify existence of populated instance(s) of Node Prototype (the targets) 
+ 
+ 
+ */

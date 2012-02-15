@@ -1,3 +1,17 @@
+/*! idi.bidi.dom 
+* 
+* DOM Anti-Templating 
+*
+* Copyright (c) Marc Fawzi 2012
+* 
+* http://javacrypt.wordpress.com
+*
+* BSD License 
+* 
+* derived from NattyJS v0.08: an open source precursor by the same author 
+*
+*/
+
 /******************************************************************************
  * 
  * README:
@@ -14,19 +28,19 @@
  *
  * How Does It Work?
  * 
- * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
- * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
- * or $(document).ready. Each Node must contain exactly one direct child at time 
- * of caching, i.e. the Node Prototype, which must contain special variables (in 
- * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
- * data (with the scope being the inner/outer HTML of a newly created instance of 
- * the Node Prototype)
+ * idi.bidi.dom (idom for short) works by caching the virgin innerHTML 
+ * (the Node Prototype) of all DOM elements (the Nodes) that have a 'idom-node-id' 
+ * attribute at window.onload or $(document).ready. Each Node must contain exactly 
+ * one direct child at time of caching, i.e. the Node Prototype, which must contain 
+ * special variables (in its inner/outer HTML) to be replaced, in a global, dynamic 
+ * fashion, with JSON data (with the scope being the inner/outer HTML of a newly 
+ * created instance of the Node Prototype)
  *
  * The Node Prototype may hold an arbitrarily complex DOM structure, and one in 
  * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
  * reference (called Linked Nodes)
  *
- * idi.bidi.dom works by creating an instance of the Node Prototype and populating the 
+ * idom works by creating an instance of the Node Prototype and populating the 
  * special variables in it with dynamic JSON data (where the JSON keys must 
  * correspond to the special variables in the Node Prototype) and then inserting 
  * the newly populated instance into the Node itself, using replace (default on 
@@ -35,7 +49,7 @@
  * that were previously inserted into the Node) or specific, previously inserted
  * instance(s) of the Node Prototype.
  *
- * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype
+ * idom allows the DOM to be decomposed into Nodes each having a Node Prototype
  * from which instances (copies) can be created, populated with JSON data and then 
  * inserted into the Node (in append, prepend, and replace modes, with the 
  * ability to target specific, previously inserted instances of the Node Prototype 
@@ -60,7 +74,7 @@
  * existing instance(s) in the Node
  *
  * >> data: {key: value, key: value, key: value, etc} 
- * where the keys must match the idi.bidi.dom node variables in the Node Prototype minus
+ * where the keys must match the idom node variables in the Node Prototype minus
  * the idom$ prefix
  *
  * >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 

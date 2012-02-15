@@ -115,8 +115,9 @@
  or all instances children (this method is untested as of this release but it 
  should work fine, report bugs)
  
- .idom$isPopulated() may be queried before specifying targetSelector or targetState 
- to verify existence of populated instance(s) of Node Prototype (the targets) 
+ .idom$isPopulated() may be queried before specifying targetSelector or 
+ targetState to verify existence of populated instance(s) of Node Prototype 
+ (the targets) 
  
  
  */

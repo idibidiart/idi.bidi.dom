@@ -131,7 +131,7 @@ var idom = {}
 // Example: idom.user.someFunction = function () { ... }
 idom.user = {}
  
-idom.version = "0.08"
+idom.version = "0.01"
 
 // define regular expression (RegEx) pattern for Prototype variables. use idom$ since that can't be confused 
 idom.regex = /(idom\$\w+)/g;

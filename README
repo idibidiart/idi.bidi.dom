@@ -57,6 +57,10 @@
  Prototype) and where the Node itself can be dynamically linked into other Nodes, 
  which can be linked into other Nodes, and so on...
  
+ idom takes the DOM and adds data-bound variables, encapsulation, 
+ multiple-inheritance and type polymorphism (with DOM structures as 
+ implicit data types) without taking over the job of Javascript itself. 
+ 
  Examples: 
  
  Take a look at test.html

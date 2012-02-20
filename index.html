@@ -112,12 +112,16 @@
  * inserted into the Node (in append, prepend, and replace modes, with the 
  * ability to target specific, previously inserted instances of the Node Prototype 
  * or the Node's entire content, i.e. the entire set of instances of the Node 
- * Prototype) and where the Node itself can be dynamically linked into other Nodes, 
+ * Prototype) and where the Node itself can be *dynamically* linked into other Nodes, 
  * which can be linked into other Nodes, and so on...
+ * 
+ * idom takes the DOM and adds data-bound variables, encapsulation, multiple-
+ * inheritance and implicit type polymorphism (with DOM structures as the data 
+ * types) without taking over the job of Javascript itself. 
  * 
  * Examples: 
  *
- * Take a look at test.html
+ * For now, take a look at test.html
  *
  * See Notes under String.prototype._idomMapValues for the expected JSON format
  * 

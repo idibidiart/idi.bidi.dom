@@ -57,6 +57,14 @@
  * Prototype) and where the Node itself can be dynamically linked into other Nodes, 
  * which can be linked into other Nodes, and so on...
  * 
+ * From an OOP perspective, idom takes the DOM and adds data-bound variables, 
+ * encapsulation, multiple-inheritance and type polymorphism (with the Node 
+ * Prototype as the user defined type) 
+ *  
+ * Unlike other template-less DOM rendering frameworks, idom does not take over 
+ * the job of Javascript itself nor does it add any boilerplate, it just gives 
+ * Javascript more power by front-ending the DOM.
+ * 
  * Examples: 
  *
  * Take a look at test.html

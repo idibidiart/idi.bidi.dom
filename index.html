@@ -249,7 +249,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'replace', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance1',
 		nodeSelector: 'someNode' 
 	})
@@ -276,7 +276,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'prepend', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance0' 
 	})
 	
@@ -319,7 +319,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		mode: 'replace', 
 		targetSelector: 'NodePrototypeInstance-1', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance-sub-zero' 
 	})
 
@@ -350,6 +350,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 		ownSelector: 'NodePrototypeInstance2.5' 
 	})
 	
+
 document.querySelector('[idom-node-id=someNode]').style.display = 'block'
 
 // idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
@@ -383,11 +384,7 @@ function multiReplace() {
 
 function clickMe(elem) {
 	
-	var str = 'my ownSelector = ' + 
-			elem.parentNode.getAttribute('idom-selector') + 
-			'\n' + 
-			'my nodeSelector = ' 
-			+ elem.parentNode.parentNode.getAttribute('idom-selector')
+	alert('my ownSelector = ' + elem.parentNode.getAttribute("idom-selector") + "\n" + 'my nodeSelector = ' + elem.parentNode.parentNode.getAttribute("idom-selector"))
 	
 	
 }
@@ -456,7 +453,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'replace', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance1',
 		nodeSelector: 'someNode' 
 	})
@@ -483,7 +480,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'prepend', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance0' 
 	})
 	
@@ -526,7 +523,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		mode: 'replace', 
 		targetSelector: 'NodePrototypeInstance-1', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance-sub-zero' 
 	})
 

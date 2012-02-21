@@ -326,7 +326,7 @@ function multiReplace() {
 			ownSelector: 'NodePrototypeInstanceREPLACED' 
 		})
 	
-	// make visible all instances of the Linked Node	
+	// make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)	
 	document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
 	
 }
@@ -406,7 +406,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'replace', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance1',
 		nodeSelector: 'someNode' 
 	})
@@ -433,7 +433,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'prepend', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance0' 
 	})
 	
@@ -476,7 +476,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	{
 		mode: 'replace', 
 		targetSelector: 'NodePrototypeInstance-1', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance-sub-zero' 
 	})
 

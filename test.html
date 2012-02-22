@@ -416,11 +416,11 @@ The following test operates on the following DOM structure:
 	
 &lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
 </div>
-where i$variables are initialization-time variables and idom$variables are dynamic Node variables 
+where <span style='color: orange'>idom$variables</span> are dynamic Node variables 
 
 with the following Javascript:
 
-var rangeCompleteness = 20; 
+var rangeCompleteness = val ? val : 25; 
 	
 // get the number of steps to highlight in  completion indicator
 var steps = Math.round((rangeCompleteness * 12) / 50); 	

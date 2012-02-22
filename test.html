@@ -248,7 +248,7 @@ idom.init({someClass: 'outputClass'});
 // populate the Node Prototype of the Linked Node first  	
 document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 	{
-		someStuff: 'dynamically linked node contents', 
+		someStuff: 'dynamically linked content from another node', 
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -260,8 +260,8 @@ document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 // normal replace on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 1', 
-		content: "div content 1",
+		someInfo: 'node span content 1', 
+		content: "node div content 1",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -274,8 +274,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // normal append on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 3', 
-		content: "div content 3",
+		someInfo: 'node span content 3', 
+		content: "node div content 3",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -287,8 +287,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // normal prepend on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 0', 
-		content: 'div content 0',
+		someInfo: 'node span content 0', 
+		content: 'node div content 0',
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -302,8 +302,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 2', 
-		content: "div content 2",
+		someInfo: 'node span content 2', 
+		content: "node div content 2",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -316,8 +316,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // normal prepend on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content -1', 
-		content: "div content -1",
+		someInfo: 'node span content -1', 
+		content: "node div content -1",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -329,8 +329,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // random access replace on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content sub-0', 
-		content: "div content sub-0",
+		someInfo: 'node span content sub-0', 
+		content: "node div content sub-0",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -343,8 +343,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // random access append on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content -1', 
-		content: "div content -1",
+		someInfo: 'node span content -1', 
+		content: "node div content -1",
 		someHandler: 'clickMe(this)'
 	}, {
 		mode: 'append', 
@@ -356,8 +356,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // random access prepend on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 2.5', 
-		content: "div content 2.5",
+		someInfo: 'node span content 2.5', 
+		content: "node div content 2.5",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -402,7 +402,9 @@ document.querySelectorAll('[idom-selector=someOtherNodeList_linked]').forEachExe
 <div style='position: relative; top: 10px'>	
 	<input type='button' value="Replace several Node Prototype instances with the same new instance of the Node Prototype and replace Linked Node's Prototype instances with the same new instance of the Linked Node's Prototype" onclick='multiReplace()'/>
 	<br>
-	<p style='width: 1024px'>The complexity and combinations of test cases and what can be done in terms of manipulating the list and its populated elements, including any linked lists, is basically too broad to deal with in a few manually coded examples, so a large number examples will be generated automatically (once I write the test case generator), but for now you can try exploring for yourself and send in your examples.
+	<p style='width: 1024px'>The complexity and combinations of test cases and what can be done in terms of manipulating the Node List and its populated elements, including any linked Node Lists, is basically too broad to deal with in a few manually coded examples, so a large number 
+		examples will be generated automatically (once I write the test case generator), but for now you can 
+		try exploring for yourself and send in your examples. Also, note that there can be an infinite number of operations on each Node List and on each Node Lists within it (or until an error condition is asserted.)
 	</p>
 <pre>
 <div style='font-size: 16px; color: green; white-space: pre-wrap;'>	
@@ -418,7 +420,7 @@ The following test operates on the following DOM structure:
 </div>
 where <span style='color: orange'>idom$variables</span> are dynamic Node variables 
 
-with the following Javascript:
+and using the following Javascript:
 
 var rangeCompleteness = val ? val : 25; 
 	
@@ -487,7 +489,7 @@ idom.init({someClass: 'outputClass'});
 // populate the Node Prototype of the Linked Node first  	
 document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 	{
-		someStuff: 'dynamically linked node contents', 
+		someStuff: 'dynamically linked content from another node', 
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -499,8 +501,8 @@ document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 // normal replace on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 1', 
-		content: "div content 1",
+		someInfo: 'node span content 1', 
+		content: "node div content 1",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -513,8 +515,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // normal append on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 3', 
-		content: "div content 3",
+		someInfo: 'node span content 3', 
+		content: "node div content 3",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -526,8 +528,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // normal prepend on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 0', 
-		content: 'div content 0',
+		someInfo: 'node span content 0', 
+		content: 'node div content 0',
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -541,8 +543,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 2', 
-		content: "div content 2",
+		someInfo: 'node span content 2', 
+		content: "node div content 2",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -555,8 +557,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // normal prepend on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content -1', 
-		content: "div content -1",
+		someInfo: 'node span content -1', 
+		content: "node div content -1",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -568,8 +570,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // random access replace on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content sub-0', 
-		content: "div content sub-0",
+		someInfo: 'node span content sub-0', 
+		content: "node div content sub-0",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -582,8 +584,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // random access append on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content -1', 
-		content: "div content -1",
+		someInfo: 'node span content -1', 
+		content: "node div content -1",
 		someHandler: 'clickMe(this)'
 	}, {
 		mode: 'append', 
@@ -595,8 +597,8 @@ document.querySelector('[idom-node-id=someNodeList]').idom$(
 // random access prepend on the Node ... pass Node variables (idom$var)
 document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
-		someInfo: 'span content 2.5', 
-		content: "div content 2.5",
+		someInfo: 'node span content 2.5', 
+		content: "node div content 2.5",
 		someHandler: 'clickMe(this)'
 	}, 
 	{
@@ -664,7 +666,7 @@ function multiReplace() {
 	// populate the Node Prototype of the Linked Node first  	
 	document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 	{
-		someStuff: 'REPLACED dynamically linked node contents', 
+		someStuff: 'MODIFIED dynamically linked content from another node', 
 		someHandler: 'clickMe(this)',
 		anotherClass: 'replacedClassForLinkedNodeListPrototype'
 	}, 
@@ -677,16 +679,16 @@ function multiReplace() {
 	// random access multi-replace on the Node ... pass Node variables (idom$var)
 	document.querySelector('[idom-node-id=someNodeList]').idom$(
 		{
-			someInfo: 'REPLACED span content', 
-			content: 'REPLACED div content',
+			someInfo: 'MODIFIED node span content', 
+			content: 'MODIFIED node div content',
 			someHandler: 'clickMe(this)',
 			someClass: 'replacedClassForNodePrototype'
 		}, 
 		{
 			mode: 'replace', 
 			targetState: 'viola', 
-			ownState: 'violaREPLACED', 
-			ownSelector: 'NodePrototypeInstanceREPLACED' 
+			ownState: 'violaMODIFIED', 
+			ownSelector: 'NodePrototypeInstanceMODIFIED' 
 		})
 	
 	// we just replaced Linked Node in the Node Prototype with its updated instance 

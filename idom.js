@@ -28,8 +28,8 @@
  *
  * How Does It Work?
  * 
- * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
- * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
+ * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all 
+ * DOM elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
  * or $(document).ready. Each Node must contain exactly one direct child at time 
  * of caching, i.e. the Node Prototype, which must contain special variables (in 
  * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 

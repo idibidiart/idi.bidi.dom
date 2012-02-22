@@ -7,7 +7,9 @@
  
  <script src='idom.js'></script>
 
+  <!-- github styles -->
   <style type="text/css">
+  	
     body {
       margin-top: 1.0em;
       background-color: black;
@@ -29,11 +31,23 @@
     pre { background: #000; color: #fff; padding: 15px;}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
+     
   </style>
+  
+  <!-- idom test styles -->
+  <style>
+    .replacedClassForNodePrototype { background-color: orange; }
+    .replacedClassForLinkedNodeListPrototype { background-color: yellow; }
+    
+    .outputClass { margin-left: 10px; }
+    
+    .rangeClass {display: inline-block; width: 4px; height: 11px; border: 1px solid}
+  </style>
+  
 </head>
 
 <body>
-  <a href="https://github.com/idibidiart/idi.bidi.dom"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+  <a href="https://github.com/idibidiart/idi.bidi.dom"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkpurple_121621.png" alt="Fork me on GitHub" /></a>
 
   <div id="container">
 
@@ -192,34 +206,34 @@
  *********************************************************************************/
 
 <div style='font-size: 17px; background-color: rgb(39,39,43);border-radius: 4px; padding: 16px;box-shadow: 0 0 13px rgba(250,250,250, 0.5)'>
-The current test operates on the following DOM structure: 
-
-&lt;div class='<span>i</span>$someClass' idom-node-id='someNode' style='display: none'&gt;
+The following test operates on the following DOM structure: 
+<div style='color: orange'>
+&lt;div class='<span>i</span>$someClass' idom-node-id='someNodeList' style='display: none'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
                 	
-	&lt;div class='idom$someClass'&gt;
+	&lt;div class='idom$someClass'&gt; <span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>
 		&lt;span onclick='idom$someHandler'&gt;idom$someInfo&lt;/span&gt;
 		&lt;div class='someClass idom$statusClass' onclick='idom$someHandler'&gt;
 		&lt;div id='idom$someDiv'&gt;idom$content&lt;/div&gt;
 		&lt;/div&gt;
-		&lt;!-- @idom someOtherNode --&gt;
-	&lt;/div&gt;
+		<span style='color: yellow'>&lt;!-- @idom someOtherNodeList --&gt;</span>
+	&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node Prototype --&gt;</span>
 	
-&lt;/div&gt;
+&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
 
-&lt;div idom-node-id='someOtherNode' style='display: none'&gt;
+&lt;div idom-node-id='<span style='color: yellow'>someOtherNodeList</span>' style='display: none'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
                 	
-	&lt;div&gt;
+	&lt;div&gt; <span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>
 		&lt;span onclick='idom$someHandler'&gt;idom$someStuff&lt;/span&gt;
-	&lt;/div&gt;
+	&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node Prototype --&gt;</span>
 	
-&lt;/div&gt;
+&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
+</div>
+where <span style='color: orange'>(i)$variables</span> are initialization-time variables and <span style='color: orange'>(idom)$variables</span> are dynamic Node variables 
 
-where <span>i</span>$variables are initialization-time variables and idom$variables are dynamic Node variables 
-
-using the following Javascript:
+and using the following Javascript:
 
 // cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
-idom.init({someClass: 'newClass'});			
+idom.init({someClass: 'outputClass'});			
 
 // Selectors are merely the value of the idom-selector attribute within the node (not actual CSS selectors)
 // They may match none, one or many populated child nodes. if no populated instances of Node Prototype were 
@@ -228,8 +242,11 @@ idom.init({someClass: 'newClass'});
 // The methods themselves can be repeated infinitely, each time creating an instance of the Node Prototype and
 // inserting it into the Node
 
+
+// Start of Test 1
+
 // populate the Node Prototype of the Linked Node first  	
-document.querySelector('[idom-node-id=someOtherNode]').idom$(
+document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 	{
 		someStuff: 'dynamically linked node contents', 
 		someHandler: 'clickMe(this)'
@@ -237,11 +254,11 @@ document.querySelector('[idom-node-id=someOtherNode]').idom$(
 	{
 		mode: 'replace',
 		ownSelector: 'someOtherNodePrototypeInstance',
-		nodeSelector: 'someOtherNode'
+		nodeSelector: 'someOtherNodeList'
 	})
 
 // normal replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 1', 
 		content: "div content 1",
@@ -251,11 +268,11 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 		mode: 'replace', 
 		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance1',
-		nodeSelector: 'someNode' 
+		nodeSelector: 'someNodeList' 
 	})
 
 // normal append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 3', 
 		content: "div content 3",
@@ -263,12 +280,12 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'append', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance3' 
 	})
 
 // normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 0', 
 		content: 'div content 0',
@@ -283,7 +300,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 
 // random access append on the Node ... pass Node variables (idom$var)
 
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 2', 
 		content: "div content 2",
@@ -297,7 +314,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -310,7 +327,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // random access replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content sub-0', 
 		content: "div content sub-0",
@@ -324,7 +341,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // random access append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -337,7 +354,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // random access prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 2.5', 
 		content: "div content 2.5",
@@ -351,79 +368,111 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 	
 
-document.querySelector('[idom-node-id=someNode]').style.display = 'block'
+// make visible the Node
+document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
 
 // idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
 // otherwise clones of the Nodes being linked (which are left untouched) idom also removes the idom-node-id in the
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
 // make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+document.querySelectorAll('[idom-selector=someOtherNodeList_linked]').forEachExec("style.display = 'block'");
 
-// for this demo
-function multiReplace() {
-	
-	// random access multi-replace on the Node ... pass Node variables (idom$var)
-	document.querySelector('[idom-node-id=someNode]').idom$(
-		{
-			someInfo: 'span content REPLACED', 
-			content: "div content REPLACED",
-			someHandler: 'clickMe(this)'
-		}, 
-		{
-			mode: 'replace', 
-			targetState: 'viola', 
-			ownState: 'violaREPLACED', 
-			ownSelector: 'NodePrototypeInstanceREPLACED' 
-		})
-	
-	// make visible all instances of the Linked Node	
-	document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
-	
-}
-
-function clickMe(elem) {
-	
-	alert('my ownSelector = ' + elem.parentNode.getAttribute("idom-selector") + "\n" + 'my nodeSelector = ' + elem.parentNode.parentNode.getAttribute("idom-selector"))
-	
-	
-}
 </div>
 </div>
 </pre>		
 
 <p>click on each line below to see it's details 
 </p>
-<p>a more animated/complete	test will replace this ghetto test soon...
-</p>
-	
-<div class='i$someClass' idom-node-id='someNode' style='display: none'>
-                	
-	<div class='idom$someClass'>
-		<span onclick='idom$someHandler'>idom$someInfo</span><div class='someClass idom$statusClass' onclick='idom$someHandler'><div id='idom$someDiv'>idom$content</div></div>
-		<!-- @idom someOtherNode -->
-	</div>
-	
-</div>
+<p>an animated, more complete test will replace this ghetto test soon...
+</p>	
+<div class='i$someClass' idom-node-id='someNodeList' style='display: none'> <!-- Start of Node List -->       	
+	<div class='idom$someClass'> <!-- Start of Node Prototype -->
+		<span onclick='idom$someHandler'>idom$someInfo</span><div class='someStaticClass idom$statusClass' onclick='idom$someHandler'><div id='idom$someDiv'>idom$content</div></div>
+		<!-- @idom someOtherNodeList -->
+	</div> <!-- End of Node Prototype -->
+</div> <!-- End of Node List -->
 
-<div idom-node-id='someOtherNode' style='display: none'>
-                	
-	<div>
+<div idom-node-id='someOtherNodeList' style='display: none'> <!-- Start of Node List -->     	
+	<div class='idom$anotherClass'> <!-- Start of Node Prototype -->
 		<span onclick='idom$someHandler'>idom$someStuff</span>
-	</div>
+	</div> <!-- End of Node Prototype -->
+</div> <!-- End of Node List -->
+
+<div style='position: relative; top: 10px'>	
+	<input type='button' value="Replace several Node Prototype instances with the same new instance of the Node Prototype and replace Linked Node's Prototype instances with the same new instance of the Linked Node's Prototype" onclick='multiReplace()'/>
+	<br>
+	<p style='width: 1024px'>The complexity and combinations of test cases and what can be done in terms of manipulating the list and its populated elements, including any linked lists, is basically too broad to deal with in a few manually coded examples, so a large number examples will be generated automatically (once I write the test case generator), but for now you can try exploring for yourself and send in your examples.
+	</p>
+<pre>
+<div style='font-size: 16px; color: green; white-space: pre-wrap;'>	
+<div style='font-size: 17px; background-color: rgb(39,39,43);border-radius: 4px; padding: 16px;box-shadow: 0 0 13px rgba(250,250,250, 0.5)'>
+The following test operates on the following DOM structure: 
+<div style='color: orange'> 
+&lt;div idom-node-id='rangeIndicator' style='width: 200px; 14px: auto; padding: 2px'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
+		
+	&lt;div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'&gt; <span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>
+	&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
 	
+&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
 </div>
+where i$variables are initialization-time variables and idom$variables are dynamic Node variables 
 
+with the following Javascript:
 
-<div style='position: relative; top: 50px'>	
-	<input type='button' value='multi-replace' onclick='multiReplace()'/>
-	<div style='position: relative; top: 600px'>__</div>	
+var rangeCompleteness = 20; 
+	
+// get the number of steps to highlight in  completion indicator
+var steps = Math.round((rangeCompleteness * 12) / 50); 	
+
+if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
+	 document.querySelector('[idom-node-id=rangeIndicator]').idom$delete()
+}
+	   
+for (var n = 0; n < 12; n++) {
+	    
+	if (n < steps) {
+	
+		document.querySelector('[idom-node-id=rangeIndicator]').idom$(
+			{
+				bgcolor: 'lightblue', 
+				bcolor: 'gray',
+				margin: n < 2 ? '-1px' : '2px',
+			}, {mode: 'append', ownSelector: 'tic' + n})
+	} else {
+			document.querySelector('[idom-node-id=rangeIndicator]').idom$({
+			bgcolor: 'gray', 
+			bcolor: 'gray',
+			margin: n < 2 ? '-1px' : '2px',
+			}, {mode: 'append', ownSelector: 'tic' + n})
+			
+	}
+}
+
+</div>
+</div>
+</pre>
+
+<input id='range' onchange='setRange(this.value);' type=range
+    min=0
+    max=50
+    value=25
+    step=1 />	
+
+	<div class='i$someClass' idom-node-id='rangeIndicator' style='width: 200px; 14px: auto; padding: 2px'>
+		
+		<div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'>
+		</div>
+	
+	</div>
+	<div style='position: relative; top: 600px'>__</div>
+		
 </div>
 
 <script type="text/javascript">
 
 // cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
-idom.init({someClass: 'newClass'});			
+idom.init({someClass: 'outputClass'});			
 
 // Selectors are merely the value of the idom-selector attribute within the node (not actual CSS selectors)
 // They may match none, one or many populated child nodes. if no populated instances of Node Prototype were 
@@ -432,8 +481,11 @@ idom.init({someClass: 'newClass'});
 // The methods themselves can be repeated infinitely, each time creating an instance of the Node Prototype and
 // inserting it into the Node
 
+
+// Start of Test 1
+
 // populate the Node Prototype of the Linked Node first  	
-document.querySelector('[idom-node-id=someOtherNode]').idom$(
+document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
 	{
 		someStuff: 'dynamically linked node contents', 
 		someHandler: 'clickMe(this)'
@@ -441,11 +493,11 @@ document.querySelector('[idom-node-id=someOtherNode]').idom$(
 	{
 		mode: 'replace',
 		ownSelector: 'someOtherNodePrototypeInstance',
-		nodeSelector: 'someOtherNode'
+		nodeSelector: 'someOtherNodeList'
 	})
 
 // normal replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 1', 
 		content: "div content 1",
@@ -455,11 +507,11 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 		mode: 'replace', 
 		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance1',
-		nodeSelector: 'someNode' 
+		nodeSelector: 'someNodeList' 
 	})
 
 // normal append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 3', 
 		content: "div content 3",
@@ -467,12 +519,12 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	}, 
 	{
 		mode: 'append', 
-		ownState: 'viola', 
+		ownState: 'iDontWantToBeReplaced', 
 		ownSelector: 'NodePrototypeInstance3' 
 	})
 
 // normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 0', 
 		content: 'div content 0',
@@ -487,7 +539,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 
 // random access append on the Node ... pass Node variables (idom$var)
 
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 2', 
 		content: "div content 2",
@@ -501,7 +553,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -514,7 +566,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // random access replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content sub-0', 
 		content: "div content sub-0",
@@ -528,7 +580,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // random access append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content -1', 
 		content: "div content -1",
@@ -541,7 +593,7 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 
 // random access prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNode]').idom$(
+document.querySelector('[idom-node-id=someNodeList]').idom$(
 	{
 		someInfo: 'span content 2.5', 
 		content: "div content 2.5",
@@ -555,24 +607,80 @@ document.querySelector('[idom-node-id=someNode]').idom$(
 	})
 	
 
-document.querySelector('[idom-node-id=someNode]').style.display = 'block'
+// make visible the Node
+document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
 
 // idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
 // otherwise clones of the Nodes being linked (which are left untouched) idom also removes the idom-node-id in the
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
 // make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+document.querySelectorAll('[idom-selector=someOtherNodeList_linked]').forEachExec("style.display = 'block'");
 
-// for this demo
+// End of Test 1
+
+// Start of Test 2
+
+function setRange(val) {
+	
+	var rangeCompleteness = val ? val : 25; 
+		
+	// get the number of steps to highlight in  completion indicator
+	var steps = Math.round((rangeCompleteness * 12) / 50); 
+	
+	if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
+	 	document.querySelector('[idom-node-id=rangeIndicator]').idom$delete()
+	}
+	   
+	for (var n = 0; n < 12; n++) {
+		    
+		if (n < steps) {
+		
+			document.querySelector('[idom-node-id=rangeIndicator]').idom$(
+				{
+					bgcolor: 'lightblue', 
+					bcolor: 'gray',
+					margin: n < 2 ? '-1px' : '2px',
+				}, {mode: 'append', ownSelector: 'tic' + n})
+		} else {
+				document.querySelector('[idom-node-id=rangeIndicator]').idom$({
+				bgcolor: 'gray', 
+				bcolor: 'gray',
+				margin: n < 2 ? '-1px' : '2px',
+				}, {mode: 'append', ownSelector: 'tic' + n})
+				
+		}
+	}
+}
+
+setRange();
+
+// End of Test 2
+
+// handler functions for Test 1
+
 function multiReplace() {
 	
+	// populate the Node Prototype of the Linked Node first  	
+	document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
+	{
+		someStuff: 'REPLACED dynamically linked node contents', 
+		someHandler: 'clickMe(this)',
+		anotherClass: 'replacedClassForLinkedNodeListPrototype'
+	}, 
+	{
+		mode: 'replace',
+		ownSelector: 'someOtherNodePrototypeInstanceReplaced',
+		nodeSelector: 'someOtherNodeListReplaced'
+	})
+	
 	// random access multi-replace on the Node ... pass Node variables (idom$var)
-	document.querySelector('[idom-node-id=someNode]').idom$(
+	document.querySelector('[idom-node-id=someNodeList]').idom$(
 		{
-			someInfo: 'span content REPLACED', 
-			content: "div content REPLACED",
-			someHandler: 'clickMe(this)'
+			someInfo: 'REPLACED span content', 
+			content: 'REPLACED div content',
+			someHandler: 'clickMe(this)',
+			someClass: 'replacedClassForNodePrototype'
 		}, 
 		{
 			mode: 'replace', 
@@ -581,19 +689,23 @@ function multiReplace() {
 			ownSelector: 'NodePrototypeInstanceREPLACED' 
 		})
 	
-	// make visible all instances of the Linked Node	
-	document.querySelectorAll('[idom-selector=someOtherNode_linked]').forEachExec("style.display = 'block'");
+	// we just replaced Linked Node in the Node Prototype with its updated instance 
+	// so make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)		
+	document.querySelectorAll('[idom-selector=someOtherNodeListReplaced_linked]').forEachExec("style.display = 'block'");
 	
 }
 
 function clickMe(elem) {
 	
 	alert('my ownSelector = ' + elem.parentNode.getAttribute("idom-selector") + "\n" + 'my nodeSelector = ' + elem.parentNode.parentNode.getAttribute("idom-selector"))
-	
-	
+
 }
  						
 </script>
+
+
+
+
 
  </body>
  </html>		

@@ -40,26 +40,29 @@
  * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
  * reference (called Linked Nodes)
  *
- * idi.bidi.dom works by creating an instance of the Node Prototype and populating the 
- * special variables in it with dynamic JSON data (where the JSON keys must 
+ * idi.bidi.dom works by creating an instance of the Node Prototype and populating 
+ * the special variables in it with dynamic JSON data (where the JSON keys must 
  * correspond to the special variables in the Node Prototype) and then inserting 
  * the newly populated instance into the Node itself, using replace (default on 
  * first insertion), append or prepend methods, as applied to the Node's entire 
  * content (the virgin innerHTML or all populated instances of the Node Prototype
  * that were previously inserted into the Node) or specific, previously inserted
- * instance(s) of the Node Prototype.
+ * instance(s) of the Node Prototype. This basically creates a list of Node
+ * Prototype instances within the Node (So for convenience, and in the test cases, 
+ * Nodes and Linked Nodes may be referred Node Lists and Linked Node Lists, 
+ * respectively)
  *
- * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype
- * from which instances (copies) can be created, populated with JSON data and then 
- * inserted into the Node (in append, prepend, and replace modes, with the 
- * ability to target specific, previously inserted instances of the Node Prototype 
- * or the Node's entire content, i.e. the entire set of instances of the Node 
- * Prototype) and where the Node itself can be dynamically linked into other Nodes, 
- * which can be linked into other Nodes, and so on...
+ * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a Node 
+ * Prototype from which instances (copies, usually with different data) can be created, 
+ * populated with JSON data and then inserted into the Node (in append, prepend, and 
+ * replace modes, with the ability to target specific, previously inserted instances of 
+ * the Node Prototype or the Node List's entire content, i.e. the set of instances 
+ * of the Node Prototype) and where the Node itself can be dynamically linked into other 
+ * Node Lists, which can be linked into other Node Lists, and so on...
  * 
  * From an OOP perspective, idom takes the DOM and adds data-bound variables, 
  * encapsulation, multiple-inheritance and type polymorphism (with the Node 
- * Prototype as the user defined type) 
+ * Prototype as the base for user defined types) 
  *  
  * Unlike other template-less DOM rendering frameworks, idom does not take over 
  * the job of Javascript itself nor does it add any boilerplate, it just gives 
@@ -240,9 +243,9 @@ idom.init = function(json) {
 		
 		if (commentNodes.length) {
 			
-			for (var n = 0; n < commentNodes.length; n++) {
+			for (var i = 0; i < commentNodes.length; i++) {
 				
-				if (commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/)[3]) {
+				if (commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/) && commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/)[3]) {
 					
 					throw new Error("Node must not have any @idom comment nodes (may only use within the Node Prototype)")
 				}	
@@ -584,9 +587,9 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		}
 	}
 	
-	// if Node contains no populated instances of its Prototype Node or no options were given
-	// or no target/mode is specified	
-	if (this.innerHTML == idom.internal.cache[nid] || !this.children || 
+	// if Node contains no populated instances of its Prototype Node or nothing at all 
+	// or no options were given or no target or mode is specified	
+	if (this.innerHTML == idom.internal.cache[nid] || !this.children.length || 
 		!options || options == {} || 
 		(options && !(options.targetSelector || options.targetState || options.mode))) {
 		
@@ -594,7 +597,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			if (options.targetSelector) {
 				
-				if (this.innerHTML == idom.internal.cache[nid] || !this.children) {
+				if (this.innerHTML == idom.internal.cache[nid] || !this.children.length) {
 
 					var err = new Error;
 			
@@ -861,48 +864,48 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			for (var n = 0; n < nestedCommentNodes.length; n++) {
 				
-				linkedNodeID = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3];
+				linkedNodeID = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
 				
 				if (linkedNodeID) {
 				
-						if (!idom.internal.cache[linkedNodeID]) {
-							
-							var err = new Error;
-			
-							err.message = "Node Prototype contains a Linked Node reference to a Node that was not cached"
-							 
-							throw err.message + '\n' + err.stack;
-							
-						}
-				} 
-			
-				var el = nestedCommentNodes[n].parentNode.insertBefore(document.querySelector('[idom-node-id=' + linkedNodeID + ']').cloneNode(true), nestedCommentNodes[n]);
+					if (!idom.internal.cache[linkedNodeID]) {
+						
+						var err = new Error;
+		
+						err.message = "Node Prototype contains a Linked Node reference to a Node that was not cached"
+						 
+						throw err.message + '\n' + err.stack;
+						
+					} 
 				
-				el.parentNode.removeChild(nestedCommentNodes[n]);
-				
-				el.removeAttribute("idom-node-id");
-				
-				var ownState = el.children[0].getAttribute("idom-state") || '';
-				var ownSelector = el.children[0].getAttribute("idom-selector") || '';
-				
-				if (ownState) {
-					 el.children[0].setAttribute("idom-state", ownState + "_linked");
-				} 
-				
-				if (ownSelector) {
-					el.children[0].setAttribute("idom-selector", ownSelector + "_linked");
-				} 
-				
-				var nodeState = el.getAttribute("idom-state") || '';
-				var nodeSelector = el.getAttribute("idom-selector") || '';
-				
-				if (nodeState) {
-					 el.setAttribute("idom-state", nodeState + "_linked");
-				} 
-				
-				if (nodeSelector) {
-					el.setAttribute("idom-selector", nodeSelector + "_linked");
-				} 
+					var el = nestedCommentNodes[n].parentNode.insertBefore(document.querySelector('[idom-node-id=' + linkedNodeID + ']').cloneNode(true), nestedCommentNodes[n]);
+					
+					el.parentNode.removeChild(nestedCommentNodes[n]);
+					
+					el.removeAttribute("idom-node-id");
+					
+					var ownState = el.children[0].getAttribute("idom-state") || '';
+					var ownSelector = el.children[0].getAttribute("idom-selector") || '';
+					
+					if (ownState) {
+						 el.children[0].setAttribute("idom-state", ownState + "_linked");
+					} 
+					
+					if (ownSelector) {
+						el.children[0].setAttribute("idom-selector", ownSelector + "_linked");
+					} 
+					
+					var nodeState = el.getAttribute("idom-state") || '';
+					var nodeSelector = el.getAttribute("idom-selector") || '';
+					
+					if (nodeState) {
+						 el.setAttribute("idom-state", nodeState + "_linked");
+					} 
+					
+					if (nodeSelector) {
+						el.setAttribute("idom-selector", nodeSelector + "_linked");
+					} 
+				}	
 			}
 		}		
 	}
@@ -934,7 +937,7 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 		throw err.message + '\n' + err.stack;
 	}
 
-	if (this.innerHTML == idom.internal.cache[nid] || !this.children) {
+	if (this.innerHTML == idom.internal.cache[nid] || !this.children.length) {
 		
 		return false;
 	}		
@@ -976,7 +979,7 @@ Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
 		throw err.message + '\n' + err.stack;
 	}
 	
-	if (!this.children) {
+	if (!this.children.length) {
 		
 		// nothing to delete
 		return;

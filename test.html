@@ -412,9 +412,10 @@ document.querySelectorAll('[idom-selector=someOtherNodeList_linked]').forEachExe
 The following test operates on the following DOM structure: 
 <div style='color: orange'> 
 &lt;div idom-node-id='rangeIndicator' style='width: 200px; 14px: auto; padding: 2px'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
-		
-	&lt;div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'&gt; <span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>
-	&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
+	<span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>	
+	&lt;div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'&gt;
+	&lt;/div&gt; 
+	<span style='color: purple'>&lt;!-- End of Node Prototype --&gt;</span>
 	
 &lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
 </div>
@@ -711,5 +712,3 @@ function clickMe(elem) {
 
  </body>
  </html>		
-</body>
-

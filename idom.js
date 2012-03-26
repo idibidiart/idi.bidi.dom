@@ -133,7 +133,7 @@
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  * 
- * idom.forEachExec(NodeList) may be used to invoke methods or set properties on
+ * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods or set properties on
  * each DOM elements in the given NodeList (e.g. returned from a querySelector call)
  * see test.html for relevant use cases 
  * 
@@ -441,7 +441,7 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
  
 // add foeEachExec method to indexable objects (used by idom for NodeList)
 // like so: 
-// document.querySelectorAll('[idom-selector$=linked]').forEachExec('style.display = "block"')
+// forEachExec(document.querySelectorAll('[idom-selector$=linked]'), 'style.display = "block"')
 
 idom.forEachExec = function(nodelist, str) {
  		

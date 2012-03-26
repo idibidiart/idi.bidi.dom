@@ -456,8 +456,6 @@ idom.forEachExec = function(nodelist, str) {
 		throw e.message + "\n" + e.stack; 
 	}
  	
- 	str = arguments[1];
- 	
  	var exec = new Function("el", "el." + str);
  	
  	try {

@@ -461,7 +461,7 @@ idom.forEachExec = function(nodelist, str) {
  	try {
  		var exec = new Function("el", "el." + str);
  	} catch(e) {
- 		console.log(e + "\n stack: \n" + e.stack())
+ 		console.log(e + "\n stack: \n" + e.stack)
  	}
  	
  	try {

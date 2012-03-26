@@ -379,7 +379,7 @@ document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
 // make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
+idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
 
 </div>
 </div>
@@ -621,7 +621,7 @@ document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
 // make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
+idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
 
 // End of Test 1
 
@@ -697,7 +697,7 @@ function multiReplace() {
 	
 	// we just replaced Linked Node in the Node Prototype with its updated instance 
 	// so make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)		
-	forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeListReplaced_linked]'), "style.display = 'block'");
+	idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeListReplaced_linked]'), "style.display = 'block'");
 	
 }
 

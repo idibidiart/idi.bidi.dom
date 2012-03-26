@@ -441,7 +441,7 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
  
 // add foeEachExec method to indexable objects (used by idom for NodeList)
 // like so: 
-// document.querySelectorAll('[idom-selector$=linked]').forEachExec('style.display = "block"')
+// forEachExec(document.querySelectorAll('[idom-selector$=linked]'), 'style.display = "block"')
 
 idom.forEachExec = function(nodelist, str) {
  		

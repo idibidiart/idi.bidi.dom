@@ -52,9 +52,9 @@
   <div id="container">
 
     <div class="download">
-      <a href="https://github.com/idibidiart/idom/zipball/master">
+      <a href="https://github.com/idibidiart/idi.bidi.dom/zipball/master">
         <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-      <a href="https://github.com/idibidiart/idom/tarball/master">
+      <a href="https://github.com/idibidiart/idi.bidi.dom/tarball/master">
         <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
     </div>
 
@@ -202,6 +202,9 @@
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  *
+ * idom.forEachExec(NodeList) may be used to invoke methods or set properties on
+ * each DOM elements in the given NodeList (e.g. returned from a querySelector call)
+ * see test.html for relevant use cases 
  * 
  *********************************************************************************/
 
@@ -376,7 +379,7 @@ document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
 // make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-document.querySelectorAll('[idom-selector=someOtherNodeList_linked]').forEachExec("style.display = 'block'");
+idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
 
 </div>
 </div>
@@ -618,7 +621,7 @@ document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
 // Linked Nodes (to avoid conflict with the original Nodes being linked)
 
 // make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-document.querySelectorAll('[idom-selector=someOtherNodeList_linked]').forEachExec("style.display = 'block'");
+idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
 
 // End of Test 1
 
@@ -694,7 +697,7 @@ function multiReplace() {
 	
 	// we just replaced Linked Node in the Node Prototype with its updated instance 
 	// so make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)		
-	document.querySelectorAll('[idom-selector=someOtherNodeListReplaced_linked]').forEachExec("style.display = 'block'");
+	idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeListReplaced_linked]'), "style.display = 'block'");
 	
 }
 

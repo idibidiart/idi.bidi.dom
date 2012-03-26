@@ -28,8 +28,8 @@
  *
  * How Does It Work?
  * 
- * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all 
- * DOM elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
+ * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
+ * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
  * or $(document).ready. Each Node must contain exactly one direct child at time 
  * of caching, i.e. the Node Prototype, which must contain special variables (in 
  * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
@@ -52,13 +52,14 @@
  * Nodes and Linked Nodes may be referred Node Lists and Linked Node Lists, 
  * respectively)
  *
- * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a Node 
- * Prototype from which instances (copies, usually with different data) can be created, 
- * populated with JSON data and then inserted into the Node (in append, prepend, and 
- * replace modes, with the ability to target specific, previously inserted instances of 
- * the Node Prototype or the Node List's entire content, i.e. the set of instances 
- * of the Node Prototype) and where the Node itself can be dynamically linked into other 
- * Node Lists, which can be linked into other Node Lists, and so on...
+ * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
+ * Node Prototype from which instances (copies, usually with different data) can 
+ * be created, populated with JSON data and then inserted into the Node (in append, 
+ * prepend, and replace modes, with the ability to target specific, previously 
+ * inserted instances of the Node Prototype or the Node List's entire content, i.e. 
+ * the set of instances of the Node Prototype) and where the Node itself can be 
+ * dynamically linked into other Node Lists, which can be linked into other Node 
+ * Lists, and so on...
  * 
  * From an OOP perspective, idom takes the DOM and adds data-bound variables, 
  * encapsulation, multiple-inheritance and type polymorphism (with the Node 
@@ -131,7 +132,10 @@
  *
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
- *
+ * 
+ * idom.forEachExec(NodeList) may be used to invoke methods or set properties on
+ * each DOM elements in the given NodeList (e.g. returned from a querySelector call)
+ * see test.html for relevant use cases 
  * 
  *********************************************************************************/
 
@@ -439,15 +443,15 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
 // like so: 
 // document.querySelectorAll('[idom-selector$=linked]').forEachExec('style.display = "block"')
 
-Object.prototype.forEachExec = Object.prototype.forEachExec || function() {
+idom.forEachExec = function(nodelist, str) {
  		
-	var objArray = Array.prototype.slice.call(this, 0);
+	var objArray = Array.prototype.slice.call(nodelist, 0);
 	
 	if (!objArray.length) {
 		
 		var e = new Error;
 		
-		e.message = "object must be indexable"
+		e.message = "object must be iterable"
 		
 		throw e.message + "\n" + e.stack; 
 	}

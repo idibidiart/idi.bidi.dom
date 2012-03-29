@@ -195,16 +195,15 @@
  * 
  * Other available are methods are 
  *
- * .idom$delete([options]) which can delete certain instances of the Node Prototype 
- * or all instances children (this method is untested as of this release but it 
- * should work fine, report bugs)
+ * .idom$dePopulate([options]) which can delete certain populated instances of the 
+ * Node Prototype or all instances, leaving the unpopulated Node Prototype
  *
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  *
- * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods or set properties on
- * each DOM elements in the given NodeList (e.g. returned from a querySelector call)
- * see test.html for relevant use cases 
+ * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
+ * or set properties on each DOM elements in the given NodeList (e.g. returned from a 
+ * querySelector call) see test.html for relevant use cases 
  * 
  *********************************************************************************/
 
@@ -432,7 +431,7 @@ var rangeCompleteness = val ? val : 25;
 var steps = Math.round((rangeCompleteness * 12) / 50); 	
 
 if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
-	 document.querySelector('[idom-node-id=rangeIndicator]').idom$delete()
+	 document.querySelector('[idom-node-id=rangeIndicator]').idom$dePopulate()
 }
 	   
 for (var n = 0; n < 12; n++) {
@@ -635,7 +634,7 @@ function setRange(val) {
 	var steps = Math.round((rangeCompleteness * 12) / 50); 
 	
 	if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
-	 	document.querySelector('[idom-node-id=rangeIndicator]').idom$delete()
+	 	document.querySelector('[idom-node-id=rangeIndicator]').idom$dePopulate()
 	}
 	   
 	for (var n = 0; n < 12; n++) {

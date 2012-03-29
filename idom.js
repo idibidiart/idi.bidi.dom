@@ -113,8 +113,8 @@
  * ownState: new value of idom-state attribute for instance of Prototpe Node 
  * being inserted
  *
- * targetState: optional idom-selector value for instance of Prototpe Node to in
- * sert at in append and prepend modes targetState: optional idom-selector value
+ * targetState: optional idom-selector value for instance of Prototpe Node to insert 
+ * at in append and prepend modes targetState: optional idom-selector value
  * for instance of Prototpe Node to insert at in replace mode
  *
  * nodeSelector: new value of idom-selector for the Node itself
@@ -126,13 +126,15 @@
  * 
  * Other available are methods are 
  *
- * .idom$delete([options]) which can delete certain instances of the Node Prototype 
- * or all instances children (this method is untested as of this release but it 
- * should work fine, report bugs)
+ * .idom$dePopulate([options]) which can delete certain populated instances of the 
+ * Node Prototype or all populated instances
  *
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  *
+ * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
+ * or set properties on each DOM elements in the given NodeList (e.g. returned from a 
+ * querySelector call) see test.html for relevant use cases 
  * 
  *********************************************************************************/
 

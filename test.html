@@ -52,13 +52,13 @@
   <div id="container">
 
     <div class="download">
-      <a href="https://github.com/idibidiart/idom/zipball/master">
+      <a href="https://github.com/idibidiart/idi.bidi.dom/zipball/master">
         <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-      <a href="https://github.com/idibidiart/idom/tarball/master">
+      <a href="https://github.com/idibidiart/idi.bidi.dom/tarball/master">
         <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
     </div>
 
-    <h1><a href="https://github.com/idibidiart/idom">idom</a>
+    <h1><a href="https://github.com/idibidiart/idi.bidi.dom">idom</a>
       <span class="small">by <a href="https://github.com/idibidiart">idibidiart</a></span></h1>
 
     <div class="description">
@@ -195,16 +195,15 @@
  * 
  * Other available are methods are 
  *
- * .idom$delete([options]) which can delete certain instances of the Node Prototype 
- * or all instances children (this method is untested as of this release but it 
- * should work fine, report bugs)
+ * .idom$dePopulate([options]) which can delete certain populated instances of the 
+ * Node Prototype or all instances, leaving the unpopulated Node Prototype
  *
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  *
- * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods or set properties on
- * each DOM elements in the given NodeList (e.g. returned from a querySelector call)
- * see test.html for relevant use cases 
+ * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
+ * or set properties on each DOM elements in the given NodeList (e.g. returned from a 
+ * querySelector call) see test.html for relevant use cases 
  * 
  *********************************************************************************/
 
@@ -414,7 +413,7 @@ idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_lin
 <div style='font-size: 17px; background-color: rgb(39,39,43);border-radius: 4px; padding: 16px;box-shadow: 0 0 13px rgba(250,250,250, 0.5)'>
 The following test operates on the following DOM structure: 
 <div style='color: orange'> 
-&lt;div idom-node-id='rangeIndicator' style='width: 200px; 14px: auto; padding: 2px'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
+&lt;div idom-node-id='rangeIndicator' style='width: 200px; height: auto; padding: 2px'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
 	<span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>	
 	&lt;div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'&gt;
 	&lt;/div&gt; 
@@ -432,7 +431,7 @@ var rangeCompleteness = val ? val : 25;
 var steps = Math.round((rangeCompleteness * 12) / 50); 	
 
 if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
-	 document.querySelector('[idom-node-id=rangeIndicator]').idom$delete()
+	 document.querySelector('[idom-node-id=rangeIndicator]').idom$dePopulate()
 }
 	   
 for (var n = 0; n < 12; n++) {
@@ -465,7 +464,7 @@ for (var n = 0; n < 12; n++) {
     value=25
     step=1 />	
 
-	<div class='i$someClass' idom-node-id='rangeIndicator' style='width: 200px; 14px: auto; padding: 2px'>
+	<div class='i$someClass' idom-node-id='rangeIndicator' style='width: 200px; height: auto; padding: 2px'>
 		
 		<div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'>
 		</div>
@@ -635,7 +634,7 @@ function setRange(val) {
 	var steps = Math.round((rangeCompleteness * 12) / 50); 
 	
 	if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
-	 	document.querySelector('[idom-node-id=rangeIndicator]').idom$delete()
+	 	document.querySelector('[idom-node-id=rangeIndicator]').idom$dePopulate()
 	}
 	   
 	for (var n = 0; n < 12; n++) {
@@ -653,8 +652,7 @@ function setRange(val) {
 				bgcolor: 'gray', 
 				bcolor: 'gray',
 				margin: n < 2 ? '-1px' : '2px',
-				}, {mode: 'append', ownSelector: 'tic' + n})
-				
+				}, {mode: 'append', ownSelector: 'tic' + n})	
 		}
 	}
 }
@@ -713,5 +711,7 @@ function clickMe(elem) {
 
 
 
- </body>
- </html>		
+</body>
+</html>		
+
+

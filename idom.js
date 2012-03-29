@@ -100,22 +100,22 @@
  * an error, so unless you are sure, you may want to call .$isPopulated() before 
  * invoking this method with targetSelector or stateSelector options)
  *
- * targetSelector: optional idom-selector value for instance(s) of Prototpe Node
+ * targetSelector: optional idom-selector value for instance(s) of Prototype Node
  * to insert the new instance at in append and prepend modes. If null, then 
  * append/prepend new instance at last/1st instance
  *
- * targetSelector: optional idom-selector value for instance(s) of Prototpe 
+ * targetSelector: optional idom-selector value for instance(s) of Prototype 
  * Node to insert into in replace mode. If null, replace entire content of Node
  *
- * ownSelector: new value of idom-selector value for instance of Prototpe Node 
+ * ownSelector: new value of idom-selector value for instance of Prototype Node 
  * being inserted
  *
- * ownState: new value of idom-state attribute for instance of Prototpe Node 
+ * ownState: new value of idom-state attribute for instance of Prototype Node 
  * being inserted
  *
- * targetState: optional idom-selector value for instance of Prototpe Node to in
+ * targetState: optional idom-selector value for instance of Prototype Node to in
  * sert at in append and prepend modes targetState: optional idom-selector value
- * for instance of Prototpe Node to insert at in replace mode
+ * for instance of Prototype Node to insert at in replace mode
  *
  * nodeSelector: new value of idom-selector for the Node itself
  *
@@ -132,10 +132,7 @@
  *
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
- * 
- * idom.forEachExec(NodeList) may be used to invoke methods or set properties on
- * each DOM elements in the given NodeList (e.g. returned from a querySelector call)
- * see test.html for relevant use cases 
+ *
  * 
  *********************************************************************************/
 
@@ -229,17 +226,18 @@ idom.init = function(json) {
 		
 		if (el.tagName.toLowerCase() == "iframe") {
 			
-			throw new Error("iframe is not allowed as Node. you must load and use idom from within the iframe");
+			throw new Error("iframe is not allowed as a Node. You must load and use idom from within the iframe");
 			// add path to element
 		}
 		
 		// verify only one Node Prototype exists 
-		// verify no @idom comment nodes exist outside of direct child 
-		// (to keep all elements within the Node Prototype)
+		// verify no @idom linked nodes exist outside of Node Prototype 
+		// (linked nodes must be at root level within the Node Prototype) 
+		
 		if (el.children.length != 1) { 
 				
-			throw new Error("at the time of caching, node must contain just one child as Node Prototype." + 
-							"you may use a div to encapsulate multiple descendants.");
+			throw new Error("At the time of caching, node must contain just one child, the Node Prototype." + 
+							"You may use a div as the Node Prototype which may encapsulate other elements.");
 			// add path to element
 		}
 		
@@ -251,7 +249,7 @@ idom.init = function(json) {
 				
 				if (commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/) && commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/)[3]) {
 					
-					throw new Error("Node must not have any @idom comment nodes (may only use within the Node Prototype)")
+					throw new Error("@idom linked nodes may only exist at root level within the Node Prototype)")
 				}	
 			}
 		}
@@ -418,6 +416,21 @@ Element.prototype.previousSiblingElement =  Element.prototype.previousSiblingEle
     return elem;
 };
 
+Element.prototype.idom$cloneNode =  Element.prototype.idom$cloneNode || function() {
+	
+	var elem = this;
+	
+	var intoEl = arguments[0];
+	
+	var nodeSelector = elem.getAttribute("idom-selector")
+	 
+	var clonedEl = element.cloneNode(true)
+	
+	clonedEl.setAttributed("idom-selector", nodeSelector + "_cloned")
+	
+    return elem;
+};
+
 // Todo: test if TreeWalker with SHOW_COMMENTS is faster
 Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeType || function() {
     
@@ -441,10 +454,10 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
  
 // add foeEachExec method to indexable objects (used by idom for NodeList)
 // like so: 
-// forEachExec(document.querySelectorAll('[idom-selector$=linked]'), 'style.display = "block"')
+// idom.forEachExec(document.querySelectorAll('[idom-selector$=linked]'), 'style.display = "block"')
 
 idom.forEachExec = function(nodelist, str) {
- 		
+	
 	var objArray = Array.prototype.slice.call(nodelist, 0);
 	
 	if (!objArray.length) {
@@ -490,18 +503,18 @@ idom.forEachExec = function(nodelist, str) {
 // entire innerHTML (if targetSelector is supplied in this case it will throw an error, so be call .$isPopulated() to 
 // be sure, before invoking this method with targetSelector)
 //
-// targetSelector: optional idom-selector value for instance of Prototpe Node to insert into Node in append and prepend modes. 
+// targetSelector: optional idom-selector value for instance of Prototype Node to insert into Node in append and prepend modes. 
 // If null, append/prepend at last/1st instance of Node Prototype
 //
-// targetSelector: optional idom-selector value for instance of Prototpe Node to insert into Node in replace mode. 
+// targetSelector: optional idom-selector value for instance of Prototype Node to insert into Node in replace mode. 
 // If null, replace entire innerHTML of node
 //
-// ownSelector: new value of idom-selector value for instance of Prototpe Node being inserted
+// ownSelector: new value of idom-selector value for instance of Prototype Node being inserted
 //
-// ownState: new value of idom-state attribute for instance of Prototpe Node being inserted
+// ownState: new value of idom-state attribute for instance of Prototype Node being inserted
 //
-// targetState: optional idom-selector value for instance of Prototpe Node to insert *at* in append and prepend modes 
-// targetState: optional idom-selector value for instance of Prototpe Node to insert *at* in replace mode
+// targetState: optional idom-selector value for instance of Prototype Node to insert *at* in append and prepend modes 
+// targetState: optional idom-selector value for instance of Prototype Node to insert *at* in replace mode
 //
 // nodeSelector: new value of idom-selector for the Node itself
 // 
@@ -947,19 +960,20 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 	return true;
 }
 
-// .idom$delete
+// .idom$dePopulate
 //
 // format: document.querySelector('#someNode').idom$delete([options]) 
 // options: {'targetSelector': value, targetState: value, nodeState: value, nodeSelector: value}
 //
-// targetSelector: optional: for specifying instance(s) of Node Prototype to delete. If null, delete node's entire innerHTML
+// targetSelector: optional: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
 //
-// targetState: optional: for specifying instance(s) of Node Prototype to delete. If null, delete node's entire innerHTML
+// targetState: optional: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
 //
 // nodeState: optional: new value of Node's idom-state attribute after modification
-// nodeSelector: optional: new value Node's idom-selector attribute after modification
+//
+// nodeSelector: optional: new value of Node's idom-selector attribute after modification
 
-Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
+Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || function() {
 	
 	if (!idom.internal.initDone) {
 		
@@ -1102,6 +1116,10 @@ Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
 				
 				this.removeChild(targetNodeList[n]);
 			}
+			
+			if (!this.children.length) {
+				this.innerHTML = idom.internal.cache[nid];
+			}
 		} 
 		
 		if (options.nodeState) {
@@ -1116,7 +1134,7 @@ Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
 		
 	} else {
 		
-		this.innerHTML = '';
+		this.innerHTML = idom.internal.cache[nid];
 	}
 };
 

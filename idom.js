@@ -51,7 +51,7 @@
  * Prototype instances within the Node (So for convenience, and in the test cases, 
  * Nodes and Linked Nodes may be referred Node Lists and Linked Node Lists, 
  * respectively)
- *
+ * 
  * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
  * Node Prototype from which instances (copies, usually with different data) can 
  * be created, populated with JSON data and then inserted into the Node (in append, 
@@ -59,11 +59,15 @@
  * inserted instances of the Node Prototype or the Node List's entire content, i.e. 
  * the set of instances of the Node Prototype) and where the Node itself can be 
  * dynamically linked into other Node Lists, which can be linked into other Node 
- * Lists, and so on...
+ * Lists, and so on... Only restriction is that we can't link a virgin node (one
+ * that only has a node prototype); it must be populated before being linked.
  * 
- * From an OOP perspective, idom takes the DOM and adds data-bound variables, 
- * encapsulation, multiple-inheritance and type polymorphism (with the Node 
- * Prototype as the base for user defined types) 
+ * Additionally, idi.bidi.dom allows selector-safe cloning of populated nodes 
+ * (including any linked nodes) such that we may re-use the same DOM structure
+ * to create any number of differentiated nodes with the same basic structure. 
+ * 
+ * Using OOP as the metaphor, idom takes the DOM and adds variables, encapsulation, 
+ * multiple-inheritance and polymorphism. 
  *  
  * Unlike other template-less DOM rendering frameworks, idom does not take over 
  * the job of Javascript itself nor does it add any boilerplate, it just gives 
@@ -100,22 +104,22 @@
  * an error, so unless you are sure, you may want to call .$isPopulated() before 
  * invoking this method with targetSelector or stateSelector options)
  *
- * targetSelector: optional idom-selector value for instance(s) of Prototpe Node
+ * targetSelector: optional idom-selector value for instance(s) of Prototype Node
  * to insert the new instance at in append and prepend modes. If null, then 
  * append/prepend new instance at last/1st instance
  *
- * targetSelector: optional idom-selector value for instance(s) of Prototpe 
+ * targetSelector: optional idom-selector value for instance(s) of Prototype 
  * Node to insert into in replace mode. If null, replace entire content of Node
  *
- * ownSelector: new value of idom-selector value for instance of Prototpe Node 
+ * ownSelector: new value of idom-selector value for instance of Prototype Node 
  * being inserted
  *
- * ownState: new value of idom-state attribute for instance of Prototpe Node 
+ * ownState: new value of idom-state attribute for instance of Prototype Node 
  * being inserted
  *
- * targetState: optional idom-selector value for instance of Prototpe Node to insert 
- * at in append and prepend modes targetState: optional idom-selector value
- * for instance of Prototpe Node to insert at in replace mode
+ * targetState: optional idom-selector value for instance of Prototype Node to in
+ * sert at in append and prepend modes targetState: optional idom-selector value
+ * for instance of Prototype Node to insert at in replace mode
  *
  * nodeSelector: new value of idom-selector for the Node itself
  *
@@ -126,11 +130,14 @@
  * 
  * Other available are methods are 
  *
- * .idom$dePopulate([options]) which can delete certain populated instances of the 
- * Node Prototype or all populated instances
+ * .idom$dePopulate([options]) which can delete certain populated instances of the Node 
+ * Prototype or all populated instances 
  *
  * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
+ * 
+ * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
+ * been populated)
  *
  * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
  * or set properties on each DOM elements in the given NodeList (e.g. returned from a 
@@ -164,6 +171,37 @@ idom.internal = {};
 
 // for internal use
 idom.internal.cache = {};
+
+idom.internal.appendToEachAttr = function(elem, attr, str) {
+	
+		if (typeof elem.querySelector == 'undefined') {
+			
+			var e = new Error;
+			
+			e.message = "first parameter must be a DOM element"
+			
+			throw e.message + "\n" + e.stack; 
+		}
+		
+		var attrVal = elem.getAttribute(attr) || '';
+		
+		if (attrVal) {
+			 elem.setAttribute(attr, attrVal + str);
+		}
+		
+		var nodelist = elem.querySelectorAll("[" + attr + "]")
+		
+		if (nodelist) 
+			var objArray = Array.prototype.slice.call(nodelist, 0);
+		
+	 	if (!objArray.length) return;
+	 
+	 	for (var n = 0; n < objArray.length; n++) {
+	 		
+	 		
+	 		objArray[0].setAttribute(attr, objArray[0].getAttribute(attr) + str); ;	
+	 	}	
+	}
 
 // init method to be called from window.onload or $(document).ready 
 idom.init = function(json) {
@@ -418,21 +456,6 @@ Element.prototype.previousSiblingElement =  Element.prototype.previousSiblingEle
     return elem;
 };
 
-Element.prototype.idom$cloneNode =  Element.prototype.idom$cloneNode || function() {
-	
-	var elem = this;
-	
-	var intoEl = arguments[0];
-	
-	var nodeSelector = elem.getAttribute("idom-selector")
-	 
-	var clonedEl = element.cloneNode(true)
-	
-	clonedEl.setAttributed("idom-selector", nodeSelector + "_cloned")
-	
-    return elem;
-};
-
 // Todo: test if TreeWalker with SHOW_COMMENTS is faster
 Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeType || function() {
     
@@ -460,16 +483,21 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
 
 idom.forEachExec = function(nodelist, str) {
 	
-	var objArray = Array.prototype.slice.call(nodelist, 0);
-	
-	if (!objArray.length) {
+	if (arguments.length != 2) {
 		
 		var e = new Error;
 		
-		e.message = "object must be iterable"
+		e.message = "wrong number of arguments: requires: nodelist, str"
 		
-		throw e.message + "\n" + e.stack; 
+		throw e.message + "\n" + e.stack;
+		
 	}
+	
+	var objArray = Array.prototype.slice.call(nodelist, 0);
+	
+	nodelist = null;
+		
+	if (!objArray.length) return;
  	
  	var exec = new Function("el", "el." + str);
  	
@@ -479,7 +507,7 @@ idom.forEachExec = function(nodelist, str) {
  			
  	} catch (e) {
  		
- 		throw "invalid exec: " + e.message + "\n" + e.stack; 	
+ 		throw "invalid argument(s): " + e.message + "\n" + e.stack; 	
  	}
  	
  	for (var n = 1; n < objArray.length; n++) {
@@ -488,9 +516,10 @@ idom.forEachExec = function(nodelist, str) {
  	}	
 };
 
+
 // .idom$  (main idom method)
 //
-// format: document.querySelector('#someNode').idom$(data [, options])
+// format: document.querySelector('#someNode').idom$(data [, options] [, uid])
 // action: create new instance of Node Prototype using 'data' (json) to populate the special variables in the Node,
 // then append/prepend to (or replace) existing instance(s) of Node Prototype in the Node
 //
@@ -500,23 +529,25 @@ idom.forEachExec = function(nodelist, str) {
 // options: {mode: 'replace'|'append'|'prepend', targetSelector: value, ownSelector: value,
 // nodeSelector: value, targetState: value, ownState: value, nodeState: value}
 //
-// if there no populated instances of Node Prototype exist (or if the Node's innerHTML was deleted after or before 
-// populated instances of Node Prototype were inserted) then append/prepend/replace will all replace the Node's 
-// entire innerHTML (if targetSelector is supplied in this case it will throw an error, so be call .$isPopulated() to 
-// be sure, before invoking this method with targetSelector)
+// uid: if node contains a linked node then a unique id must be provided which will be added to the selector/state attributes of 
+// the linked nodes and of the populated instances of the node prototype of the linked nodes (if any)
 //
-// targetSelector: optional idom-selector value for instance of Prototpe Node to insert into Node in append and prepend modes. 
+// if there no populated instances of Node Prototype exist then append/prepend/replace will create an instance of the Node 
+// Prototype (so if a targetSelector is supplied in this case it will throw an error, so call .$isPopulated() first to 
+// be sure before invoking this method with targetSelector, unless you know the node is populated)
+//
+// targetSelector: optional idom-selector value for instance of Prototype Node to insert into Node in append and prepend modes. 
 // If null, append/prepend at last/1st instance of Node Prototype
 //
-// targetSelector: optional idom-selector value for instance of Prototpe Node to insert into Node in replace mode. 
+// targetSelector: optional idom-selector value for instance of Prototype Node to insert into Node in replace mode. 
 // If null, replace entire innerHTML of node
 //
-// ownSelector: new value of idom-selector value for instance of Prototpe Node being inserted
+// ownSelector: new value of idom-selector value for instance of Prototype Node being inserted
 //
-// ownState: new value of idom-state attribute for instance of Prototpe Node being inserted
+// ownState: new value of idom-state attribute for instance of Prototype Node being inserted
 //
-// targetState: optional idom-selector value for instance of Prototpe Node to insert *at* in append and prepend modes 
-// targetState: optional idom-selector value for instance of Prototpe Node to insert *at* in replace mode
+// targetState: optional idom-selector value for instance of Prototype Node to insert *at* in append and prepend modes 
+// targetState: optional idom-selector value for instance of Prototype Node to insert *at* in replace mode
 //
 // nodeSelector: new value of idom-selector for the Node itself
 // 
@@ -548,6 +579,15 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	// Todo: need to compose a regex pattern based on the node's template where idom node variables are replaced with 
 	// wildcards and the whole pattern repeating {1,} to see if the element has been wrongly updated 
 	// (from outside of idom), i.e. will not match the pattern, which should throw an error
+	
+	if (!this.children.length) {
+		
+		var err = new Error;
+			
+		err.message = "node is missing node prototype"
+					 
+		throw err.message + '\n' + err.stack;
+	}
 	
 	// take the first argument, assuming simple JSON
 	var json = arguments[0];
@@ -600,7 +640,6 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			err.message = "Invalid options: idom node variables found in options"
 			 
 			throw err.message + '\n' + err.stack;
-			
 		}
 	}
 	
@@ -620,10 +659,8 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 					err.message = "Invalid option: targetSelector cannot be applied: this Node currently has no populated instances of its Node Prototype"
 					 
-					throw err.message + '\n' + err.stack;
-							
+					throw err.message + '\n' + err.stack;			
 				}
-				
 			}
 		}
 		
@@ -875,9 +912,9 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		
 		var nestedCommentNodes = elem.getElementsByNodeType(8, true);
 		
-		var linkedNodeID = '';
-		
 		if (nestedCommentNodes.length) {
+		
+		var linkedNodeID = '';
 			
 			for (var n = 0; n < nestedCommentNodes.length; n++) {
 				
@@ -889,44 +926,76 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						var err = new Error;
 		
-						err.message = "Node Prototype contains a Linked Node reference to a Node that was not cached"
+						err.message = "linked nodes must be present in DOM at time of caching"
 						 
 						throw err.message + '\n' + err.stack;
-						
 					} 
-				
+					
+					if (document.querySelector('[idom-node-id=' + linkedNodeID + ']').innerHTML == idom.internal.cache[linkedNodeID]) {
+						
+						var err = new Error;
+		
+						err.message = "linked nodes must be populated before their host nodes"
+						 
+						throw err.message + '\n' + err.stack;
+					}
+					
+					if (!document.querySelector('[idom-node-id=' + linkedNodeID + ']').children.length) {
+						
+						var err = new Error;
+		
+						err.message = "linked node missing node prototype"
+						 
+						throw err.message + '\n' + err.stack;
+					}
+						
 					var el = nestedCommentNodes[n].parentNode.insertBefore(document.querySelector('[idom-node-id=' + linkedNodeID + ']').cloneNode(true), nestedCommentNodes[n]);
 					
 					el.parentNode.removeChild(nestedCommentNodes[n]);
 					
 					el.removeAttribute("idom-node-id");
 					
-					var ownState = el.children[0].getAttribute("idom-state") || '';
-					var ownSelector = el.children[0].getAttribute("idom-selector") || '';
-					
-					if (ownState) {
-						 el.children[0].setAttribute("idom-state", ownState + "_linked");
-					} 
-					
-					if (ownSelector) {
-						el.children[0].setAttribute("idom-selector", ownSelector + "_linked");
-					} 
-					
-					var nodeState = el.getAttribute("idom-state") || '';
-					var nodeSelector = el.getAttribute("idom-selector") || '';
-					
-					if (nodeState) {
-						 el.setAttribute("idom-state", nodeState + "_linked");
-					} 
-					
-					if (nodeSelector) {
-						el.setAttribute("idom-selector", nodeSelector + "_linked");
-					} 
+					idom.internal.appendToEachAttr(el, "idom-selector", "_linked") ;
+					idom.internal.appendToEachAttr(el, "idom-state", "_linked") ;
 				}	
 			}
-		}		
+		}
 	}
 };
+
+// format: clonedNode = document.querySelector('#someNode').idom$clone(uid) 
+
+Element.prototype.idom$clone = Element.prototype.idom$clone || function() { 
+	
+	if (!arguments.length) {
+		
+		var err = new Error;
+		
+		err.message = "you must provide uniqe id for the cloned node"
+		 
+		throw err.message + '\n' + err.stack;
+	}
+	
+	if (!this.idom$isPopulated()) {
+	 				
+		var err = new Error;
+		
+		err.message = "the node must be populated before it may be cloned"
+		 
+		throw err.message + '\n' + err.stack;
+	}
+
+	var uid = arguments[0];
+	
+	var el = this.cloneNode(true);
+	
+	el.removeAttribute("idom-node-id");
+	
+	idom.internal.appendToEachAttr(el, "idom-selector", "_cloned_" + uid) ; 
+	idom.internal.appendToEachAttr(el, "idom-state", "_cloned_" + uid) ; 
+	
+};
+
 
 // format: document.querySelector('#someNode').idom$isPopulated() 
 
@@ -953,14 +1022,24 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 					 
 		throw err.message + '\n' + err.stack;
 	}
+	
+	if (!this.children.length) {
+		
+		var err = new Error;
+			
+		err.message = "node is missing node prototype"
+					 
+		throw err.message + '\n' + err.stack;
+	}
 
-	if (this.innerHTML == idom.internal.cache[nid] || !this.children.length) {
+	if (this.innerHTML == idom.internal.cache[nid]) {
 		
 		return false;
 	}		
 	
 	return true;
-}
+	
+};
 
 // .idom$dePopulate
 //
@@ -996,10 +1075,20 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 					 
 		throw err.message + '\n' + err.stack;
 	}
-	
+     
 	if (!this.children.length) {
 		
-		// nothing to delete
+		var err = new Error;
+			
+		err.message = "node is missing node prototype"
+					 
+		throw err.message + '\n' + err.stack;
+	}
+	
+	
+	if (this.innerHTML == idom.internal.cache[nid]) {
+		
+		// nothing to dePopulate
 		return;
 	}
 	
@@ -1085,7 +1174,7 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 								
 					var err = new Error;
 			
-					err.message = "Invalid option: targetSelector does not match idom-selector in any instance of the Node Prototype)"
+					err.message = "Invalid option: targetState does not match idom-state in any instance of the Node Prototype)"
 					 
 					throw err.message + '\n' + err.stack;	
 				}
@@ -1108,11 +1197,12 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 								
 					var err = new Error;
 			
-					err.message = "Invalid option: targetSelector does not match idom-selector in any instance of the Node Prototypee"
+					err.message = "Invalid option: targetSelector and targetState doe not match idom-selector or idom-state in any instance of the Node Prototype"
 					 
 					throw err.message + '\n' + err.stack;	
 				}
 			}
+			
 						
 			for (var n = 0; n < targetNodeList.length; n++) {
 				

@@ -8,11 +8,12 @@
 
  BSD License 
  
- derived from NattyJS v0.08: an open source precursor by the same author 
+ derived from NattyJS v0.10: an open source precursor by the same author 
 
 */
 
-/*  
+/*
+  
   README:
   
   This version works in Gecko and Webkit, not tested on IE
@@ -27,8 +28,8 @@
  
   How Does It Work?
   
-  idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all 
-  DOM elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
+  idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
+  elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
   or $(document).ready. Each Node must contain exactly one direct child at time 
   of caching, i.e. the Node Prototype, which must contain special variables (in 
   its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
@@ -50,7 +51,7 @@
   Prototype instances within the Node (So for convenience, and in the test cases, 
   Nodes and Linked Nodes may be referred Node Lists and Linked Node Lists, 
   respectively)
- 
+  
   idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
   Node Prototype from which instances (copies, usually with different data) can 
   be created, populated with JSON data and then inserted into the Node (in append, 
@@ -58,11 +59,15 @@
   inserted instances of the Node Prototype or the Node List's entire content, i.e. 
   the set of instances of the Node Prototype) and where the Node itself can be 
   dynamically linked into other Node Lists, which can be linked into other Node 
-  Lists, and so on...
+  Lists, and so on... Only restriction is that we can't link a virgin node (one
+  that only has a node prototype); it must be populated before being linked.
   
-  From an OOP perspective, idom takes the DOM and adds data-bound variables, 
-  encapsulation, multiple-inheritance and type polymorphism (with the Node 
-  Prototype as the base for user defined types) 
+  Additionally, idi.bidi.dom allows selector-safe cloning of populated nodes 
+  (including any linked nodes) such that we may re-use the same DOM structure
+  to create any number of differentiated nodes with the same basic structure. 
+  
+  Using OOP as the metaphor, idom takes the DOM and adds variables, encapsulation, 
+  multiple-inheritance and polymorphism. 
    
   Unlike other template-less DOM rendering frameworks, idom does not take over 
   the job of Javascript itself nor does it add any boilerplate, it just gives 
@@ -99,22 +104,22 @@
   an error, so unless you are sure, you may want to call .$isPopulated() before 
   invoking this method with targetSelector or stateSelector options)
  
-  targetSelector: optional idom-selector value for instance(s) of Prototpe Node
+  targetSelector: optional idom-selector value for instance(s) of Prototype Node
   to insert the new instance at in append and prepend modes. If null, then 
   append/prepend new instance at last/1st instance
  
-  targetSelector: optional idom-selector value for instance(s) of Prototpe 
+  targetSelector: optional idom-selector value for instance(s) of Prototype 
   Node to insert into in replace mode. If null, replace entire content of Node
  
-  ownSelector: new value of idom-selector value for instance of Prototpe Node 
+  ownSelector: new value of idom-selector value for instance of Prototype Node 
   being inserted
  
-  ownState: new value of idom-state attribute for instance of Prototpe Node 
+  ownState: new value of idom-state attribute for instance of Prototype Node 
   being inserted
  
-  targetState: optional idom-selector value for instance of Prototpe Node to in
+  targetState: optional idom-selector value for instance of Prototype Node to in
   sert at in append and prepend modes targetState: optional idom-selector value
-  for instance of Prototpe Node to insert at in replace mode
+  for instance of Prototype Node to insert at in replace mode
  
   nodeSelector: new value of idom-selector for the Node itself
  
@@ -123,16 +128,17 @@
  
   Other available are methods are 
  
-  .idom$dePopulate([options]) which can delete certain populated instances of the 
-  Node Prototype or all populated instances
-  
+  .idom$dePopulate([options]) which can delete certain populated instances of the Node 
+  Prototype or all populated instances 
+ 
   .idom$isPopulated() may be queried before specifying targetSelector or targetState 
   to verify existence of populated instance(s) of Node Prototype (the targets) 
   
-  idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods or set properties on
-  each DOM elements in the given NodeList (e.g. returned from a querySelector call)
-  see test.html for relevant use cases 
+  idom$clone may be used to clone an entire node (including any linked nodes) after it's 
+  been populated)
  
+  idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
+  or set properties on each DOM elements in the given NodeList (e.g. returned from a 
+  querySelector call) see test.html for relevant use cases 
   
  */
-

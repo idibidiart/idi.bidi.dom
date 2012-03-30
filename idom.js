@@ -38,7 +38,8 @@
  *
  * The Node Prototype may hold an arbitrarily complex DOM structure, and one in 
  * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
- * reference (called Linked Nodes)
+ * reference (called Linked Nodes) from anywhere within the Node Prototype's 
+ * DOM structure
  *
  * idi.bidi.dom works by creating an instance of the Node Prototype and populating 
  * the special variables in it with dynamic JSON data (where the JSON keys must 

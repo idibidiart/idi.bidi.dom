@@ -15,76 +15,8 @@
 */
 
 
- README:
- 
- This version works in Gecko and Webkit, not tested on IE
+THIS PAGE IS NOW HOSTED ON GITHUB PAGES
 
- idi.bidi.dom - Non-Hierarchical Interface To The DOM
+With diagram and code
 
- How Does It Work?
- 
- idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
- Node Prototype from which instances (copies, usually with different data) can 
- be created, populated with JSON data and then inserted into the Node (in append, 
- prepend, and replace modes, with the ability to target specific, previously 
- inserted instances of the Node Prototype or the Node List's entire content, i.e. 
- the set of instances of the Node Prototype) and where the Node itself can be 
- dynamically linked into other Nodes.
- 
- Additionally, idi.bidi.dom allows the cloning of each Node and the populated
- instances of the Node Prototype within it (including any Linked Nodes inherited 
- from the Node Prototype and the populated instances of the Node Prototype within
- them) This means that we may re-use the same Node to create any number of 
- differently populated and customized Nodes, thus reducing the amount of HTML 
- in our pages while greatly simplifying our interaction with the DOM by using
- a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
- API that the DOM exposes.  
-
- Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
- to take the place of Javascript itself nor does it add its own boilerplate; it 
- simply gives Javascript more power by leveraging a simple and consistent interface
- to the DOM. 
-
- Usage:
-
- format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
- 
- output: creates a new instance of Node Prototype using 'data' (json) to populate 
- the special variables in the Node, then append/prepend to (or replace) existing 
- instance(s) of Node Prototype in the Node
-
- cloneId: unique id for the future or current clone the data is intended for  
-
- data: {key: value, key: value, key: value, etc} 
- where the key must match the variable name in the data minus the idom$ prefix
-
- settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
- value}
-
- if there no populated instances of Node Prototype then append/prepend/replace 
- will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
- in this case it will throw an error, so call .$isPopulated() first to be sure before 
- invoking this method with targetInstanceId, unless you know the node is populated)
-
- targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
- insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- previously populated instance of the Node Prototype, or to start of the list if none 
- were previously populated.
-
- targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
- replace when in replace mode. If null, replace all instances.
-
- instanceId: idom-instance-id value for instance of Prototype Node being populated. 
-
-
- 
- Other available are methods are 
-
- .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
- Prototype or all populated instances 
-
- .idom$isPopulated() may be queried before specifying targetInstanceId  
- to verify existence of populated instance(s) of Node Prototype (the targets) 
- 
- idom$clone may be used to clone an entire node (including any linked nodes) after it's 
- been populated)
+http://idibidiart.github.com/idi.bidi.dom/

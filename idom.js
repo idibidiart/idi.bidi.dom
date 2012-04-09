@@ -1,6 +1,8 @@
 /*! idi.bidi.dom 
 * 
-* DOM Anti-Templating 
+* v0.2
+*
+* Non-Hierarchical Interface To The DOM 
 *
 * Copyright (c) Marc Fawzi 2012
 * 
@@ -8,7 +10,7 @@
 *
 * BSD License 
 * 
-* derived from NattyJS v0.08: an open source precursor by the same author 
+* derived from NattyJS v0.08: a BSD licensed precursor by the same author 
 *
 */
 
@@ -18,40 +20,9 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * idi.bidi.dom - Javascript Anti-Templating 
- *
- * "All the separation and none of the baggage" 
- *
- * What is it? 
- *
- * Data-Driven DOM "Templating" Without The Templates    
+ * idi.bidi.dom - Non-Hierarchical Interface To The DOM
  *
  * How Does It Work?
- * 
- * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
- * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
- * or $(document).ready. Each Node must contain exactly one direct child at time 
- * of caching, i.e. the Node Prototype, which must contain special variables (in 
- * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
- * data (with the scope being the inner/outer HTML of a newly created instance of 
- * the Node Prototype)
- *
- * The Node Prototype may hold an arbitrarily complex DOM structure, and one in 
- * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
- * reference (called Linked Nodes) from anywhere within the Node Prototype's 
- * DOM structure
- *
- * idi.bidi.dom works by creating an instance of the Node Prototype and populating 
- * the special variables in it with dynamic JSON data (where the JSON keys must 
- * correspond to the special variables in the Node Prototype) and then inserting 
- * the newly populated instance into the Node itself, using replace (default on 
- * first insertion), append or prepend methods, as applied to the Node's entire 
- * content (the virgin innerHTML or all populated instances of the Node Prototype
- * that were previously inserted into the Node) or specific, previously inserted
- * instance(s) of the Node Prototype. This basically creates a list of Node
- * Prototype instances within the Node (So for convenience, and in the test cases, 
- * Nodes and Linked Nodes may be referred Node Lists and Linked Node Lists, 
- * respectively)
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
  * Node Prototype from which instances (copies, usually with different data) can 
@@ -59,101 +30,76 @@
  * prepend, and replace modes, with the ability to target specific, previously 
  * inserted instances of the Node Prototype or the Node List's entire content, i.e. 
  * the set of instances of the Node Prototype) and where the Node itself can be 
- * dynamically linked into other Node Lists, which can be linked into other Node 
- * Lists, and so on... Only restriction is that we can't link a virgin node (one
- * that only has a node prototype); it must be populated before being linked.
+ * dynamically linked into other Nodes.
  * 
- * Additionally, idi.bidi.dom allows selector-safe cloning of populated nodes 
- * (including any linked nodes) such that we may re-use the same DOM structure
- * to create any number of differentiated nodes with the same basic structure. 
+ * Additionally, idi.bidi.dom allows the cloning of each Node and the populated
+ * instances of the Node Prototype within it (including any Linked Nodes inherited 
+ * from the Node Prototype and the populated instances of the Node Prototype within
+ * them) This means that we may re-use the same Node to create any number of 
+ * differently populated and customized Nodes, thus reducing the amount of HTML 
+ * in our pages while greatly simplifying our interaction with the DOM by using
+ * a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
+ * API that the DOM exposes.  
+ *
+ * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
+ * to take the place of Javascript itself nor does it add its own boilerplate; it 
+ * simply gives Javascript more power by leveraging a simple and consistent interface
+ * to the DOM. 
+ *
+ * Usage:
+ *
+ * format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
  * 
- * Using OOP as the metaphor, idom takes the DOM and adds variables, encapsulation, 
- * multiple-inheritance and polymorphism. 
- *  
- * Unlike other template-less DOM rendering frameworks, idom does not take over 
- * the job of Javascript itself nor does it add any boilerplate, it just gives 
- * Javascript more power by front-ending the DOM.
- * 
- * Examples: 
+ * output: creates a new instance of Node Prototype using 'data' (json) to populate the 
+ * special variables in the Node, then append/prepend to (or replace) existing 
+ * instance(s) of Node Prototype in the Node
  *
- * Take a look at test.html
+ * cloneId: unique id for the future or current clone the data is intended for  
  *
- * See Notes under String.prototype._idomMapValues for the expected JSON format
- * 
- * Main Invocation Pattern
+ * data: {key: value, key: value, key: value, etc} 
+ * where the key must match the variable name in the data minus the idom$ prefix
  *
- * .idom$ 
+ * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: value}
  *
- * document.querySelector('#someNode').idom$(data [, options])
+ * if there no populated instances of Node Prototype then append/prepend/replace 
+ * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied in 
+ * this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * invoking this method with targetInstanceId, unless you know the node is populated)
  *
- * behavior: creates new instance of Prototype Node using data to populate the 
- * special variables in Prototype Node, then append/prepend to (or replace) 
- * existing instance(s) in the Node
+ * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
+ * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
+ * previously populated instance of the Node Prototype, or to start of the list if none were
+ * previously populated.
  *
- * >> data: {key: value, key: value, key: value, etc} 
- * where the keys must match the idi.bidi.dom node variables in the Node Prototype minus
- * the idom$ prefix
+ * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to replace 
+ * when in replace mode. If null, replace all instances.
  *
- * >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 
- * ownSelector: value, nodeSelector: value, targetState: value, ownState: value, 
- * nodeState: value}
- *
- * if there no populated instances of Prototype Node exist (or if the Node's 
- * innerHTML was deleted after or before populated instances of Prototype Node 
- * were inserted) then append/prepend/replace will all replace the Node's 
- * entire content (if targetSelector is supplied in this case it will throw 
- * an error, so unless you are sure, you may want to call .$isPopulated() before 
- * invoking this method with targetSelector or stateSelector options)
- *
- * targetSelector: optional idom-selector value for instance(s) of Prototype Node
- * to insert the new instance at in append and prepend modes. If null, then 
- * append/prepend new instance at last/1st instance
- *
- * targetSelector: optional idom-selector value for instance(s) of Prototype 
- * Node to insert into in replace mode. If null, replace entire content of Node
- *
- * ownSelector: new value of idom-selector value for instance of Prototype Node 
- * being inserted
- *
- * ownState: new value of idom-state attribute for instance of Prototype Node 
- * being inserted
- *
- * targetState: optional idom-selector value for instance of Prototype Node to in
- * sert at in append and prepend modes targetState: optional idom-selector value
- * for instance of Prototype Node to insert at in replace mode
- *
- * nodeSelector: new value of idom-selector for the Node itself
- *
- * nodeState: new value of idom-state for the Node itself
- * 
+ * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
  *
  *********************************************************************************
  * 
  * Other available are methods are 
  *
- * .idom$dePopulate([options]) which can delete certain populated instances of the Node 
+ * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
- * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
+ * .idom$isPopulated() may be queried before specifying targetInstanceId  
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  * 
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
  *
- * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
- * or set properties on each DOM elements in the given NodeList (e.g. returned from a 
- * querySelector call) see test.html for relevant use cases 
  * 
  *********************************************************************************/
 
 // define the glpbal idom object
-var idom = {}
+var idom = {};
 
 // user defined iteration and DOM traversal functions should be added to idom.user
 // Example: idom.user.someFunction = function () { ... }
-idom.user = {}
+idom.user = {};
  
-idom.version = "0.01"
+idom.version = "0.2";
 
 // define regular expression (RegEx) pattern for Prototype variables. use idom$ since that can't be confused 
 idom.regex = /(idom\$\w+)/g;
@@ -167,42 +113,15 @@ idom.initRegEx =  /(i\$\w+)/g;
 // define length of DOM presets pattern
 idom.initRegexLength = 2;
 
-// special objects for use by idom
-idom.internal = {};
+idomData = {};
 
-// for internal use
-idom.internal.cache = {};
+idomData.cache = {};
 
-idom.internal.appendToEachAttr = function(elem, attr, str) {
-	
-		if (typeof elem.querySelector == 'undefined') {
-			
-			var e = new Error;
-			
-			e.message = "first parameter must be a DOM element"
-			
-			throw e.message + "\n" + e.stack; 
-		}
-		
-		var attrVal = elem.getAttribute(attr) || '';
-		
-		if (attrVal) {
-			 elem.setAttribute(attr, attrVal + str);
-		}
-		
-		var nodelist = elem.querySelectorAll("[" + attr + "]")
-		
-		if (nodelist) 
-			var objArray = Array.prototype.slice.call(nodelist, 0);
-		
-	 	if (!objArray.length) return;
-	 
-	 	for (var n = 0; n < objArray.length; n++) {
-	 		
-	 		
-	 		objArray[0].setAttribute(attr, objArray[0].getAttribute(attr) + str); ;	
-	 	}	
-	}
+// internal use
+idomDOM = {};
+
+// internal use
+idomDOM.cache = {};
 
 // init method to be called from window.onload or $(document).ready 
 idom.init = function(json) {
@@ -211,7 +130,7 @@ idom.init = function(json) {
 	// which would cause the cached templates to be out of sync 
 	// with the DOM 
 	
-	if (idom.internal.initDone) {
+	if (idomDOM.initDone) {
 		return;
 	}
 	
@@ -222,36 +141,41 @@ idom.init = function(json) {
 		err.message = "This browser is not supported: some basic Javascript objects are missing"
 					 
 		throw err.message + '\n' + err.stack;
-		
 	}
 	
 	// populate idom init() variables before caching
 	if (json) {
 		
-		document.documentElement.innerHTML  = document.documentElement.innerHTML._idomMapValues(json, true);
+		document.documentElement.innerHTML  = document.documentElement.innerHTML._idomMapValues(json, null, true);
 	}
 	
 	// fetch all elements with idom-node-id
 	var els = document.querySelectorAll('[idom-node-id]');
 	
-	// convert the NodeList object into a primitive/more convenient Array type 
-	var elsArray = Array.prototype.slice.call(els, 0);
+	var elCount, elem;
 	
-	// dump the Nodelist
-	els = null;
+	// nodelist
+	if (els.length) {
+		
+		elCount = els.length;
+		
+	// element
+	} else if (els) {
+		
+		elCount = 1;
+		elem = els;
+    	
+	// none
+	} else {
 	
-	// iterate thru the list roots
-	for (var n = 0; n < elsArray.length; n++) {
+		elCount = 0;
+	}
 	
-		var el = elsArray[n];
+	for (var n = 0; n < elCount; n++) {
+		
+		el = elem || els[n];
 		
 		var nid = el.getAttribute('idom-node-id');
-		
-		if (idom.internal.cache[nid]) {
-			
-			throw new Error("idom-node-id is in use by another Node");
-			// add path to element
-		}
 		
 		if (!nid) {
 			
@@ -262,6 +186,19 @@ idom.init = function(json) {
 		if (nid.match(idom.regex)) {
 			
 			throw new Error("idom-node-id must not contain a special variable. ");
+			// add path to element
+		}
+		
+		if (nid.indexOf('@') != -1) {
+			
+			throw new Error("idom-node-id must not contain special character @ at time of caching");
+			// add path to element
+			
+		}
+		
+		if (idomDOM.cache[nid]) {
+			
+			throw new Error("idom-node-id is in use by another Node");
 			// add path to element
 		}
 		
@@ -277,8 +214,8 @@ idom.init = function(json) {
 		
 		if (el.children.length != 1) { 
 				
-			throw new Error("At the time of caching, node must contain just one child, the Node Prototype." + 
-							"You may use a div as the Node Prototype which may encapsulate other elements.");
+			throw new Error("At the time of caching, node must contain just one child, which is the Node Prototype." + 
+							"You may use a div as the Node Prototype to encapsulate other elements.");
 			// add path to element
 		}
 		
@@ -288,58 +225,121 @@ idom.init = function(json) {
 			
 			for (var i = 0; i < commentNodes.length; i++) {
 				
-				if (commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/) && commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/)[3]) {
+				if (commentNodes[i].textContent.match(/(@idom)([\s+])(\w+)/)) {
 					
-					throw new Error("@idom linked nodes may only exist at root level within the Node Prototype)")
-				}	
+					throw new Error("@idom linked nodes may only be placed within the Node Prototype, not in the Node itself)")
+				}
+				
+				el.removeChild(commentNodes[i])
 			}
 		}
 		
-		if (el.innerHTML.match(/(idom-node-id)/)) {
+		if (el.innerHTML.match(/(idom-node-id\=)/)) {
 				
-			throw new Error("Node must not have any descendants with idom-node-id (reserved for the Node itself). " +
+			throw new Error("Node must not have any descendants with idom-node-id at time of caching\n" +
 							"you may dynamically link other Nodes by inserting <!-- @idom [the idom-node-id for node you wish to nest without the brackets] --> anywhere inside the Node Prototype");
 			// add path to element
 		}
 		
 		// using 'id' on Node would match the original Node outside of the Node Prototype that is 
-		// being linked. idom deals with this by changing the idom-selector and idom-state 
-		// attributes in Linked Nodes (the cloned copies linked inside the Node Prototype) by 
+		// being linked. idom deals with this by changing the idom-instance-id 
+		// attribute in Linked Nodes in the Node Prototype
 		// adding a _linked suffix
 		
-		if (el.getAttribute("id")) {
+		if (el.getAttribute("id" || el.children[0].getAttribute("id"))) {
 			
-			throw new Error("Node should not have an 'id' attribute (instead, set nodeSelector or nodeState in options and use document.querySelector with '[idom-selector=someString]' or '[idom-state=someString]')");
-			// add path to element
-		}
-		
-		// using 'id' on Node Prototype would match all instances of it inside the Node
-		if (el.children[0].getAttribute("id")) {
-			
-			throw new Error("Node Prototype should not have an 'id' attribute (instead, set ownSelector or ownState in options and use document.querySelector with '[idom-selector=someString]' or '[idom-state=someString]')");
+			throw new Error("Node should not have an 'id' attribute (to query you may use document.querySelector with '[idom-node-id=someString]'");
 			// add path to element
 		}
 			
-		if (el.getAttribute("idom-state") || el.getAttribute("idom-selector")) {
+		if (el.getAttribute("idom-instance-id\=")) {
 			
 			throw new Error("at time of caching, node should not have any idom-generated attributes");
 			// add path to element
 		}
-		
-		if (el.innerHTML.match(/(idom-selector)/) || el.innerHTML.match(/(idom-state)/)) {
-			
-			throw new Error("at time of caching, node's innerHTML must not contain any idom-generated attributes");
-			// add path to element
-		}
 				
 		// cache virgin innerHTML of node 
-		idom.internal.cache[nid] = el.innerHTML;		
+		idomDOM.cache[nid] = el.innerHTML;		
 	}
 	
-	idom.internal.initDone = true;
+	idomDOM.initDone = true;
 };
 
-// String method for injecting values into special varariable (keys) in the Node Prototype, 
+//idom.forEachExec(document.querySelectorAll('[idom-id$=someCloneUID]'), 'style.display = "block"')
+
+idom.forEachExec = function(nodelist, str) {
+	
+	if (arguments.length != 2) {
+		
+		var e = new Error;
+		
+		e.message = "wrong number of arguments: requires: nodelist, str"
+		
+		throw e.message + "\n" + e.stack;
+		
+	}
+	
+	var exec = new Function("el", "el." + str);
+	
+	try {
+		
+		exec(nodelist[0] || nodelist);  
+			
+	} catch (e) {
+		
+		throw "invalid argument(s): " + e.message + "\n" + e.stack; 	
+	}
+	
+	if (nodelist.length) {
+		for (var n = 1; n < nodelist.length; n++) {
+			
+			exec(nodelist[n]);	
+		}	
+	}
+};
+
+idom.eventHandler = function(event, el, func) {
+	
+	var nodeId = el.getAttribute("idom-node-id") ? el.getAttribute("idom-node-id") : el.parentNode.getAttribute("idom-node-id");
+	
+	if (!nodeId || nodeId.indexOf('@cloned@') == -1) {
+		
+		var err = new Error;
+		
+		err.message = "idom events must be defined on the clone node or on node prototype instance within the cloned node";
+					 
+		throw err.message + '\n' + err.stack;
+	}
+
+	var instanceId = el.getAttribute("idom-instance-id") ? el.getAttribute("idom-instance-id") : null;
+	
+	if (instanceId) {
+		
+		func.call(el, event, nodeId, instanceId, nodeId.substring(nodeId.indexOf('@cloned@')  + 8));
+		
+	} else {
+		func.call(el, event, nodeId, null, nodeId.substring(nodeId.indexOf('@cloned@')  + 8));
+	}
+
+};
+
+
+//useful when assigning spaced or hyphenated strings from JSON/AJAX to idom$() setttings such as instanceId  
+
+idom.toCamelCase = function() {
+	  return this.replace(/[\-_]/g, " ").replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
+	    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+	    return index == 0 ? match.toLowerCase() : match.toUpperCase();
+	  });	  
+};
+
+
+idom.baseSelector = function(sel) {
+	
+	return sel.substring(0, sel.indexOf('@'));
+};
+
+// internal String method for injecting values into special varariable (keys) into the node prototype instance, 
 // based on key-value JSON data (key-matched variables get their values from JSON values while unmatched
 // ones get empty string) -- for internal use
 
@@ -348,13 +348,11 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 	// take the first argument, assuming simple JSON
 	var json = arguments[0];
 	
-	var forInit = arguments[1];
+	var uid = arguments[1];
+	
+	var forInit = arguments[2];
 	
 	var jsonStr, jsonErr; 
-	
-	var pattern = idom.internal.initDone ? idom.regex : idom.initRegEx;
-	
-	var patternLength = idom.internal.initDone ? idom.regexLength : idom.initRegexLength;
 	
 	try {
 		
@@ -370,16 +368,16 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 		
 		var err = new Error;
 			
-		err.message = "Invalid data: use simple JSON: {someKey: 'value', anotherKey: 5, yetAnotherKey: 'anotherValue'}"
+		err.message = 'Invalid data: use simple JSON: {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeat": null}'
 					 
 		throw err.message + '\n' + err.stack;
 		 
 		// Notes:
 		//
-		// idom works with simple JSON
+		// idom works with simple object literal or simple JSON
 		// 
 		// 'simple JSON' is defined as a key-value collection, limited to string or numeric values 
-		// Like {someKey: 'value', anotherKey: 5, yetAnotherKey: 'anotherValue'}
+		// Like {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}
 		
 		// Use Javascript to iterate thru more complex JSON then pass on simple JSON to idom
 		
@@ -393,9 +391,8 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 	}
 		
 	// RegEx will iterate thru the idom node variables (keys) in target element's virgin innnerHTML (the template), 
-	// match to JSON values (by key) from left to right, replace the pseduo vars that match the supplied
-	// keys in JSON with the JSON values (including null values), and return the the modified string for 
-	// updating the target element's innerHTML
+	// match to JSON values (by key), replacing the pseduo vars that match the supplied keys in JSON with the JSON values 
+	// (including null values), and returning the the modified string for updating the target element's innerHTML
 	
 	if (!forInit) {
 		
@@ -403,14 +400,27 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 			
 			// if idom init() variable exists and has a value, replace with JSON value for corresponding key
 			
-			if (json[match.substr(idom.regexLength)]) {
+			var key = match.substr(idom.regexLength);
+			var val = json[key];
+			
+			if (typeof eval("json." + key) != 'undefined') {
 				
-				return json[match.substr(idom.regexLength)];
+				// despite nid and instance are shared with original node, any linked instance of it and
+				// the clone this ends up being a globally unique key because the cloneId is required for 
+				// idom$() insertion and points to the future or current clone id, which is globally unique
+				// It is also unique within the clone because no more than one instance of a given node
+				// may be linked into the host node (from which the clone is made) 
+				
+				idomData.cache[uid.nid + "@" + uid.instanceId + "@" + uid.cloneId + '@' + key] = val;
+				
+				return val;
 				
 			} else {
 				
-				// if idom init() variable is missing or has an empty string value return an empty string in its place	
-				return '';
+				// if idom variable is missing or has an empty string value return empty string 	
+				return typeof idomData.cache[uid.nid + "@" + uid.instanceId + "@" + uid.cloneId + '@' + key] != 'undefined' ? 
+							idomData.cache[uid.nid + "@" + uid.instanceId + "@" + uid.cloneId + '@' + key] : 
+							'';
 			}
 		}); 
 		
@@ -418,18 +428,21 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 		
 		return this.replace(idom.initRegEx, function(match) { 
 			
-			// if special variable exists and has a value, replace with JSON value for corresponding key
+			var key = match.substr(idom.regexLength);
+			var val = json[key];
 			
-			if (json[match.substr(idom.initRegexLength)]) {
-				return json[match.substr(idom.initRegexLength)];
+			// if an init variable exists and has a value, replace with JSON value for corresponding key
+			
+			if (val) {
+				
+				return val;
 			
 			} else {
 				
-				// if special variable is missing or has an empty string value return an empty string in its place	
+				// if an init variable is missing or has an empty string value return an empty string in its place	
 				return '';
 			}
 		});
-		
 	}		
 };
 
@@ -478,140 +491,75 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
     return result;
 };
  
-// add foeEachExec method to indexable objects (used by idom for NodeList)
-// like so: 
-// idom.forEachExec(document.querySelectorAll('[idom-selector$=linked]'), 'style.display = "block"')
-
-idom.forEachExec = function(nodelist, str) {
-	
-	if (arguments.length != 2) {
-		
-		var e = new Error;
-		
-		e.message = "wrong number of arguments: requires: nodelist, str"
-		
-		throw e.message + "\n" + e.stack;
-		
-	}
-	
-	var objArray = Array.prototype.slice.call(nodelist, 0);
-	
-	nodelist = null;
-		
-	if (!objArray.length) return;
- 	
- 	var exec = new Function("el", "el." + str);
- 	
- 	try {
- 		
- 		exec(objArray[0]);  
- 			
- 	} catch (e) {
- 		
- 		throw "invalid argument(s): " + e.message + "\n" + e.stack; 	
- 	}
- 	
- 	for (var n = 1; n < objArray.length; n++) {
- 		
- 		exec(objArray[n]);	
- 	}	
-};
-
-
-// .idom$  (main idom method)
-//
-// format: document.querySelector('#someNode').idom$(data [, options] [, uid])
-// action: create new instance of Node Prototype using 'data' (json) to populate the special variables in the Node,
-// then append/prepend to (or replace) existing instance(s) of Node Prototype in the Node
-//
-// data: {key: value, key: value, key: value, etc} 
-// where the keys must match the Node variable minus the idom$ prefix
-//
-// options: {mode: 'replace'|'append'|'prepend', targetSelector: value, ownSelector: value,
-// nodeSelector: value, targetState: value, ownState: value, nodeState: value}
-//
-// uid: if node contains a linked node then a unique id must be provided which will be added to the selector/state attributes of 
-// the linked nodes and of the populated instances of the node prototype of the linked nodes (if any)
-//
-// if there no populated instances of Node Prototype exist then append/prepend/replace will create an instance of the Node 
-// Prototype (so if a targetSelector is supplied in this case it will throw an error, so call .$isPopulated() first to 
-// be sure before invoking this method with targetSelector, unless you know the node is populated)
-//
-// targetSelector: optional idom-selector value for instance of Prototype Node to insert into Node in append and prepend modes. 
-// If null, append/prepend at last/1st instance of Node Prototype
-//
-// targetSelector: optional idom-selector value for instance of Prototype Node to insert into Node in replace mode. 
-// If null, replace entire innerHTML of node
-//
-// ownSelector: new value of idom-selector value for instance of Prototype Node being inserted
-//
-// ownState: new value of idom-state attribute for instance of Prototype Node being inserted
-//
-// targetState: optional idom-selector value for instance of Prototype Node to insert *at* in append and prepend modes 
-// targetState: optional idom-selector value for instance of Prototype Node to insert *at* in replace mode
-//
-// nodeSelector: new value of idom-selector for the Node itself
-// 
-// nodeState: new value of idom-state for the Node itself
-
 Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
-	if (!idom.internal.initDone) {
+	if (!idomDOM.initDone) {
 		
 		var err = new Error;
 			
-		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .idom$ methods"
+		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .idom$ methods";
 					 
 		throw err.message + '\n' + err.stack;
 	}
 	
-	var nid = this.getAttribute('idom-node-id');
-	
-	if (!idom.internal.cache[nid]) {
+	var nid = this.getAttribute('idom-node-id').replace(new RegExp("([@])(.)+$", "g"), "");
+
+	if (!idomDOM.cache[nid]) {
 		
 		// node was added after idom.init() 
 		var err = new Error;
 			
-		err.message = "node was not cached"
+		err.message = "node was not cached";
 					 
 		throw err.message + '\n' + err.stack;	
 	}
 	
 	// Todo: need to compose a regex pattern based on the node's template where idom node variables are replaced with 
 	// wildcards and the whole pattern repeating {1,} to see if the element has been wrongly updated 
-	// (from outside of idom), i.e. will not match the pattern, which should throw an error
+	// (from outside of idom), i.e. will not match the pattern, which would throw an error
 	
 	if (!this.children.length) {
 		
 		var err = new Error;
 			
-		err.message = "node is missing node prototype"
+		err.message = "node is missing node prototype";
 					 
 		throw err.message + '\n' + err.stack;
 	}
 	
-	// take the first argument, assuming simple JSON
-	var json = arguments[0];
+	var cloneId = arguments[0];
 	
-	// take the second argument, assuming simple JSON
-	var options = arguments[1];
+	// assuming simple JSON
+	var json = arguments[1];
 	
-	if (!(arguments[0])) {
+	// assuming simple JSON
+	var settings = arguments[2];
+	
+	if (!cloneId) {
 		
 		var err = new Error;
 			
-		err.message = "required argument: data (json)"
+		err.message = "required argument: cloneId (string)";
 					 
 		throw err.message + '\n' + err.stack;	
 	}
 	
-	if (options) {
+	if (!json) {
 		
-		var optErr, optionsStr;
+		var err = new Error;
+			
+		err.message = "required argument: data (json)";
+					 
+		throw err.message + '\n' + err.stack;	
+	}
+	
+	if (settings) {
+		
+		var optErr, settingsStr;
 			
 		try {
 			
-			optionsStr = JSON.stringify(options);
+			settingsStr = JSON.stringify(settings);
 			
 		} catch (e) {
 			
@@ -619,11 +567,11 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		}
 		
 		// primitive, fast error checking ... 
-		if (optErr || optionsStr.match(/[\{]{2,}|[\[]/)) {
+		if (optErr || settingsStr.match(/[\{]{2,}|[\[]/)) {
 			
 			var err = new Error;
 			
-			err.message = "Invalid options: use simple JSON. {someKey: 'value', anotherKey: 5, yetAnotherKey: 'anotherValue'}"
+			err.message = 'Invalid settings: use simple JSON. {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}';
 			 
 			throw err.message + '\n' + err.stack;
 			
@@ -632,128 +580,116 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			// idom works with simple JSON
 			// 
 			// 'simple JSON' is defined as a key-value collection, limited to string or numeric values 
-			// Like {someOption: 'value', anotherOption: 'anotherValue', etc}
+			// Like {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}
 			
-		} else if (optionsStr.match(idom.regex)) {
+		} else if (settingsStr.match(idom.regex)) {
 			
 			var err = new Error;
 			
-			err.message = "Invalid options: idom node variables found in options"
+			err.message = "Invalid settings: idom node variables found in settings";
 			 
 			throw err.message + '\n' + err.stack;
 		}
-	}
-	
-	// if Node contains no populated instances of its Prototype Node or nothing at all 
-	// or no options were given or no target or mode is specified	
-	if (this.innerHTML == idom.internal.cache[nid] || !this.children.length || 
-		!options || options == {} || 
-		(options && !(options.targetSelector || options.targetState || options.mode))) {
-		
-		if (options) {
 			
-			if (options.targetSelector) {
+	}
+		
+	// condition 1: if Node has no populated instances of its Prototype Node 
+	if (this.innerHTML == idomDOM.cache[nid] || 
+		// condition 2: or settings were not given 	
+		!settings || settings == {} || 
+		// condition 3: or 'replace all' is assumed (if no target was specified and mode is replace or not specified)
+		(settings && !settings.targetInstanceId && (settings.mode == 'replace' || settings.mode == ''))) {
+		
+		
+		//exception under condition 1 if target is specified 
+		if (settings && settings.targetInstanceId) {
 				
-				if (this.innerHTML == idom.internal.cache[nid] || !this.children.length) {
+				if (this.innerHTML == idomDOM.cache[nid]) {
 
 					var err = new Error;
 			
-					err.message = "Invalid option: targetSelector cannot be applied: this Node currently has no populated instances of its Node Prototype"
+					err.message = "invalid setting: targetInstanceId cannot be applied: this node currently has no populated instances of its node prototype";
 					 
 					throw err.message + '\n' + err.stack;			
-				}
-			}
+				};
+				
+		} 
+		
+		//exception under condition 2 and 3 
+		if (!settings || !settings.instanceId) {
+				
+				var err = new Error;
+				
+				err.message = "instanceId must be specified in settings when inserting a new instance of the node prototype"
+				 
+				throw err.message + '\n' + err.stack;
+				
 		}
 		
-		this.innerHTML = idom.internal.cache[nid]._idomMapValues(json);
-		
-		if (options) {
+		//all error paths hanlded in this case, so 
+		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId.replace(new RegExp("([@])(.)+$", "g"), ""), "nid": nid, "cloneId": cloneId});
 			
-			setOwnAttributes(this.children[0]);
-			
-			setNodeAttributes(this);	
-		}
+		setInstanceId(this.children[0]);
 		
 		// insert Linked Nodes
 		insertLinkedNodes(this.children[0]);
-		
+
 		// nothing else to do
 		return;
 		
-	// else (if node has been populated and options were given)					
+	// else (general case)					
 	} else {
 		
-		if (options) {
+			if (!settings.instanceId) {
+			
+				var err = new Error;
+				
+				err.message = "instanceId must be specified in settings when inserting a new instance of the node prototype"
+				 
+				throw err.message + '\n' + err.stack;
+			}
 			
 			var targetNodeList = [], newEl = [], tag, content, newChild, frag;
 			
-			if (options.targetSelector && !options.targetState) {
+			if (settings.targetInstanceId) {
 				
-				targetNodeList = this.querySelectorAll('[idom-selector=' + options.targetSelector +']');
-						
+				for (var n = 0; n < this.children.length; n++) {
+					 if (this.children[n].getAttribute('idom-instance-id') ==  settings.targetInstanceId) {
+						 
+						 targetNodeList.push(this.children[n])
+					 }
+				}
+				
 				if (!targetNodeList.length) {
 								
 					var err = new Error;
 			
-					err.message = "Invalid option: targetSelector does not match idom-selector in any instance of the Node Prototype"
+					err.message = "Invalid setting: targetInstanceId (" + settings.targetInstanceId + ") does not match " + 
+					"the idom-instance-id of any of the instances of the Node Prototype of the Node idom$() is invoked on\n";
 					 
 					throw err.message + '\n' + err.stack;	
-				} 
-				
-			} else if (!options.targetSelector && options.targetState) {	
-				
-				targetNodeList = this.querySelectorAll('[idom-state=' + options.targetState +']');
+				}; 
+			} 
 					
-				if (!targetNodeList.length) {
-								
-					var err = new Error;
+			tag = this.children[0].tagName;
 			
-					err.message = "Invalid option: targetState does not match idom-state in any instance of the Node Prototype"
-					 
-					throw err.message + '\n' + err.stack;	
-				} 
-				
-			} else if (options.targetSelector && options.targetState) {	
-				
-				// assumes AND for now... targetCombinator option will be added to allow specifying logical operator
-							
-				targetNodeList = this.querySelectorAll('[idom-selector=' + options.targetSelector +'][idom-state=' + options.targetState + ']');
-				
-							
-				if (!targetNodeList.length) {
-								
-					var err = new Error;
+			// populate instance of the Node Prototype with data     
+			content = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId.replace(new RegExp("([@])(.)+$", "g"), ""), "nid": nid, "cloneId": cloneId});
 			
-					err.message = "Invalid option: 'targetSelector AND targetState' do not match idom-selector/idom-state combination in any instance of the Node Prototype";
-					 
-					throw err.message + '\n' + err.stack;	
-				} 
-				
-			}
+			newChild = document.createElement(tag); 
 			
-			// if not doing a whole innerHTML replace
-			if (options.targetSelector || options.targetState || options.mode == 'append' || options.mode == 'prepend') {
-					
-				tag = this.children[0].tagName;
-				
-				// populate instance of the Node Prototype with data     
-				content = idom.internal.cache[nid]._idomMapValues(json);
-				
-				newChild = document.createElement(tag); 
-				
-				newChild.innerHTML = content;
-				
-				// Create document fragment to hold the populated instances
-				frag = document.createDocumentFragment();
-				
-				frag.appendChild(newChild.children[0])	
-			}	
+			newChild.innerHTML = content;
 			
-			switch (options.mode) {
+			// Create document fragment to hold the populated instance
+			frag = document.createDocumentFragment();
+			
+			frag.appendChild(newChild.children[0]);	
+			
+			switch (settings.mode) {
 				
 				case null: case '': case "replace": 
 					
-					if (options.targetSelector || options.targetState) {
+					if (settings.targetInstanceId) {
 						
 						if (targetNodeList.length > 1) {
 							
@@ -766,9 +702,9 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								
 								this.removeChild(targetNodeList[n]);
 								
-								insertLinkedNodes(newEl[n]);
+								setInstanceId(newEl[n]);
 								
-								setOwnAttributes(newEl[n]);
+								insertLinkedNodes(newEl[n]);
 							}
 							
 						} else {
@@ -779,92 +715,86 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								
 							this.removeChild(targetNodeList[0])
 								
-							insertLinkedNodes(newEl[0]);
+							setInstanceId(newEl[0]);
 							
-							setOwnAttributes(newEl[0]);
+							insertLinkedNodes(newEl[0]);
 								
 						}
 						
 					} else {
 						
-						this.innerHTML = idom.internal.cache[nid]._idomMapValues(json);
+						this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId.replace(new RegExp("([@])(.)+$", "g"), ""), "nid": nid, "cloneId": cloneId});
 						
 						newEl[0] = this.children[0];
 						
+						setInstanceId(newEl[0]);
+						
 						insertLinkedNodes(newEl[0]);
-							
-						setOwnAttributes(newEl[0]);
+
 					}
 			
 				break;
 				
 				case "append":
 				
-				    if (options.targetSelector || options.targetState) {
+				    if (settings.targetInstanceId) {
 						
 						// append to last matched target
 						if (targetNodeList.length > 1) {
 							
 							var targetEl = targetNodeList[targetNodeList.length - 1];
-							 
-							this.insertBefore(frag.cloneNode(true), targetEl.nextSiblingElement());
-						
-							newEl[0] = targetEl.nextSiblingElement();
-							
-							insertLinkedNodes(newEl[0]);
-							
-							setOwnAttributes(newEl[0]);
-							
+	
 						} else {
 							
 							var targetEl = targetNodeList[0];
-							
-							this.insertBefore(frag.cloneNode(true), targetEl.nextSiblingElement())
-							
-							newEl[0] = targetEl.nextSiblingElement();
-							
-							insertLinkedNodes(newEl[0]);
-							
-							setOwnAttributes(newEl[0]);
 						}	
+						
+						this.insertBefore(frag.cloneNode(true), targetEl.nextSiblingElement())
+						
+						newEl[0] = targetEl.nextSiblingElement();
+						
+						setInstanceId(newEl[0]);
+						
+						insertLinkedNodes(newEl[0]);
 						
 					} else {
 								
-						 this.appendChild(frag.cloneNode(true));
+						this.appendChild(frag.cloneNode(true));
 					
-						 newEl[0] = this.children[this.children.length - 1];
+						newEl[0] = this.children[this.children.length - 1];
 						 
-						 insertLinkedNodes(newEl[0]);
-							
-						 setOwnAttributes(newEl[0]);
+						setInstanceId(newEl[0]);
+		
+						insertLinkedNodes(newEl[0]);
 					}
-			
+				    
 				break;
 				
 				case "prepend":
 				
-					if (options.targetSelector || options.targetState) {
-							
+					if (settings.targetInstanceId) {
+						
 						// prepend to first matching target
 						this.insertBefore(frag.cloneNode(true), targetNodeList[0]);
 							
 						newEl[0] = targetNodeList[0].previousSiblingElement();
 						
+						setInstanceId(newEl[0]);
+						
 						insertLinkedNodes(newEl[0]);
-							
-						setOwnAttributes(newEl[0]);
-										
+						
 					} else {
 						
 						this.insertBefore(frag.cloneNode(true), this.children[0]);
 						
 						newEl[0] = this.children[0];
 						
+						setInstanceId(newEl[0]);
+						
 						insertLinkedNodes(newEl[0]);
-							
-						setOwnAttributes(newEl[0]);
+	
 					}
-				
+
 				break;
 				
 				default: 
@@ -876,92 +806,87 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 					throw err.message + '\n' + err.stack;	
 			}
 			
-			// set any idom node attributes supplied in options
-			setNodeAttributes(this);  
-			
 			frag = null; 			
-		}
 	}	
 	
-	function setNodeAttributes(elem) {
-		
-		if (options.nodeSelector) {
-			
-			elem.setAttribute("idom-selector", options.nodeSelector);
-		}
-		
-		if (options.nodeState) {
-				
-			elem.setAttribute("idom-state", options.nodeState);
-		}
-	}
 	
-	function setOwnAttributes(elem) {
+	function setInstanceId(elem) {
+			
+		elem.setAttribute("idom-instance-id", settings.instanceId)
 		
-		if (options.ownSelector) {
-									
-			elem.setAttribute("idom-selector", options.ownSelector);
-		}
-		
-		if (options.ownState) {
-				
-			elem.setAttribute("idom-state", options.ownState);	
-		}
-	}
+	};
 	
 	function insertLinkedNodes(elem) {
 		
 		var nestedCommentNodes = elem.getElementsByNodeType(8, true);
 		
 		if (nestedCommentNodes.length) {
-		
-		var linkedNodeID = '';
+			
+			var linkedNodeID = '';
 			
 			for (var n = 0; n < nestedCommentNodes.length; n++) {
 				
-				linkedNodeID = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
+				var id = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
 				
-				if (linkedNodeID) {
-				
-					if (!idom.internal.cache[linkedNodeID]) {
-						
-						var err = new Error;
-		
-						err.message = "linked nodes must be present in DOM at time of caching"
-						 
-						throw err.message + '\n' + err.stack;
-					} 
+				if (id) {
 					
-					if (document.querySelector('[idom-node-id=' + linkedNodeID + ']').innerHTML == idom.internal.cache[linkedNodeID]) {
+					if (linkedNodeID.indexOf(id) != -1) {
 						
 						var err = new Error;
-		
-						err.message = "linked nodes must be populated before their host nodes"
+						
+						err.message = "duplicate linked node: only one instance of a given linked node is allowed per each instance of the host's node prototype";
 						 
 						throw err.message + '\n' + err.stack;
 					}
 					
-					if (!document.querySelector('[idom-node-id=' + linkedNodeID + ']').children.length) {
+					linkedNodeID += "," + id;
+						
+					var linkedNode = document.querySelector('[idom-node-id=' + id + ']');
+					
+					if (!linkedNode.idom$isPopulated()) {
 						
 						var err = new Error;
-		
-						err.message = "linked node missing node prototype"
+						
+						err.message = "node must be populated before being linked";
 						 
 						throw err.message + '\n' + err.stack;
-					}
 						
-					var el = nestedCommentNodes[n].parentNode.insertBefore(document.querySelector('[idom-node-id=' + linkedNodeID + ']').cloneNode(true), nestedCommentNodes[n]);
+					}
 					
-					el.parentNode.removeChild(nestedCommentNodes[n]);
+					var recursiveNestedCommentNodes = linkedNode.getElementsByNodeType(8, true);
 					
-					el.removeAttribute("idom-node-id");
+					for (var m = 0; m < recursiveNestedCommentNodes.length; m++) {
+						
+						var reId = recursiveNestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? recursiveNestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
+						
+						if (reId) {
+							
+							var err = new Error;
+							
+							err.message = "can't have a linked node within a linked node";
+							 
+							throw err.message + '\n' + err.stack;
+						}
+					}
+
+					var el = nestedCommentNodes[n].parentNode.insertBefore(linkedNode.cloneNode(true), nestedCommentNodes[n]);
 					
-					idom.internal.appendToEachAttr(el, "idom-selector", "_linked") ;
-					idom.internal.appendToEachAttr(el, "idom-state", "_linked") ;
-				}	
+					el.parentNode.removeChild(nestedCommentNodes[0]);
+					
+					for (var n = 0; n < el.children.length || n < 1; n++) {
+									
+						el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id"));
+					}
+					
+					el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id"));
+				} 
 			}
+		} else {
+			
+			return;
 		}
 	}
+	
 };
 
 // format: clonedNode = document.querySelector('#someNode').idom$clone(uid) 
@@ -986,25 +911,53 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		throw err.message + '\n' + err.stack;
 	}
 
-	var uid = arguments[0];
+	var cloneId = arguments[0];
 	
 	var el = this.cloneNode(true);
 	
-	el.removeAttribute("idom-node-id");
+	el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@cloned@" + cloneId);
 	
-	idom.internal.appendToEachAttr(el, "idom-selector", "_cloned_" + uid) ; 
-	idom.internal.appendToEachAttr(el, "idom-state", "_cloned_" + uid) ; 
+	var linkedNodes = el.querySelectorAll("[idom-node-id]");
 	
+	if (linkedNodes) {
+		
+		if (linkedNodes.length) {
+			
+			for (var n = 0; n < linkedNodes.length; n++) {
+				
+				linkedNodes[n].setAttribute("idom-node-id", linkedNodes[n].getAttribute("idom-node-id") + "@cloned@" + cloneId)
+			}
+			
+		} else if (linkedNodes) {
+				
+				linkedNodes.setAttribute("idom-node-id", linkedNodes.getAttribute("idom-node-id") + "@cloned@" + cloneId)
+		}
+	} 
+	
+	var els = el.querySelectorAll("[idom-instance-id]");
+	
+	if (els.length) {
+
+			for (var n = 0; n < els.length; n++) {
+				
+				els[n].setAttribute("idom-instance-id", els[n].getAttribute("idom-instance-id") + "@cloned@" + cloneId)
+			}
+	
+	} else if (els) {
+		
+		els.setAttribute("idom-instance-id", els.getAttribute("idom-instance-id") + "@cloned@" + cloneId)
+	} 
+	
+	return el;
 };
 
 
 // format: document.querySelector('#someNode').idom$isPopulated() 
-
 Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || function() {
 	
 	// .$isPopulated() may be used within loops, so it should be as light as possible
 	
-	if (!idom.internal.initDone) {
+	if (!idomDOM.initDone) {
 		
 		var err = new Error;
 			
@@ -1013,9 +966,9 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 		throw err.message + '\n' + err.stack;
 	}
 	
-	var nid = this.getAttribute('idom-node-id');
+	var nid = this.getAttribute('idom-node-id').replace(new RegExp("([@])(.)+$", "g"), "");
 	
-	if (!idom.internal.cache[nid]) {
+	if (!idomDOM.cache[nid]) {
 		
 		var err = new Error;
 			
@@ -1033,7 +986,7 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 		throw err.message + '\n' + err.stack;
 	}
 
-	if (this.innerHTML == idom.internal.cache[nid]) {
+	if (this.innerHTML == idomDOM.cache[nid]) {
 		
 		return false;
 	}		
@@ -1044,20 +997,15 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 
 // .idom$dePopulate
 //
-// format: document.querySelector('#someNode').idom$delete([options]) 
-// options: {'targetSelector': value, targetState: value, nodeState: value, nodeSelector: value}
+// format: document.querySelector('#someNode').idom$delete([settings]) 
+// settings: {'targetInstanceId': value}
 //
-// targetSelector: optional: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
+// targetInstanceId: settingal: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
 //
-// targetState: optional: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
-//
-// nodeState: optional: new value of Node's idom-state attribute after modification
-//
-// nodeSelector: optional: new value of Node's idom-selector attribute after modification
 
 Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || function() {
 	
-	if (!idom.internal.initDone) {
+	if (!idomDOM.initDone) {
 		
 		var err = new Error;
 			
@@ -1066,9 +1014,9 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 		throw err.message + '\n' + err.stack;
 	}
 	
-	var nid = this.getAttribute('idom-node-id');
+	var nid = this.getAttribute('idom-node-id').replace(new RegExp("([@])(.)+$", "g"), "");
 	
-	if (!idom.internal.cache[nid]) {
+	if (!idomDOM.cache[nid]) {
 		
 		var err = new Error;
 			
@@ -1087,22 +1035,22 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 	}
 	
 	
-	if (this.innerHTML == idom.internal.cache[nid]) {
+	if (this.innerHTML == idomDOM.cache[nid]) {
 		
 		// nothing to dePopulate
 		return;
 	}
 	
-	// take options, assuming simple JSON
-	var options = arguments[0];	
+	// take settings, assuming simple JSON
+	var settings = arguments[0];	
 	
-	var optionsStr, optErr;
+	var settingsStr, optErr;
 	
-	if (options) {
+	if (settings) {
 		
 		try {
 			
-			optionsStr = JSON.stringify(options);
+			settingsStr = JSON.stringify(settings);
 			
 		} catch (e) {
 			
@@ -1110,11 +1058,11 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 		}
 		
 		// primitive, fast error checking ... 
-		if (optErr || optionsStr.match(/[\{]{2,}|[\[]/)) {
+		if (optErr || settingsStr.match(/[\{]{2,}|[\[]/)) {
 			
 			var err = new Error;
 			
-			err.message = "Invalid options: use simple JSON. {someKey: 'value', anotherKey: 5, yetAnotherKey: 'anotherValue'}"
+			err.message = 'Invalid settings: use simple JSON. {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}'
 						 
 			throw err.message + '\n' + err.stack; 
 			 
@@ -1123,30 +1071,28 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 			// idom works with simple JSON
 			// 
 			// 'simple JSON' is defined as a key-value collection, limited to string or numeric values 
-			// Like {someOption: 'value', anotherOption: 'anotherValue', etc}
+			// Like {somesetting: 'value', anothersetting: 'anotherValue', etc}
 			
-		} else if (optionsStr.match(idom.regex)) {
+		} else if (settingsStr.match(idom.regex)) {
 			
 			var err = new Error;
 			
-			err.message = "Invalid data: idom node variables found in options"
+			err.message = "Invalid data: idom node variables found in settings"
 						 
 			throw err.message + '\n' + err.stack;
 		}
 		
 		var targetNodeList = [];
 		
-		if (options.targetSelector) {
+		if (settings.targetInstanceId) {
 			
-			if (options.targetSelector && !options.targetState) {
+			if (settings.targetInstanceId) {
 				
-				var nodeSelector = document.querySelector('[idom-node-id=' + nid + ']');
-				
-				for (var n = 0; n < nodeSelector.children.length; n++) {
+				for (var n = 0; n < this.children.length; n++) {
 					
-					if (nodeSelector.children[n].getAttribute("idom-selector") == options.targetSelector) {
+					if (this.children[n].getAttribute("idom-instance-id") == settings.targetInstanceId) {
 						
-						targetNodeList.push(nodeSelector.children[n])
+						targetNodeList.push(this.children[n])
 					}
 				}
 							
@@ -1154,55 +1100,14 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 								
 					var err = new Error;
 			
-					err.message = "Invalid option: targetSelector does not match idom-selector in any instance of the Node Prototype"
+					err.message = "Invalid setting: targetInstanceId (" + settings.targetInstanceId + ") does not match" + 
+					"any idom-instance-id in any instance of the Node Prototype of the Node idom$() is invoked on\n" + 
+					"outerHTML of node:\n" + this.outerHTML;
 					 
 					throw err.message + '\n' + err.stack;	
 				}
 				
-			} else if (!options.targetSelector && options.targetState) {	
-				
-				var nodeSelector = document.querySelector('[idom-node-id=' + nid + ']');
-				
-				for (var n = 0; n < nodeSelector.children.length; n++) {
-					
-					if (nodeSelector.children[n].getAttribute("idom-state") == options.targetState) {
-						
-						targetNodeList.push(nodeSelector.children[n])
-					}
-				}	
-				
-				if (!targetNodeList) {
-								
-					var err = new Error;
-			
-					err.message = "Invalid option: targetState does not match idom-state in any instance of the Node Prototype)"
-					 
-					throw err.message + '\n' + err.stack;	
-				}
-				
-			} else if (options.targetSelector && options.targetState) {	
-				
-				var nodeSelector = document.querySelector('[idom-node-id=' + nid + ']');
-				
-				for (var n = 0; n < nodeSelector.children.length; n++) {
-					
-					if (nodeSelector.children[n].getAttribute("idom-state") == options.targetState &&
-						nodeSelector.children[n].getAttribute("idom-selector") == options.targetSelector ) {
-						
-						targetNodeList.push(nodeSelector.children[n])
-					}
-					
-				}
-							
-				if (!targetNodeList) {
-								
-					var err = new Error;
-			
-					err.message = "Invalid option: targetSelector and targetState doe not match idom-selector or idom-state in any instance of the Node Prototype"
-					 
-					throw err.message + '\n' + err.stack;	
-				}
-			}
+			} 
 			
 						
 			for (var n = 0; n < targetNodeList.length; n++) {
@@ -1211,23 +1116,13 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 			}
 			
 			if (!this.children.length) {
-				this.innerHTML = idom.internal.cache[nid];
+				this.innerHTML = idomDOM.cache[nid];
 			}
 		} 
 		
-		if (options.nodeState) {
-						
-			this.setAttribute("idom-state", options.nodeState);
-		}
-		
-		if (options.nodeSelector) {
-						
-			this.setAttribute("idom-selector", options.nodeSelector);
-		}
-		
 	} else {
 		
-		this.innerHTML = idom.internal.cache[nid];
+		this.innerHTML = idomDOM.cache[nid];
 	}
 };
 

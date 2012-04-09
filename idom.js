@@ -22,7 +22,12 @@
  *
  * idi.bidi.dom - Non-Hierarchical Interface To The DOM
  *
- * How Does It Work?
+ * What does it do?
+ * 
+ * idi.bidi.dom reduces HTML on a page to a minimum and places a list-oriented JSON 
+ * API between presentation logic and the DOM
+ * 
+ * How does it work?
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
  * Node Prototype from which instances (copies, usually with different data) can 

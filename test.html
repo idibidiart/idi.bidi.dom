@@ -12,9 +12,7 @@
   	
     body {
       margin-top: 1.0em;
-      background-color: black;
       font-family: Helvetica, Arial, FreeSans, san-serif;
-      color: green;
     }
     #container {
       margin: 0 auto;
@@ -28,51 +26,41 @@
     a { color: #8073ab; }
     .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
     .download { float: right; }
-    pre { background: #000; color: #fff; padding: 15px;}
+    pre { padding-left: 15px; word-break: break; font-size: 15px}
     hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
     .footer { text-align:center; padding-top:30px; font-style: italic; }
-     
-  </style>
   
-  <!-- idom test styles -->
-  <style>
-    .replacedClassForNodePrototype { background-color: orange; }
-    .replacedClassForLinkedNodeListPrototype { background-color: yellow; }
-    
-    .outputClass { margin-left: 10px; }
-    
-    .rangeClass {display: inline-block; width: 4px; height: 11px; border: 1px solid}
   </style>
-  
 </head>
 
-<body>
-  <a href="https://github.com/idibidiart/idi.bidi.dom"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkpurple_121621.png" alt="Fork me on GitHub" /></a>
+<body style='color: green; background-color: black'>
+  <a href="https://github.com/idibidiart/idi.bidi.dom">
+  	<img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkpurple_121621.png" alt="Fork me on GitHub" /></a>
 
   <div id="container">
 
     <div class="download">
-      <a href="https://github.com/idibidiart/idi.bidi.dom/zipball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/zip.png"></a>
-      <a href="https://github.com/idibidiart/idi.bidi.dom/tarball/master">
-        <img border="0" width="90" src="https://github.com/images/modules/download/tar.png"></a>
+      <a href="http://github.com/idibidiart/idi.bidi.dom/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/idibidiart/idi.bidi.dom/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
     </div>
 
-    <h1><a href="https://github.com/idibidiart/idi.bidi.dom">idom</a>
+    <h1><a href="http://github.com/idibidiart/idi.bidi.dom">idom</a>
       <span class="small">by <a href="https://github.com/idibidiart">idibidiart</a></span></h1>
 
     <div class="description">
-      DOM Anti-Templating Framework
+      Non-Hierarchical Interface To The DOM
     </div>
 </div>
 
 <pre>
 
-<div style='font-size: 16px; color: green; white-space: pre-wrap;'>
-
 /*! idi.bidi.dom 
 * 
-* DOM Anti-Templating 
+* v0.2
+*
+* Non-Hierarchical Interface To The DOM 
 *
 * Copyright (c) Marc Fawzi 2012
 * 
@@ -80,49 +68,24 @@
 *
 * BSD License 
 * 
-* derived from NattyJS v0.08: an open source precursor by the same author 
+* derived from NattyJS v0.08: a BSD licensed precursor by the same author 
 *
 */
 
+
+<br>
+<img src= "idom.png";/>
+
+</div>
 /******************************************************************************
  * 
  * README:
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * idi.bidi.dom - Javascript Anti-Templating 
- *
- * "All the separation and none of the baggage" 
- *
- * What is it? 
- *
- * Data-Driven DOM "Templating" Without The Templates    
+ * idi.bidi.dom - Non-Hierarchical Interface To The DOM
  *
  * How Does It Work?
- * 
- * idi.bidi.dom works by caching the virgin innerHTML (the Node Prototype) of all DOM 
- * elements (the Nodes) that have a 'idom-node-id' attribute at window.onload 
- * or $(document).ready. Each Node must contain exactly one direct child at time 
- * of caching, i.e. the Node Prototype, which must contain special variables (in 
- * its inner/outer HTML) to be replaced, in a global, dynamic fashion, with JSON 
- * data (with the scope being the inner/outer HTML of a newly created instance of 
- * the Node Prototype)
- *
- * The Node Prototype may hold an arbitrarily complex DOM structure, and one in 
- * which Node(s) defined elsewhere in the DOM may be dynamically linked by 
- * reference (called Linked Nodes)
- *
- * idi.bidi.dom works by creating an instance of the Node Prototype and populating 
- * the special variables in it with dynamic JSON data (where the JSON keys must 
- * correspond to the special variables in the Node Prototype) and then inserting 
- * the newly populated instance into the Node itself, using replace (default on 
- * first insertion), append or prepend methods, as applied to the Node's entire 
- * content (the virgin innerHTML or all populated instances of the Node Prototype
- * that were previously inserted into the Node) or specific, previously inserted
- * instance(s) of the Node Prototype. This basically creates a list of Node
- * Prototype instances within the Node (So for convenience, and in the test cases, 
- * Nodes and Linked Nodes may be referred Node Lists and Linked Node Lists, 
- * respectively)
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
  * Node Prototype from which instances (copies, usually with different data) can 
@@ -130,594 +93,481 @@
  * prepend, and replace modes, with the ability to target specific, previously 
  * inserted instances of the Node Prototype or the Node List's entire content, i.e. 
  * the set of instances of the Node Prototype) and where the Node itself can be 
- * dynamically linked into other Node Lists, which can be linked into other Node 
- * Lists, and so on... Only restriction is that we can't link a virgin node (one
- * that only has a node prototype); it must be populated before being linked.
+ * dynamically linked into other Nodes.
  * 
- * Additionally, idi.bidi.dom allows selector-safe cloning of populated nodes 
- * (including any linked nodes) such that we may re-use the same DOM structure
- * to create any number of differentiated nodes with the same basic structure. 
+ * Additionally, idi.bidi.dom allows the cloning of each Node and the populated
+ * instances of the Node Prototype within it (including any Linked Nodes inserted 
+ * into the Node Prototype and the populated instances of the Node Prototype within
+ * those Linked Nodes) This means that we may re-use the same Node to create any number 
+ * of differently populated and customized Nodes, thus reducing the amount of HTML 
+ * in our pages while greatly simplifying our interaction with the DOM by using
+ * a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
+ * API that the DOM exposes.  
+ *
+ * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
+ * to take the place of Javascript itself nor does it add its own boilerplate; it 
+ * simply gives Javascript more power by leveraging a simple and consistent interface
+ * to the DOM. 
+ *
+ * Usage:
+ *
+ * format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
  * 
- * Using OOP as the metaphor, idom takes the DOM and adds variables, encapsulation, 
- * multiple-inheritance and polymorphism. 
- *  
- * Unlike other template-less DOM rendering frameworks, idom does not take over 
- * the job of Javascript itself nor does it add any boilerplate, it just gives 
- * Javascript more power by front-ending the DOM.
- * 
- * Examples: 
+ * output: creates a new instance of Node Prototype using 'data' (json) to populate the 
+ * special variables in the Node, then append/prepend to (or replace) existing 
+ * instance(s) of Node Prototype in the Node
  *
- * Take a look at test.html
+ * cloneId: unique id for the future or current clone the data is intended for  
  *
- * See Notes under String.prototype._idomMapValues for the expected JSON format
- * 
- * Main Invocation Pattern
+ * data: {key: value, key: value, key: value, etc} 
+ * where the key must match the variable name in the data minus the idom$ prefix
  *
- * .idom$ 
+ * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: value}
  *
- * document.querySelector('#someNode').idom$(data [, options])
+ * if there no populated instances of Node Prototype then append/prepend/replace 
+ * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied in 
+ * this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * invoking this method with targetInstanceId, unless you know the node is populated)
  *
- * behavior: creates new instance of Prototype Node using data to populate the 
- * special variables in Prototype Node, then append/prepend to (or replace) 
- * existing instance(s) in the Node
+ * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
+ * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
+ * previously populated instance of the Node Prototype, or to start of the list if none were
+ * previously populated.
  *
- * >> data: {key: value, key: value, key: value, etc} 
- * where the keys must match the idi.bidi.dom node variables in the Node Prototype minus
- * the idom$ prefix
+ * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to replace 
+ * when in replace mode. If null, replace all instances.
  *
- * >> options: {mode: 'replace'|'append'|'prepend', targetSelector: value, 
- * ownSelector: value, nodeSelector: value, targetState: value, ownState: value, 
- * nodeState: value}
- *
- * if there no populated instances of Prototype Node exist (or if the Node's 
- * innerHTML was deleted after or before populated instances of Prototype Node 
- * were inserted) then append/prepend/replace will all replace the Node's 
- * entire content (if targetSelector is supplied in this case it will throw 
- * an error, so unless you are sure, you may want to call .$isPopulated() before 
- * invoking this method with targetSelector or stateSelector options)
- *
- * targetSelector: optional idom-selector value for instance(s) of Prototype Node
- * to insert the new instance at in append and prepend modes. If null, then 
- * append/prepend new instance at last/1st instance
- *
- * targetSelector: optional idom-selector value for instance(s) of Prototype 
- * Node to insert into in replace mode. If null, replace entire content of Node
- *
- * ownSelector: new value of idom-selector value for instance of Prototype Node 
- * being inserted
- *
- * ownState: new value of idom-state attribute for instance of Prototype Node 
- * being inserted
- *
- * targetState: optional idom-selector value for instance of Prototype Node to in
- * sert at in append and prepend modes targetState: optional idom-selector value
- * for instance of Prototype Node to insert at in replace mode
- *
- * nodeSelector: new value of idom-selector for the Node itself
- *
- * nodeState: new value of idom-state for the Node itself
- * 
+ * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
  *
  *********************************************************************************
  * 
  * Other available are methods are 
  *
- * .idom$dePopulate([options]) which can delete certain populated instances of the Node 
+ * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
- * .idom$isPopulated() may be queried before specifying targetSelector or targetState 
+ * .idom$isPopulated() may be queried before specifying targetInstanceId  
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  * 
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
  *
- * idom.forEachExec(NodeList, methodOrPrtopertyExpression) may be used to invoke methods 
- * or set properties on each DOM elements in the given NodeList (e.g. returned from a 
- * querySelector call) see test.html for relevant use cases 
  * 
  *********************************************************************************/
+<br>
 
-<div style='font-size: 17px; background-color: rgb(39,39,43);border-radius: 4px; padding: 16px;box-shadow: 0 0 13px rgba(250,250,250, 0.5)'>
-The following test operates on the following DOM structure: 
+Example:
+<div style='padding-left: 10px;'>
+&lt;!--************************************************* INTERFACE OBJECT ***********************************************-->
+&lt;script type="text/javascript" src="jsonData.js">&lt;/script>
+
 <div style='color: orange'>
-&lt;div class='<span>i</span>$someClass' idom-node-id='someNodeList' style='display: none'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
-                	
-	&lt;div class='idom$someClass'&gt; <span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>
-		&lt;span onclick='idom$someHandler'&gt;idom$someInfo&lt;/span&gt;
-		&lt;div class='someClass idom$statusClass' onclick='idom$someHandler'&gt;
-		&lt;div id='idom$someDiv'&gt;idom$content&lt;/div&gt;
-		&lt;/div&gt;
-		<span style='color: yellow'>&lt;!-- @idom someOtherNodeList --&gt;</span>
-	&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node Prototype --&gt;</span>
+&lt;!--************************************************* VIEW OBJECTS ***************************************************-->
+&lt;!-- Start of Node List -->
+&lt;div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; 
+border: none; background-color: white; color: black; display: none;'>
 	
-&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
+	&lt;!-- Start of Node Prototype -->	
+	&lt;div>
+		&lt;div style='padding: 5px;'>idom$caption&lt;/div>
+		&lt;!-- @idom userInfo -->	 
+	&lt;/div> 
+	&lt;!-- End of Node Prototype -->
+	
+&lt;/div>
+&lt;!-- End of Node List -->
 
-&lt;div idom-node-id='<span style='color: yellow'>someOtherNodeList</span>' style='display: none'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
-                	
-	&lt;div&gt; <span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>
-		&lt;span onclick='idom$someHandler'&gt;idom$someStuff&lt;/span&gt;
-	&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node Prototype --&gt;</span>
+&lt;!-- Start of Node List -->
+&lt;div idom-node-id='userInfo' style='display: none;'>
 	
-&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
+	&lt;!-- Start of Node Prototype -->
+	&lt;div class='classNameCanBEaVariableToo' onclick='idom$myHandler'>
+		&lt;table cellspacing="20px">
+			&lt;tr>
+				&lt;td>
+					&lt;div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username&lt;/div>
+				&lt;/td>
+				&lt;td>
+					&lt;div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id&lt;/div>
+				&lt;/td>
+			&lt;/tr>
+		&lt;/table>
+	&lt;/div>
+	&lt;!-- End of Node Prototype -->
+	
+&lt;/div>
+&lt;!-- End of Node List -->
 </div>
-where <span style='color: orange'>(i)$variables</span> are initialization-time variables and <span style='color: orange'>(idom)$variables</span> are dynamic Node variables 
 
-and using the following Javascript:
+&lt;p>Click on any user below to see the idom-attached event handler for the target element in action&lt;/p>
 
-// cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
-idom.init({someClass: 'outputClass'});			
+&lt;div>
 
-// Selectors are merely the value of the idom-selector attribute within the node (not actual CSS selectors)
-// They may match none, one or many populated child nodes. if no populated instances of Node Prototype were 
-// inserted into the Node or if the selector string doesn't match any instance then an error is thrown
+&lt;button onclick='button1()'>Click to disable event handling on user 2 in Team 2&lt;/button>
+&lt;button onclick='button2()'>Click to enable event handling on user 2 in Team 2&lt;/button>
+&lt;/div>
+&lt;script>
+/*********************************************** PRESENTER *************************************************************/
 
-// The methods themselves can be repeated infinitely, each time creating an instance of the Node Prototype and
-// inserting it into the Node
+//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any
+idom.init();	
 
-
-// Start of Test 1
-
-// populate the Node Prototype of the Linked Node first  	
-document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
-	{
-		someStuff: 'dynamically linked content from another node', 
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'replace',
-		ownSelector: 'someOtherNodePrototypeInstance',
-		nodeSelector: 'someOtherNodeList'
-	})
-
-// normal replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 1', 
-		content: "node div content 1",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'replace', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance1',
-		nodeSelector: 'someNodeList' 
-	})
-
-// normal append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 3', 
-		content: "node div content 3",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'append', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance3' 
-	})
-
-// normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 0', 
-		content: 'node div content 0',
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'prepend', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance0' 
-	})
+for (m = 0; m &lt; jsonData.teams.length; m++) {
+		
+	//populate the Node Prototype of the Linked Node first  
+	//and populate again each time before making a new clone that links it 
+	for (n = 0; n &lt; jsonData.teams[m].members.length; n++) {
 	
-
-// random access append on the Node ... pass Node variables (idom$var)
-
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 2', 
-		content: "node div content 2",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'append', 
-		targetSelector: 'NodePrototypeInstance1', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance2' 
-	})
-
-// normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content -1', 
-		content: "node div content -1",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'prepend', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance-1' 
-	})
-
-// random access replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content sub-0', 
-		content: "node div content sub-0",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'replace', 
-		targetSelector: 'NodePrototypeInstance-1', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance-sub-zero' 
-	})
-
-// random access append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content -1', 
-		content: "node div content -1",
-		someHandler: 'clickMe(this)'
-	}, {
-		mode: 'append', 
-		targetSelector: 'NodePrototypeInstance-sub-zero', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance-1' 
-	})
-
-// random access prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 2.5', 
-		content: "node div content 2.5",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'prepend', 
-		targetSelector: 'NodePrototypeInstance3', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance2.5' 
-	})
-	
-
-// make visible the Node
-document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
-
-// idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
-// otherwise clones of the Nodes being linked (which are left untouched) idom also removes the idom-node-id in the
-// Linked Nodes (to avoid conflict with the original Nodes being linked)
-
-// make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
-
-</div>
-</div>
-</pre>		
-
-<p>click on each line below to see it's details 
-</p>
-<p>an animated, more complete test will replace this ghetto test soon...
-</p>	
-<div class='i$someClass' idom-node-id='someNodeList' style='display: none'> <!-- Start of Node List -->       	
-	<div class='idom$someClass'> <!-- Start of Node Prototype -->
-		<span onclick='idom$someHandler'>idom$someInfo</span><div class='someStaticClass idom$statusClass' onclick='idom$someHandler'><div id='idom$someDiv'>idom$content</div></div>
-		<!-- @idom someOtherNodeList -->
-	</div> <!-- End of Node Prototype -->
-</div> <!-- End of Node List -->
-
-<div idom-node-id='someOtherNodeList' style='display: none'> <!-- Start of Node List -->     	
-	<div class='idom$anotherClass'> <!-- Start of Node Prototype -->
-		<span onclick='idom$someHandler'>idom$someStuff</span>
-	</div> <!-- End of Node Prototype -->
-</div> <!-- End of Node List -->
-
-<div style='position: relative; top: 10px'>	
-	<input type='button' value="Replace several Node Prototype instances with the same new instance of the Node Prototype and replace Linked Node's Prototype instances with the same new instance of the Linked Node's Prototype" onclick='multiReplace()'/>
-	<br>
-	<p style='width: 1024px'>The complexity and combinations of test cases and what can be done in terms of manipulating the Node List and its populated elements, including any linked Node Lists, is basically too broad to deal with in a few manually coded examples, so a large number 
-		examples will be generated automatically (once I write the test case generator), but for now you can 
-		try exploring for yourself and send in your examples. Also, note that there can be an infinite number of operations on each Node List and on each Node Lists within it (or until an error condition is asserted.)
-	</p>
-<pre>
-<div style='font-size: 16px; color: green; white-space: pre-wrap;'>	
-<div style='font-size: 17px; background-color: rgb(39,39,43);border-radius: 4px; padding: 16px;box-shadow: 0 0 13px rgba(250,250,250, 0.5)'>
-The following test operates on the following DOM structure: 
-<div style='color: orange'> 
-&lt;div idom-node-id='rangeIndicator' style='width: 200px; height: auto; padding: 2px'&gt; <span style='color: purple'>&lt;!-- Start of Node List --&gt;</span>
-	<span style='color: purple'>&lt;!-- Start of Node Prototype --&gt;</span>	
-	&lt;div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'&gt;
-	&lt;/div&gt; 
-	<span style='color: purple'>&lt;!-- End of Node Prototype --&gt;</span>
-	
-&lt;/div&gt; <span style='color: purple'>&lt;!-- End of Node List --&gt;</span>
-</div>
-where <span style='color: orange'>idom$variables</span> are dynamic Node variables 
-
-and using the following Javascript:
-
-var rangeCompleteness = val ? val : 25; 
-	
-// get the number of steps to highlight in  completion indicator
-var steps = Math.round((rangeCompleteness * 12) / 50); 	
-
-if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
-	 document.querySelector('[idom-node-id=rangeIndicator]').idom$dePopulate()
-}
-	   
-for (var n = 0; n < 12; n++) {
-	    
-	if (n < steps) {
-	
-		document.querySelector('[idom-node-id=rangeIndicator]').idom$(
+		document.querySelector('[idom-node-id=userInfo]').idom$('clone' + Number(m + 1),
 			{
-				bgcolor: 'lightblue', 
-				bcolor: 'gray',
-				margin: n < 2 ? '-1px' : '2px',
-			}, {mode: 'append', ownSelector: 'tic' + n})
-	} else {
-			document.querySelector('[idom-node-id=rangeIndicator]').idom$({
-			bgcolor: 'gray', 
-			bcolor: 'gray',
-			margin: n < 2 ? '-1px' : '2px',
-			}, {mode: 'append', ownSelector: 'tic' + n})
-			
+				username: jsonData.teams[m].members[n].username,
+				id: jsonData.teams[m].members[n].id,
+				myHandler: 'idom.eventHandler(event, this, changeColor)' 
+				// event handler can be removed by simply setting this to null
+			}, 
+			{
+				mode: 'append',
+				instanceId: 'user' + n
+			})
+	
 	}
+	
+	// perform replace on the host Node (linked node gets re/linked with each idom$() call)
+	// and populate again each time before making a new clone of it
+	document.querySelector('[idom-node-id=teamContainer]').idom$('clone' + Number(m + 1),
+		{
+			caption: jsonData.teams[m].caption
+		}, 
+		{
+			mode: 'replace',
+			instanceId: 'team' + Number(m + 1)
+		})		
+
+	// at this point the teamContainer div is populated with the 'caption' data and the content of the linked userInfo node 
+	// so we may now clone it and provide a uid for the clone (e.g. 'clone1')
+	var clonedEl = document.querySelector('[idom-node-id=teamContainer]').idom$clone('clone' + Number(m + 1))
+
+	//insert cloned node into body
+	document.body.appendChild(clonedEl);
+	
+	// normally, we'd dePopulate the host node (so we're startig with its node prototype for the next iteration)
+	// but in this case the host node's node prototype instance is being replaced each time (mode: 'replace') so no need
+	// document.querySelector('[idom-node-id=teamContainer]').idom$dePopulate() 
+	
+	// now that we have everything in the cloned node, dePopulate the linked node so we're startig with its node prototype for 
+	// the next iteration)
+	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
+
+	// now we can display the cloned node and the linked node within it (also cloned) both having been tagged during
+	// cloning with the clone uid at end of their idom-node-id's
+	idom.forEachExec(document.querySelectorAll("[idom-node-id$='clone" + Number(m + 1) + "']"), "style.display = 'block'")
 }
 
-</div>
+var toggleColor = {};
+
+// the event handler is defined here on each instance of the node prototype of the linked node that's now inside 
+// the cloned node. Given that idom recognizes only the node and its node prototype instances, and since working with
+// the cloned node not the original node (which should be always hidden) is the correct usage pattern, idom.eventHandler()
+// only allows the definition of event hanlders (which in this case is changeColor) on the cloned node or the linked node 
+// within the cloned node, or directly on the node prototype instances within them. Having said that, the linked node
+// can be located anywhere within the DOM structure of the prototype node of the cloned node, so there is no
+// restriction on how deeply nested the event handlers can be...
+
+// The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
+// or the node prototype instance within it), which is the normal way 'this' is handled in this context
+
+function changeColor(event, nodeId, instanceId, cloneId) {
+	
+	event.preventDefault();
+    
+	toggleColor[instanceId] = !toggleColor[instanceId];
+	
+	if (toggleColor[instanceId]) {
+		
+		// notice that we're only supplying the new/changed data (the delta not the whole set) for the idom$ variables 
+		// in the node prototype. The idom$ variable values are persisted in an internal hashmap per each instance 
+
+		document.querySelector('[idom-node-id="' + nodeId + '"]').idom$(cloneId,
+				{
+					itemColor: colorSelector(instanceId)
+				}, 
+				{
+					instanceId: instanceId, 
+					mode: 'replace', 
+					targetInstanceId: instanceId
+				})
+	} else {
+		
+		document.querySelector('[idom-node-id="' + nodeId + '"]').idom$(cloneId,
+				{
+					itemColor: 'transparent'
+				}, 
+				{
+					instanceId: instanceId, 
+					mode: 'replace', 
+					targetInstanceId: instanceId
+				})
+	}
+
+}
+
+function button1() {
+	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
+		{
+			myHandler: "" //null value removes the handler
+		},
+		{
+			instanceId: "user1@linked@team2@cloned@clone2",
+			mode: "replace",
+			targetInstanceId: "user1@linked@team2@cloned@clone2"
+		}
+	
+	)
+}
+
+function button2() {
+	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
+		{
+			myHandler: "idom.eventHandler(event, this, changeColor)" 
+		},
+		{
+			instanceId: "user1@linked@team2@cloned@clone2",
+			mode: "replace",
+			targetInstanceId: "user1@linked@team2@cloned@clone2"
+		}
+	
+	)
+}
+
+
+function colorSelector(instanceId) {
+	
+	var item = idom.baseSelector(instanceId)
+	
+	switch(item) {
+		
+	case 'user0': 
+			
+		return 'lightblue';
+	
+	case 'user1':
+		
+		return 'orange'
+		
+	case 'user2':
+		
+		return 'yellow'
+		
+	default: return 'white'
+	
+	}	
+}
 </div>
 </pre>
 
-<input id='range' onchange='setRange(this.value);' type=range
-    min=0
-    max=50
-    value=25
-    step=1 />	
 
-	<div class='i$someClass' idom-node-id='rangeIndicator' style='width: 200px; height: auto; padding: 2px'>
-		
-		<div class='rangeClass' style='background-color: idom$bgcolor; border-color: idom$bcolor; margin-left: idom$margin'>
-		</div>
+
+<!--************************************************* INTERFACE OBJECT ***********************************************-->
+<script type="text/javascript" src="jsonData.js"></script>
+
+<!--************************************************* VIEW OBJECTS ***************************************************-->
+<!-- Start of Node List -->
+<div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; border: none; background-color: white; color: black; display: none;'>
 	
-	</div>
-	<div style='position: relative; top: 600px'>__</div>
-		
+	<!-- Start of Node Prototype -->	
+	<div>
+		<div style='padding: 5px;'>idom$caption</div>
+		<!-- @idom userInfo -->	 
+	</div> 
+	<!-- End of Node Prototype -->
+	
 </div>
+<!-- End of Node List -->
 
-<script type="text/javascript">
-
-// cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var)
-idom.init({someClass: 'outputClass'});			
-
-// Selectors are merely the value of the idom-selector attribute within the node (not actual CSS selectors)
-// They may match none, one or many populated child nodes. if no populated instances of Node Prototype were 
-// inserted into the Node or if the selector string doesn't match any instance then an error is thrown
-
-// The methods themselves can be repeated infinitely, each time creating an instance of the Node Prototype and
-// inserting it into the Node
-
-
-// Start of Test 1
-
-// populate the Node Prototype of the Linked Node first  	
-document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
-	{
-		someStuff: 'dynamically linked content from another node', 
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'replace',
-		ownSelector: 'someOtherNodePrototypeInstance',
-		nodeSelector: 'someOtherNodeList'
-	})
-
-// normal replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 1', 
-		content: "node div content 1",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'replace', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance1',
-		nodeSelector: 'someNodeList' 
-	})
-
-// normal append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 3', 
-		content: "node div content 3",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'append', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance3' 
-	})
-
-// normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 0', 
-		content: 'node div content 0',
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'prepend', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance0' 
-	})
+<!-- Start of Node List -->
+<div idom-node-id='userInfo' style='display: none;'>
 	
-
-// random access append on the Node ... pass Node variables (idom$var)
-
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 2', 
-		content: "node div content 2",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'append', 
-		targetSelector: 'NodePrototypeInstance1', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance2' 
-	})
-
-// normal prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content -1', 
-		content: "node div content -1",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'prepend', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance-1' 
-	})
-
-// random access replace on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content sub-0', 
-		content: "node div content sub-0",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'replace', 
-		targetSelector: 'NodePrototypeInstance-1', 
-		ownState: 'iDontWantToBeReplaced', 
-		ownSelector: 'NodePrototypeInstance-sub-zero' 
-	})
-
-// random access append on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content -1', 
-		content: "node div content -1",
-		someHandler: 'clickMe(this)'
-	}, {
-		mode: 'append', 
-		targetSelector: 'NodePrototypeInstance-sub-zero', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance-1' 
-	})
-
-// random access prepend on the Node ... pass Node variables (idom$var)
-document.querySelector('[idom-node-id=someNodeList]').idom$(
-	{
-		someInfo: 'node span content 2.5', 
-		content: "node div content 2.5",
-		someHandler: 'clickMe(this)'
-	}, 
-	{
-		mode: 'prepend', 
-		targetSelector: 'NodePrototypeInstance3', 
-		ownState: 'viola', 
-		ownSelector: 'NodePrototypeInstance2.5' 
-	})
+	<!-- Start of Node Prototype -->
+	<div class='classNameCanBEaVariableToo' onclick='idom$myHandler'>
+		<table cellspacing="20px">
+			<tr>
+				<td>
+					<div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username</div>
+				</td>
+				<td>
+					<div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- End of Node Prototype -->
 	
+</div>
+<!-- End of Node List -->
 
-// make visible the Node
-document.querySelector('[idom-node-id=someNodeList]').style.display = 'block'
+<p>Click on any user below to see the idom-attached event handler for the target element in action</p>
 
-// idom will append "_linked" to the idom-selector and idom-state attributes of Linked Nodes (upon linking) which are 
-// otherwise clones of the Nodes being linked (which are left untouched) idom also removes the idom-node-id in the
-// Linked Nodes (to avoid conflict with the original Nodes being linked)
+<div>
 
-// make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)
-idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeList_linked]'), "style.display = 'block'");
+<button onclick='button1()'>Click to disable event handling on user 2 in Team 2</button>
+<button onclick='button2()'>Click to enable event handling on user 2 in Team 2</button>
+</div>
+<script>
+/*********************************************** PRESENTER *************************************************************/
 
-// End of Test 1
+//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any
+idom.init();	
 
-// Start of Test 2
-
-function setRange(val) {
-	
-	var rangeCompleteness = val ? val : 25; 
+for (m = 0; m < jsonData.teams.length; m++) {
 		
-	// get the number of steps to highlight in  completion indicator
-	var steps = Math.round((rangeCompleteness * 12) / 50); 
+	//populate the Node Prototype of the Linked Node first  
+	//and populate again each time before making a new clone that links it 
+	for (n = 0; n < jsonData.teams[m].members.length; n++) {
 	
-	if (document.querySelector('[idom-node-id=rangeIndicator]').idom$isPopulated()) {
-	 	document.querySelector('[idom-node-id=rangeIndicator]').idom$dePopulate()
+		document.querySelector('[idom-node-id=userInfo]').idom$('clone' + Number(m + 1),
+			{
+				username: jsonData.teams[m].members[n].username,
+				id: jsonData.teams[m].members[n].id,
+				myHandler: 'idom.eventHandler(event, this, changeColor)'  // event handler can be removed by simply setting this to null
+			}, 
+			{
+				mode: 'append',
+				instanceId: 'user' + n
+			})
+	
 	}
-	   
-	for (var n = 0; n < 12; n++) {
-		    
-		if (n < steps) {
-		
-			document.querySelector('[idom-node-id=rangeIndicator]').idom$(
-				{
-					bgcolor: 'lightblue', 
-					bcolor: 'gray',
-					margin: n < 2 ? '-1px' : '2px',
-				}, {mode: 'append', ownSelector: 'tic' + n})
-		} else {
-				document.querySelector('[idom-node-id=rangeIndicator]').idom$({
-				bgcolor: 'gray', 
-				bcolor: 'gray',
-				margin: n < 2 ? '-1px' : '2px',
-				}, {mode: 'append', ownSelector: 'tic' + n})	
-		}
-	}
-}
-
-setRange();
-
-// End of Test 2
-
-// handler functions for Test 1
-
-function multiReplace() {
 	
-	// populate the Node Prototype of the Linked Node first  	
-	document.querySelector('[idom-node-id=someOtherNodeList]').idom$(
-	{
-		someStuff: 'REPLACED dynamically linked content from another node', 
-		someHandler: 'clickMe(this)',
-		anotherClass: 'replacedClassForLinkedNodeListPrototype'
-	}, 
-	{
-		mode: 'replace',
-		ownSelector: 'someOtherNodePrototypeInstanceReplaced',
-		nodeSelector: 'someOtherNodeListReplaced'
-	})
-	
-	// random access multi-replace on the Node ... pass Node variables (idom$var)
-	document.querySelector('[idom-node-id=someNodeList]').idom$(
+	// perform replace on the host Node (linked node gets re/linked with each idom$() call)
+	// and populate again each time before making a new clone of it
+	document.querySelector('[idom-node-id=teamContainer]').idom$('clone' + Number(m + 1),
 		{
-			someInfo: 'REPLACED node span content', 
-			content: 'REPLACED node div content',
-			someHandler: 'clickMe(this)',
-			someClass: 'replacedClassForNodePrototype'
+			caption: jsonData.teams[m].caption
 		}, 
 		{
-			mode: 'replace', 
-			targetState: 'viola', 
-			ownState: 'violaREPLACED', 
-			ownSelector: 'NodePrototypeInstanceREPLACED' 
-		})
+			mode: 'replace',
+			instanceId: 'team' + Number(m + 1)
+		})		
+
+	// at this point the teamContainer div is populated with the 'caption' data and the content of the linked userInfo node 
+	// so we may now clone it and provide a uid for the clone (e.g. 'clone1')
+	var clonedEl = document.querySelector('[idom-node-id=teamContainer]').idom$clone('clone' + Number(m + 1))
+
+	//insert cloned node into body
+	document.body.appendChild(clonedEl);
 	
-	// we just replaced Linked Node in the Node Prototype with its updated instance 
-	// so make visible all instances of the Linked Node, using the forEachExec idom method (no eval, safe)		
-	idom.forEachExec(document.querySelectorAll('[idom-selector=someOtherNodeListReplaced_linked]'), "style.display = 'block'");
+	// normally, we'd dePopulate the host node (so we're startig with its node prototype for the next iteration)
+	// but in this case the host node's node prototype instance is being replaced each time (mode: 'replace') so no need
+	// document.querySelector('[idom-node-id=teamContainer]').idom$dePopulate() 
 	
+	// now that we have everything in the cloned node, dePopulate the linked node so we're startig with its node prototype for the next iteration)
+	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
+
+	// now we can display the cloned node and the linked node within it (also cloned) both having been tagged during
+	// cloning with the clone uid at end of their idom-node-id's
+	idom.forEachExec(document.querySelectorAll("[idom-node-id$='clone" + Number(m + 1) + "']"), "style.display = 'block'")
 }
 
-function clickMe(elem) {
+var toggleColor = {};
+
+// the event handler is defined here on each instance of the node prototype of the linked node that's now inside 
+// the cloned node. Given that idom recognizes only the node and its node prototype instances, and since working with
+// the cloned node not the original node (which should be always hidden) is the correct usage pattern, idom.eventHandler()
+// only allows the definition of event hanlders (which in this case is changeColor) on the cloned node or the linked node 
+// within the cloned node, or directly on the node prototype instances within them. Having said that, the linked node
+// can be located anywhere within the DOM structure of the prototype node of the cloned node, so there is no
+// restriction on how deeply nested the event handlers can be...
+
+// The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
+// or the node prototype instance within it), which is the normal way 'this' is handled in this context
+
+function changeColor(event, nodeId, instanceId, cloneId) {
 	
-	alert('my container\'s selector = ' + elem.parentNode.getAttribute("idom-selector") + "\n" + 'my container\'s parent selector = ' + elem.parentNode.parentNode.getAttribute("idom-selector"))
+	event.preventDefault();
+    
+	toggleColor[instanceId] = !toggleColor[instanceId];
+	
+	if (toggleColor[instanceId]) {
+		
+		// notice that we're only supplying the new/changed data (the delta not the whole set) for the idom$ variables 
+		// in the node prototype. The idom$ variable values are persisted in an internal hashmap per each instance 
+
+		document.querySelector('[idom-node-id="' + nodeId + '"]').idom$(cloneId,
+				{
+					itemColor: colorSelector(instanceId)
+				}, 
+				{
+					instanceId: instanceId, 
+					mode: 'replace', 
+					targetInstanceId: instanceId
+				})
+	} else {
+		
+		document.querySelector('[idom-node-id="' + nodeId + '"]').idom$(cloneId,
+				{
+					itemColor: 'transparent'
+				}, 
+				{
+					instanceId: instanceId, 
+					mode: 'replace', 
+					targetInstanceId: instanceId
+				})
+	}
 
 }
- 						
+
+function button1() {
+	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
+		{
+			myHandler: "" //null value removes the handler
+		},
+		{
+			instanceId: "user1@linked@team2@cloned@clone2",
+			mode: "replace",
+			targetInstanceId: "user1@linked@team2@cloned@clone2"
+		}
+	
+	)
+}
+
+function button2() {
+	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
+		{
+			myHandler: "idom.eventHandler(event, this, changeColor)" 
+		},
+		{
+			instanceId: "user1@linked@team2@cloned@clone2",
+			mode: "replace",
+			targetInstanceId: "user1@linked@team2@cloned@clone2"
+		}
+	
+	)
+}
+
+
+function colorSelector(instanceId) {
+	
+	var item = idom.baseSelector(instanceId)
+	
+	switch(item) {
+		
+	case 'user0': 
+			
+		return 'lightblue';
+	
+	case 'user1':
+		
+		return 'orange'
+		
+	case 'user2':
+		
+		return 'yellow'
+		
+	default: return 'white'
+	
+	}	
+}
+
 </script>
-
-
 
 
 

@@ -14,6 +14,8 @@
 *
 */
 
+"idi.bidi.dom reduces HTML on a page to a minimum and places a list-oriented JSON API between presentation logic and the DOM"
+
 With diagram and code
 
 http://idibidiart.github.com/idi.bidi.dom/

@@ -20,7 +20,9 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * idi.bidi.dom - Non-Hierarchical Interface To The DOM
+ * idi.bidi.dom - Anti-Templating Framework Featuring New Way To Interface To The  
+ * Javascript DOM, Using Linked Lists of Node Prototypes
+ * 
  *
  * What does it do?
  * 

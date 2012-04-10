@@ -322,6 +322,9 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 }
 
 function button1() {
+	
+	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
+	// node prototype instance of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
 			myHandler: "" //null value removes the handler
@@ -336,6 +339,9 @@ function button1() {
 }
 
 function button2() {
+	
+	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
+	// node prototype instance of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
 			myHandler: "idom.eventHandler(event, this, changeColor)" 

@@ -18,7 +18,7 @@
  * new way for interfacing to The DOM. In abstract terms, idi.bidi.dom takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, idi.bidi.dom offers a list-wise API witout losing the ability to build and 
+ * terms, idi.bidi.dom offers a list-wise API without losing the ability to build and 
  * directly access predetermined nested structures.
  *
  * Why to use it?
@@ -44,11 +44,6 @@
  * in our pages while greatly simplifying our interaction with the DOM by using
  * a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
  * API that the DOM exposes.
- *
- * In abstract terms, idi.bidi.dom takes the DOM and adds variables, variable memoization,
- * encapsulation, multiple-inheritance and type polymorphism (with the Node Prototype as 
- * the user defined type) In logical terms, idi.bidi.dom offers a list-wise API witout 
- * losing the ability to build and directly access predetermined nested structures.
  *
  * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 

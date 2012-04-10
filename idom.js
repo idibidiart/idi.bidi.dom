@@ -20,14 +20,15 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * idi.bidi.dom - Anti-Templating Framework Featuring New Way To Interface To The  
- * Javascript DOM, Using Linked Lists of Node Prototypes
- * 
+ * This version works in Gecko and Webkit, not tested on IE
+ *
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
+ * new way for interfacing to The DOM...
  *
  * What does it do?
  * 
- * idi.bidi.dom reduces HTML on a page to a minimum and places a list-oriented JSON 
- * API between presentation logic and the DOM
+ * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
+ * JSON API between presentation logic and the DOM
  * 
  * How does it work?
  * 
@@ -40,18 +41,24 @@
  * dynamically linked into other Nodes.
  * 
  * Additionally, idi.bidi.dom allows the cloning of each Node and the populated
- * instances of the Node Prototype within it (including any Linked Nodes inherited 
- * from the Node Prototype and the populated instances of the Node Prototype within
- * them) This means that we may re-use the same Node to create any number of 
- * differently populated and customized Nodes, thus reducing the amount of HTML 
+ * instances of the Node Prototype within it (including any Linked Nodes inserted 
+ * into the Node Prototype and the populated instances of the Node Prototype within
+ * those Linked Nodes) This means that we may re-use the same Node to create any number 
+ * of differently populated and customized Nodes, thus reducing the amount of HTML 
  * in our pages while greatly simplifying our interaction with the DOM by using
  * a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
- * API that the DOM exposes.  
+ * API that the DOM exposes.
+ *
+ * In abstract terms, idi.bidi.dom takes the DOM and adds variables, variable memoization,
+ * encapsulation, multiple-inheritance and type polymorphism (with the Node Prototype as 
+ * the user defined type) In logical terms, idi.bidi.dom offers a list-wise API witout 
+ * losing the ability to build and directly access predetermined nested structures.
  *
  * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
  * simply gives Javascript more power by leveraging a simple and consistent interface
  * to the DOM. 
+ *
  *
  * Usage:
  *

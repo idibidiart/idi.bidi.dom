@@ -8,7 +8,7 @@
 * 
 * http://javacrypt.wordpress.com
 *
-* BSD License 
+* Apache License 2.0 
 * 
 * derived from NattyJS v0.08: a BSD licensed precursor by the same author 
 *

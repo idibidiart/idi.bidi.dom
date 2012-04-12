@@ -1,6 +1,6 @@
 /*! idi.bidi.dom 
 * 
-* v0.2
+* v0.3
 *
 * Non-Hierarchical Interface To The DOM 
 *
@@ -20,8 +20,10 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
+ * This version works in Gecko and Webkit, not tested on IE
+ *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
- * new way for interfacing to the DOM. In abstract terms, idi.bidi.dom takes the DOM 
+ * new way for interfacing to The DOM. In abstract terms, idi.bidi.dom takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, idi.bidi.dom offers a list-wise API without losing the ability to build and 
@@ -99,6 +101,18 @@
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
  *
+ ***********************************************************************************
+ *
+ * About Events:
+ * If the handler is defined on the node it will only have access to the node id. If it's defined on or in the
+ * node prototype it will have access to the instance id
+ *
+ * The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
+ * or the node prototype instance within it), which is the normal way 'this' is handled in this context
+ *
+ * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, etc) are not handled
+ * by idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
+ * will be supported in the future 
  * 
  *********************************************************************************/
 
@@ -310,18 +324,46 @@ idom.forEachExec = function(nodelist, str) {
 
 idom.eventHandler = function(event, el, func) {
 	
-	var nodeId = el.getAttribute("idom-node-id") ? el.getAttribute("idom-node-id") : el.parentNode.getAttribute("idom-node-id");
+	var elem = el;
 	
-	if (!nodeId || nodeId.indexOf('@cloned@') == -1) {
+	function getNodeId() { 
+	
+	    while (elem.parentNode) {
+	        elem = elem.parentNode;
+	        var id = elem.getAttribute('idom-node-id')
+	        if (id)
+	            return id;
+	    }
+	    return null;
+   	}
+   	
+   	function getInstanceId() { 
+	
+		var elem = el;
+		
+	    while (elem.parentNode) {
+	        elem = elem.parentNode;
+	        var id = elem.getAttribute('idom-instance-id')
+	        if (id) {
+	            return id;
+	        }    
+	    }
+	    return null;
+   	}
+  
+	var nodeId = el.getAttribute("idom-node-id") ? el.getAttribute("idom-node-id") : getNodeId();
+	
+	// this exception should never be reached
+	if (!nodeId) {
 		
 		var err = new Error;
 		
-		err.message = "idom events must be defined on the clone node or on node prototype instance within the cloned node";
+		err.message = "idomHandler() may only be used with idom nodes, usually passed as value to the idom$ variable for onclick, onmouseover, etc";
 					 
 		throw err.message + '\n' + err.stack;
 	}
 
-	var instanceId = el.getAttribute("idom-instance-id") ? el.getAttribute("idom-instance-id") : null;
+	var instanceId = el.getAttribute("idom-instance-id") ? el.getAttribute("idom-instance-id") : getInstanceId();
 	
 	if (instanceId) {
 		
@@ -330,7 +372,6 @@ idom.eventHandler = function(event, el, func) {
 	} else {
 		func.call(el, event, nodeId, null, nodeId.substring(nodeId.indexOf('@cloned@')  + 8));
 	}
-
 };
 
 
@@ -378,7 +419,7 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 		
 		var err = new Error;
 			
-		err.message = 'Invalid data: use simple JSON: {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeat": null}'
+		err.message = 'Invalid data: use simple JSON: {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}'
 					 
 		throw err.message + '\n' + err.stack;
 		 
@@ -386,8 +427,8 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 		//
 		// idom works with simple object literal or simple JSON
 		// 
-		// 'simple JSON' is defined as a key-value collection, limited to string or numeric values 
-		// Like {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}
+		// 'simple JSON' is defined as:
+		// {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}
 		
 		// Use Javascript to iterate thru more complex JSON then pass on simple JSON to idom
 		

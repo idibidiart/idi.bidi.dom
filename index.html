@@ -58,13 +58,15 @@
 
 /*! idi.bidi.dom 
 * 
-* v0.2
+* v0.3
+*
+* New Way To Interact With The DOM 
 *
 * Copyright (c) Marc Fawzi 2012
 * 
 * http://javacrypt.wordpress.com
 *
-* Apache License 2.0 
+* Apache License 2.0  
 * 
 * derived from NattyJS v0.08: a BSD licensed precursor by the same author 
 *
@@ -82,13 +84,13 @@
  * This version works in Gecko and Webkit, not tested on IE
  *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
- * new way for interfacing to the DOM. In abstract terms, idi.bidi.dom takes the DOM 
+ * new way for interfacing to The DOM. In abstract terms, idi.bidi.dom takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, idi.bidi.dom offers a list-wise API without losing the ability to build and 
  * directly access predetermined nested structures.
  *
- * Why to use it?
+ * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
  * JSON API between presentation logic and the DOM
@@ -116,7 +118,6 @@
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
  * simply gives Javascript more power by leveraging a simple and consistent interface
  * to the DOM. 
- *
  *
  * Usage:
  *
@@ -161,6 +162,18 @@
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
  *
+ **********************************************************************************
+ *
+ * About Events:
+ * If the handler is defined on the node it will only have access to the node id. If it's defined on or in the
+ * node prototype it will have access to the instance id
+ *
+ * The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
+ * or the node prototype instance within it), which is the normal way 'this' is handled in this context
+ *
+ * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, etc) are not handled
+ * by idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
+ * will be supported in the future 
  * 
  *********************************************************************************/
 <br>
@@ -190,14 +203,14 @@ border: none; background-color: gray; color: black; display: none;'>
 &lt;div idom-node-id='userInfo' style='display: none;'>
 	
 	&lt;!-- Start of Node Prototype -->
-	&lt;div class='classNameCanBEaVariableToo' onclick='idom$myHandler'>
+	&lt;div class='classNameCanBEaVariableToo'>
 		&lt;table cellspacing="20px">
 			&lt;tr>
 				&lt;td>
-					&lt;div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username&lt;/div>
+					&lt;div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username&lt;/div>
 				&lt;/td>
 				&lt;td>
-					&lt;div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id&lt;/div>
+					&lt;div onclick='idom$myHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id&lt;/div>
 				&lt;/td>
 			&lt;/tr>
 		&lt;/table>
@@ -231,8 +244,9 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 			{
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
+				// we can have as many event handlers on or within a node but here we're just using the same one on two elements 
 				myHandler: 'idom.eventHandler(event, this, changeColor)' 
-				// event handler can be removed by simply setting this to null
+				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
 				mode: 'append',
@@ -275,15 +289,19 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 var toggleColor = {};
 
 // the event handler is defined here on each instance of the node prototype of the linked node that's now inside 
-// the cloned node. Given that idom recognizes only the node and its node prototype instances, and since working with
-// the cloned node not the original node (which should be always hidden) is the correct usage pattern, idom.eventHandler()
-// only allows the definition of event hanlders (which in this case is changeColor) on the cloned node or the linked node 
-// within the cloned node, or directly on the node prototype instances within them. Having said that, the linked node
-// can be located anywhere within the DOM structure of the prototype node of the cloned node, so there is no
-// restriction on how deeply nested the event handlers can be...
+// the cloned node, but it can also be defined anywhere within any node (and anywhere within any linked nodes within
+// it) 
+
+// About Events:
+// If the handler is defined on the node it will only have access to the node id. If it's defined on or in the
+// node prototype it will have access to the instance id
 
 // The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
 // or the node prototype instance within it), which is the normal way 'this' is handled in this context
+
+// event handlers that are not defined using element attributes (e.g. onclick, onmouseover, etc) are not handled
+// by idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
+// will be supported in the future 
 
 function changeColor(event, nodeId, instanceId, cloneId) {
 	
@@ -326,7 +344,7 @@ function button1() {
 	// node prototype instance of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
-			myHandler: "" //null value removes the handler
+			someHandler: "" //null value removes the handler
 		},
 		{
 			instanceId: "user1@linked@team2@cloned@clone2",
@@ -343,7 +361,7 @@ function button2() {
 	// node prototype instance of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
-			myHandler: "idom.eventHandler(event, this, changeColor)" 
+			someHandler: "idom.eventHandler(event, this, changeColor)" 
 		},
 		{
 			instanceId: "user1@linked@team2@cloned@clone2",
@@ -387,7 +405,8 @@ function colorSelector(instanceId) {
 
 <!--************************************************* VIEW OBJECTS ***************************************************-->
 <!-- Start of Node List -->
-<div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; border: none; background-color: gray; color: black; display: none;'>
+<div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; 
+border: none; background-color: gray; color: black; display: none;'>
 	
 	<!-- Start of Node Prototype -->	
 	<div>
@@ -403,14 +422,14 @@ function colorSelector(instanceId) {
 <div idom-node-id='userInfo' style='display: none;'>
 	
 	<!-- Start of Node Prototype -->
-	<div class='classNameCanBEaVariableToo' onclick='idom$myHandler'>
+	<div class='classNameCanBEaVariableToo'>
 		<table cellspacing="20px">
 			<tr>
 				<td>
-					<div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username</div>
+					<div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username</div>
 				</td>
 				<td>
-					<div style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id</div>
+					<div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id</div>
 				</td>
 			</tr>
 		</table>
@@ -443,7 +462,9 @@ for (m = 0; m < jsonData.teams.length; m++) {
 			{
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
-				myHandler: 'idom.eventHandler(event, this, changeColor)'  // event handler can be removed by simply setting this to null
+				// we can have as many event handlers on or within a node but here we're just using the same one on two elements 
+				someHandler: 'idom.eventHandler(event, this, changeColor)'  // event handler can be removed by simply setting this to null
+				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
 				mode: 'append',
@@ -485,15 +506,19 @@ for (m = 0; m < jsonData.teams.length; m++) {
 var toggleColor = {};
 
 // the event handler is defined here on each instance of the node prototype of the linked node that's now inside 
-// the cloned node. Given that idom recognizes only the node and its node prototype instances, and since working with
-// the cloned node not the original node (which should be always hidden) is the correct usage pattern, idom.eventHandler()
-// only allows the definition of event hanlders (which in this case is changeColor) on the cloned node or the linked node 
-// within the cloned node, or directly on the node prototype instances within them. Having said that, the linked node
-// can be located anywhere within the DOM structure of the prototype node of the cloned node, so there is no
-// restriction on how deeply nested the event handlers can be...
+// the cloned node, but it can also be defined anywhere within any node (and anywhere within any linked nodes within
+// it) 
+
+// About Events:
+// If the handler is defined on the node it will only have access to the node id. If it's defined on or in the
+// node prototype it will have access to the instance id
 
 // The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
 // or the node prototype instance within it), which is the normal way 'this' is handled in this context
+
+// event handlers that are not defined using element attributes (e.g. onclick, onmouseover, etc) are not handled
+// by idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
+// will be supported in the future 
 
 function changeColor(event, nodeId, instanceId, cloneId) {
 	
@@ -532,12 +557,11 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 
 function button1() {
 	
-	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype instance of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
-			myHandler: "" //null value removes the handler
+			someHandler: "" //null value removes the handler
 		},
 		{
 			instanceId: "user1@linked@team2@cloned@clone2",
@@ -550,12 +574,11 @@ function button1() {
 
 function button2() {
 	
-	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype instance of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
-			myHandler: "idom.eventHandler(event, this, changeColor)" 
+			someHandler: "idom.eventHandler(event, this, changeColor)" 
 		},
 		{
 			instanceId: "user1@linked@team2@cloned@clone2",

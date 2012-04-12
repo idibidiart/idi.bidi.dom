@@ -244,7 +244,8 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 			{
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
-				// we can have as many event handlers on or within a node but here we're just using the same one on two elements 
+				// we can have as many event handlers on or within a node but here we're just using the 
+				// same one on two elements 
 				myHandler: 'idom.eventHandler(event, this, changeColor)' 
 				// event handler can be removed by simply setting someHandler to null
 			}, 
@@ -462,8 +463,9 @@ for (m = 0; m < jsonData.teams.length; m++) {
 			{
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
-				// we can have as many event handlers on or within a node but here we're just using the same one on two elements 
-				someHandler: 'idom.eventHandler(event, this, changeColor)'  // event handler can be removed by simply setting this to null
+				// we can have as many event handlers on or within a node but here we're just using the 
+				//same one on two elements 
+				someHandler: 'idom.eventHandler(event, this, changeColor)' 
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{

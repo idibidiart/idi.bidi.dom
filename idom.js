@@ -2,7 +2,7 @@
 * 
 * v0.3
 *
-* Non-Hierarchical Interface To The DOM 
+* New Way To Interact With The DOM  
 *
 * Copyright (c) Marc Fawzi 2012
 * 
@@ -20,8 +20,6 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * This version works in Gecko and Webkit, not tested on IE
- *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
  * new way for interfacing to The DOM. In abstract terms, idi.bidi.dom takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
@@ -29,7 +27,7 @@
  * terms, idi.bidi.dom offers a list-wise API without losing the ability to build and 
  * directly access predetermined nested structures.
  *
- * Why to use it?
+ * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
  * JSON API between presentation logic and the DOM

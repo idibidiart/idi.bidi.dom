@@ -19,14 +19,14 @@
  * README:
  * 
  * This version works in Gecko and Webkit, not tested on IE
- * 
+ *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
  * new way for interfacing to the DOM. In abstract terms, idi.bidi.dom takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, idi.bidi.dom offers a list-wise API to create, update, and delete pred-
  * determined structures without losing the ability to directly access nested versions
- * of such structures. 
+ * of such structures.
  *
  * Why use it?
  * 
@@ -35,22 +35,17 @@
  * 
  * How does it work?
  * 
- * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
- * Node Prototype from which instances (copies, usually with different data) can 
- * be created, populated with JSON data and then inserted into the Node (in append, 
- * prepend, and replace modes, with the ability to target specific, previously 
- * inserted instances of the Node Prototype or the Node List's entire content, i.e. 
- * the set of instances of the Node Prototype) and where the Node itself can be 
- * dynamically linked into other Nodes.
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
+ * Node Prototype of which instances (copies, usually with different data) can 
+ * be created, populated with JSON data, inserted into and deleted from the Node 
+ * (with the ability to target specific, previously inserted instances of the Node 
+ * Prototype or all such instances) and where the Node itself can be linked into 
+ * any number of other Nodes.
  * 
- * Additionally, idi.bidi.dom allows the cloning of each Node and the populated
- * instances of the Node Prototype within it (including any Linked Nodes inserted 
- * into the Node Prototype and the populated instances of the Node Prototype within
- * those Linked Nodes) This means that we may re-use the same Node to create any number 
- * of differently populated and customized Nodes, thus reducing the amount of HTML 
- * in our pages while greatly simplifying our interaction with the DOM by using
- * a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
- * API that the DOM exposes.
+ * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
+ * instances within it (including any Linked Nodes inserted into the Node Prototype and 
+ * the populated instances of those Linked Nodes) This means that we may re-use the same 
+ * Node to create any number of differently populated Nodes. 
  *
  * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
@@ -70,20 +65,21 @@
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix
  *
- * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: value}
+ * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
+ * value}
  *
  * if there no populated instances of Node Prototype then append/prepend/replace 
- * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied in 
- * this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
+ * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceId, unless you know the node is populated)
  *
  * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
  * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node Prototype, or to start of the list if none were
- * previously populated.
+ * previously populated instance of the Node Prototype, or to start of the list if none 
+ * were previously populated.
  *
- * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to replace 
- * when in replace mode. If null, replace all instances.
+ * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
+ * replace when in replace mode. If null, replace all instances.
  *
  * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
  *
@@ -100,18 +96,19 @@
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
  *
- ***********************************************************************************
+ **********************************************************************************
  *
  * About Events:
- * If the handler is defined on the node it will only have access to the node id. If it's defined on or in the
- * node prototype it will have access to the instance id
+ * If the handler is defined on the node it will only have access to the node id. If it's 
+ * defined on or in the node prototype it will have access to the instance id
  *
- * The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
- * or the node prototype instance within it), which is the normal way 'this' is handled in this context
+ * The context of 'this' inside the handler becomes the element the event is defined on 
+ * (i.e. the cloned node or the node prototype instance within it), which is the normal 
+ * way 'this' is handled in this context
  *
- * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, etc) are not handled
- * by idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
- * will be supported in the future 
+ * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
+ * etc) are not handled by idom at this time. Finding and cloning all event handlers that 
+ * are attached via different means, like jQuery, will be supported in the future 
  * 
  *********************************************************************************/
 
@@ -386,8 +383,14 @@ idom.toCamelCase = function() {
 
 idom.baseSelector = function(sel) {
 	
-	return sel.substring(0, sel.indexOf('@'));
+	function endIndex() {
+		var nsel = sel.indexOf('@'); 
+		return nsel != -1 ? nsel : sel.length
+	}
+	
+	return sel.substring(0, endIndex());
 };
+	
 
 // internal String method for injecting values into special varariable (keys) into the node prototype instance, 
 // based on key-value JSON data (key-matched variables get their values from JSON values while unmatched
@@ -589,7 +592,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		
 		var err = new Error;
 			
-		err.message = "required argument: cloneId (string)";
+		err.message = "required argument: associated clone id (string)";
 					 
 		throw err.message + '\n' + err.stack;	
 	}
@@ -643,13 +646,22 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 	}
 		
-	// condition 1: if Node has no populated instances of its Prototype Node 
-	if (this.innerHTML == idomDOM.cache[nid] || 
+	if (!this.children ||
+		// condition 1: if Node has no populated instances of its Prototype Node 
+		this.innerHTML == idomDOM.cache[nid] || 
 		// condition 2: or settings were not given 	
 		!settings || settings == {} || 
 		// condition 3: or 'replace all' is assumed (if no target was specified and mode is replace or not specified)
 		(settings && !settings.targetInstanceId && (settings.mode == 'replace' || settings.mode == ''))) {
 		
+		if (!this.children) {
+			
+			var err = new Error;
+			
+			err.message = "node is missing its node prototype";
+			 
+			throw err.message + '\n' + err.stack;
+		}
 		
 		//exception under condition 1 if target is specified 
 		if (settings && settings.targetInstanceId) {
@@ -676,13 +688,24 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				
 		}
 		
+		if (settings.instanceId.indexOf('@') != -1) {
+				
+				var err = new Error;
+				
+				err.message = "instanceId in settings must not include any references to link or clone (they will be added automatically) \n" +
+							"use idom.baseSelector(long@format@instance@id) to get the original instance id"
+				 
+				throw err.message + '\n' + err.stack;
+				
+		}
+		
 		//all error paths hanlded in this case, so 
 		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId.replace(new RegExp("([@])(.)+$", "g"), ""), "nid": nid, "cloneId": cloneId});
 			
 		setInstanceId(this.children[0]);
 		
 		// insert Linked Nodes
-		insertLinkedNodes(this.children[0]);
+		insertLinkedNodes(this.children[0], cloneId);
 
 		// nothing else to do
 		return;
@@ -699,12 +722,24 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				throw err.message + '\n' + err.stack;
 			}
 			
+			if (settings.instanceId.indexOf('@') != -1) {
+				
+				var err = new Error;
+				
+				err.message = "instanceId must not include any references to link or clone (they will be added automatically)"
+				 
+				throw err.message + '\n' + err.stack;
+				
+			}
+			
 			var targetNodeList = [], newEl = [], tag, content, newChild, frag;
 			
 			if (settings.targetInstanceId) {
 				
 				for (var n = 0; n < this.children.length; n++) {
-					 if (this.children[n].getAttribute('idom-instance-id') ==  settings.targetInstanceId) {
+					
+					var sel = this.children[n].getAttribute('idom-instance-id');
+					 if (sel && idom.baseSelector(sel) ==  settings.targetInstanceId) {
 						 
 						 targetNodeList.push(this.children[n])
 					 }
@@ -754,7 +789,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								
 								setInstanceId(newEl[n]);
 								
-								insertLinkedNodes(newEl[n]);
+								insertLinkedNodes(newEl[n], cloneId);
 							}
 							
 						} else {
@@ -767,7 +802,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								
 							setInstanceId(newEl[0]);
 							
-							insertLinkedNodes(newEl[0]);
+							insertLinkedNodes(newEl[0], cloneId);
 								
 						}
 						
@@ -779,7 +814,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						setInstanceId(newEl[0]);
 						
-						insertLinkedNodes(newEl[0]);
+						insertLinkedNodes(newEl[0], cloneId);
 
 					}
 			
@@ -805,7 +840,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						setInstanceId(newEl[0]);
 						
-						insertLinkedNodes(newEl[0]);
+						insertLinkedNodes(newEl[0], cloneId);
 						
 					} else {
 								
@@ -815,7 +850,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						 
 						setInstanceId(newEl[0]);
 		
-						insertLinkedNodes(newEl[0]);
+						insertLinkedNodes(newEl[0], cloneId);
 					}
 				    
 				break;
@@ -831,7 +866,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						setInstanceId(newEl[0]);
 						
-						insertLinkedNodes(newEl[0]);
+						insertLinkedNodes(newEl[0], cloneId);
 						
 					} else {
 						
@@ -841,7 +876,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						setInstanceId(newEl[0]);
 						
-						insertLinkedNodes(newEl[0]);
+						insertLinkedNodes(newEl[0], cloneId);
 	
 					}
 
@@ -861,18 +896,27 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
 	
 	function setInstanceId(elem) {
-			
+		
 		elem.setAttribute("idom-instance-id", settings.instanceId)
+		
+		var parentSel = elem.parentNode.getAttribute("idom-node-id")
+		
+		var refStart = elem.parentNode.getAttribute("idom-node-id").indexOf('@')
+		
+		if (refStart != -1) {
+			
+			elem.setAttribute("idom-instance-id", settings.instanceId + parentSel.substring(refStart))
+		}	
 		
 	};
 	
-	function insertLinkedNodes(elem) {
+	function insertLinkedNodes(elem, cloneId) {
 		
 		var nestedCommentNodes = elem.getElementsByNodeType(8, true);
 		
 		if (nestedCommentNodes.length) {
 			
-			var linkedNodeID = '';
+			var linkedNodeIDList = '';
 			
 			for (var n = 0; n < nestedCommentNodes.length; n++) {
 				
@@ -880,7 +924,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				
 				if (id) {
 					
-					if (linkedNodeID.indexOf(id) != -1) {
+					if (linkedNodeIDList.indexOf(id) != -1) {
 						
 						var err = new Error;
 						
@@ -889,7 +933,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						throw err.message + '\n' + err.stack;
 					}
 					
-					linkedNodeID += "," + id;
+					linkedNodeIDList += "," + id;
 						
 					var linkedNode = document.querySelector('[idom-node-id=' + id + ']');
 					
@@ -921,14 +965,37 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 
 					var el = nestedCommentNodes[n].parentNode.insertBefore(linkedNode.cloneNode(true), nestedCommentNodes[n]);
 					
-					el.parentNode.removeChild(nestedCommentNodes[0]);
+					el.parentNode.removeChild(nestedCommentNodes[n]);
 					
-					for (var n = 0; n < el.children.length || n < 1; n++) {
-									
-						el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id"));
+					var sel = elem.getAttribute("idom-instance-id")
+						
+					var refStart = sel.indexOf('@cloned')
+						
+					// in case of cloned node, re-add clone reference to linked node	
+					if (refStart != -1) {
+						
+						var refStr = sel.substring(refStart);
+						
+						for (var n = 0; n < el.children.length || n < 1; n++) {
+										
+							el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id") + refStr);
+						    
+						} 
+						
+						el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id") + refStr);
+					
+				   } else {
+				   	
+						for (var n = 0; n < el.children.length || n < 1; n++) {
+										
+							el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id"));
+						  
+						} 
+						
+						el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id"));
+					
 					}
 					
-					el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id"));
 				} 
 			}
 		} else {
@@ -937,6 +1004,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		}
 	}
 	
+	// instance ids iin idom$() call must all be void of @... it's added automatically.. users can use baseSelector  
 };
 
 // format: clonedNode = document.querySelector('#someNode').idom$clone(uid) 

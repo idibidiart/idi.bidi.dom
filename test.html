@@ -50,7 +50,7 @@
       <span class="small">by <a href="https://github.com/idibidiart">idibidiart</a></span></h1>
 
     <div class="description">
-      New Way To Interact With The DOM 
+      New Way To Interact With The DOM
     </div>
 </div>
 
@@ -58,9 +58,9 @@
 
 /*! idi.bidi.dom 
 * 
-* v0.3
+* v0.4
 *
-* New Way To Interact With The DOM  
+* New Way To Interact With The DOM 
 *
 * Copyright (c) Marc Fawzi 2012
 * 
@@ -89,7 +89,7 @@
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, idi.bidi.dom offers a list-wise API to create, update, and delete pred-
  * determined structures without losing the ability to directly access nested versions
- * of such structures. 
+ * of such structures.
  *
  * Why use it?
  * 
@@ -98,22 +98,17 @@
  * 
  * How does it work?
  * 
- * idi.bidi.dom allows the DOM to be decomposed into Node Lists each having a 
- * Node Prototype from which instances (copies, usually with different data) can 
- * be created, populated with JSON data and then inserted into the Node (in append, 
- * prepend, and replace modes, with the ability to target specific, previously 
- * inserted instances of the Node Prototype or the Node List's entire content, i.e. 
- * the set of instances of the Node Prototype) and where the Node itself can be 
- * dynamically linked into other Nodes.
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
+ * Node Prototype of which instances (copies, usually with different data) can 
+ * be created, populated with JSON data, inserted into and deleted from the Node 
+ * (with the ability to target specific, previously inserted instances of the Node 
+ * Prototype or all such instances) and where the Node itself can be linked into 
+ * any number of other Nodes.
  * 
- * Additionally, idi.bidi.dom allows the cloning of each Node and the populated
- * instances of the Node Prototype within it (including any Linked Nodes inserted 
- * into the Node Prototype and the populated instances of the Node Prototype within
- * those Linked Nodes) This means that we may re-use the same Node to create any number 
- * of differently populated and customized Nodes, thus reducing the amount of HTML 
- * in our pages while greatly simplifying our interaction with the DOM by using
- * a list-oriented DOM API instead of the much more complex/error-prone hierarchical 
- * API that the DOM exposes.
+ * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
+ * instances within it (including any Linked Nodes inserted into the Node Prototype and 
+ * the populated instances of those Linked Nodes) This means that we may re-use the same 
+ * Node to create any number of differently populated Nodes. 
  *
  * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
@@ -133,20 +128,21 @@
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix
  *
- * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: value}
+ * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
+ * value}
  *
  * if there no populated instances of Node Prototype then append/prepend/replace 
- * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied in 
- * this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
+ * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceId, unless you know the node is populated)
  *
  * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
  * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node Prototype, or to start of the list if none were
- * previously populated.
+ * previously populated instance of the Node Prototype, or to start of the list if none 
+ * were previously populated.
  *
- * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to replace 
- * when in replace mode. If null, replace all instances.
+ * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
+ * replace when in replace mode. If null, replace all instances.
  *
  * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
  *
@@ -166,15 +162,16 @@
  **********************************************************************************
  *
  * About Events:
- * If the handler is defined on the node it will only have access to the node id. If it's defined on or in the
- * node prototype it will have access to the instance id
+ * If the handler is defined on the node it will only have access to the node id. If it's 
+ * defined on or in the node prototype it will have access to the instance id
  *
- * The context of 'this' inside the handler becomes the element the event is defined on (i.e. the cloned node
- * or the node prototype instance within it), which is the normal way 'this' is handled in this context
+ * The context of 'this' inside the handler becomes the element the event is defined on 
+ * (i.e. the cloned node or the node prototype instance within it), which is the normal 
+ * way 'this' is handled in this context
  *
- * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, etc) are not handled
- * by idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
- * will be supported in the future 
+ * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
+ * etc) are not handled by idom at this time. Finding and cloning all event handlers that 
+ * are attached via different means, like jQuery, will be supported in the future 
  * 
  *********************************************************************************/
 <br>
@@ -186,7 +183,7 @@ Example:
 
 <div style='color: orange'>
 &lt;!--************************************************* VIEW OBJECTS ***************************************************-->
-&lt;!-- Start of Node List -->
+&lt;!-- Start of Node -->
 &lt;div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; 
 border: none; background-color: gray; color: black; display: none;'>
 	
@@ -198,9 +195,9 @@ border: none; background-color: gray; color: black; display: none;'>
 	&lt;!-- End of Node Prototype -->
 	
 &lt;/div>
-&lt;!-- End of Node List -->
+&lt;!-- End of Node -->
 
-&lt;!-- Start of Node List -->
+&lt;!-- Start of Node -->
 &lt;div idom-node-id='userInfo' style='display: none;'>
 	
 &lt;!-- Start of Node Prototype -->
@@ -219,8 +216,10 @@ border: none; background-color: gray; color: black; display: none;'>
 &lt;!-- End of Node Prototype -->
 	
 &lt;/div>
-&lt;!-- End of Node List -->
+&lt;!-- End of Node -->
 </div>
+
+&lt;!--*********************************************** TEST Buttons (can be templated too) ***********************************--&gt;
 
 &lt;p>Click on any user below to see the idom-attached event handler for the target element in action&lt;/p>
 
@@ -245,8 +244,8 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 			{
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
-				// we can have as many event handlers on or within a node but here we're just using the same 
-				//one on two elements 
+				// we can have as many event handlers on or within a node but here we're just using the 
+				// same one on two elements 
 				someHandler: 'idom.eventHandler(event, this, changeColor)' 
 				// event handler can be removed by simply setting someHandler to null
 			}, 
@@ -321,9 +320,12 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 					itemColor: colorSelector(instanceId)
 				}, 
 				{
-					instanceId: instanceId, 
+					// instanceId in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					
+					instanceId: idom.baseSelector(instanceId), 
 					mode: 'replace', 
-					targetInstanceId: instanceId
+					targetInstanceId:  idom.baseSelector(instanceId)
 				})
 	} else {
 		
@@ -332,9 +334,12 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 					itemColor: 'transparent'
 				}, 
 				{
-					instanceId: instanceId, 
+					// instanceId in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					
+					instanceId:  idom.baseSelector(instanceId), 
 					mode: 'replace', 
-					targetInstanceId: instanceId
+					targetInstanceId:  idom.baseSelector(instanceId)
 				})
 	}
 
@@ -348,10 +353,13 @@ function button1() {
 		{
 			someHandler: "" //null value removes the handler
 		},
-		{
-			instanceId: "user1@linked@team2@cloned@clone2",
+		{   
+			// instanceId in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)
+					
+			instanceId: "user1",
 			mode: "replace",
-			targetInstanceId: "user1@linked@team2@cloned@clone2"
+			targetInstanceId: "user1"
 		}
 	
 	)
@@ -365,10 +373,13 @@ function button2() {
 		{
 			someHandler: "idom.eventHandler(event, this, changeColor)" 
 		},
-		{
-			instanceId: "user1@linked@team2@cloned@clone2",
+		{   
+			// instanceId in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)
+					
+			instanceId: "user1",
 			mode: "replace",
-			targetInstanceId: "user1@linked@team2@cloned@clone2"
+			targetInstanceId: "user1"
 		}
 	
 	)
@@ -406,7 +417,7 @@ function colorSelector(instanceId) {
 <script type="text/javascript" src="jsonData.js"></script>
 
 <!--************************************************* VIEW OBJECTS ***************************************************-->
-<!-- Start of Node List -->
+<!-- Start of Node -->
 <div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; 
 border: none; background-color: gray; color: black; display: none;'>
 	
@@ -418,9 +429,9 @@ border: none; background-color: gray; color: black; display: none;'>
 	<!-- End of Node Prototype -->
 	
 </div>
-<!-- End of Node List -->
+<!-- End of Node -->
 
-<!-- Start of Node List -->
+<!-- Start of Node -->
 <div idom-node-id='userInfo' style='display: none;'>
 	
 	<!-- Start of Node Prototype -->
@@ -439,14 +450,22 @@ border: none; background-color: gray; color: black; display: none;'>
 	<!-- End of Node Prototype -->
 	
 </div>
-<!-- End of Node List -->
+<!-- End of Node -->
 
 <p>Click on any user below to see the idom-attached event handler for the target element in action</p>
 
 <div>
 
+<!--****************************************** TEST Buttons (can be templated too) *************************************-->
+
 <button onclick='button1()'>Click to disable event handling on user 2 in Team 2</button>
 <button onclick='button2()'>Click to enable event handling on user 2 in Team 2</button>
+<br>
+<!--
+<button onclick='button3()'>Click to dePopulate clone 3</button>
+<button onclick='button4()'>Click to re-populate clone 4</button>
+-->
+
 </div>
 <script>
 /*********************************************** PRESENTER *************************************************************/
@@ -464,8 +483,9 @@ for (m = 0; m < jsonData.teams.length; m++) {
 			{
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
-				// we can have as many event handlers on or within a node but here we're just using the same one on two elements 
-				someHandler: 'idom.eventHandler(event, this, changeColor)'  // event handler can be removed by simply setting this to null
+				// we can have as many event handlers on or within a node but here we're just using the 
+				//same one on two elements 
+				someHandler: 'idom.eventHandler(event, this, changeColor)' 
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
@@ -538,9 +558,13 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 					itemColor: colorSelector(instanceId)
 				}, 
 				{
-					instanceId: instanceId, 
+					// instanceId in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					
+				
+					instanceId: idom.baseSelector(instanceId), 
 					mode: 'replace', 
-					targetInstanceId: instanceId
+					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
 		
@@ -549,9 +573,12 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 					itemColor: 'transparent'
 				}, 
 				{
-					instanceId: instanceId, 
+					// instanceId in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					
+					instanceId: idom.baseSelector(instanceId), 
 					mode: 'replace', 
-					targetInstanceId: instanceId
+					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}
 
@@ -566,9 +593,12 @@ function button1() {
 			someHandler: "" //null value removes the handler
 		},
 		{
-			instanceId: "user1@linked@team2@cloned@clone2",
+			// instanceId in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)
+					
+			instanceId: "user1",
 			mode: "replace",
-			targetInstanceId: "user1@linked@team2@cloned@clone2"
+			targetInstanceId: "user1"
 		}
 	
 	)
@@ -583,9 +613,12 @@ function button2() {
 			someHandler: "idom.eventHandler(event, this, changeColor)" 
 		},
 		{
-			instanceId: "user1@linked@team2@cloned@clone2",
+			// instanceId in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)
+					
+			instanceId: "user1",
 			mode: "replace",
-			targetInstanceId: "user1@linked@team2@cloned@clone2"
+			targetInstanceId: "user1"
 		}
 	
 	)

@@ -307,7 +307,7 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 function button1() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype instance of the original node the clone is copied from)
+	// node prototype of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
 			someHandler: "" //null value removes the handler
@@ -327,7 +327,7 @@ function button1() {
 function button2() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype instance of the original node the clone is copied from)
+	// node prototype of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
 			someHandler: "idom.eventHandler(event, this, changeColor)" 
@@ -347,7 +347,7 @@ function button2() {
 function button3() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype instance of the original node the clone is copied from)
+	// node prototype of the original node the clone is copied from)
 	
 	// delete content of the cloned node (including content of the cloned linked node)
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
@@ -543,7 +543,7 @@ function changeColor(event, nodeId, instanceId, cloneId) {
 function button1() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype instance of the original node the clone is copied from)
+	// node prototype of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
 			someHandler: "" //null value removes the handler
@@ -563,7 +563,7 @@ function button1() {
 function button2() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype instance of the original node the clone is copied from)
+	// node prototype of the original node the clone is copied from)
 	document.querySelector('[idom-node-id="userInfo@linked@team2@cloned@clone2"]').idom$('clone2', 
 		{
 			someHandler: "idom.eventHandler(event, this, changeColor)" 
@@ -583,7 +583,7 @@ function button2() {
 function button3() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype instance of the original node the clone is copied from)
+	// node prototype of the original node the clone is copied from)
 	
 	// delete content of the cloned node (including content of the cloned linked node)
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()

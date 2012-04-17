@@ -336,12 +336,18 @@ function button3() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype instance of the original node the clone is copied from)
+	
+	// delete content of the cloned node (including content of the cloned linked node)
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
 }
 
 function button4() {
+	
+	// delete content of the original Linked Node (outside the clone) 
+	if (document.querySelector('[idom-node-id="userInfo"]').idom$isPopulated()) 
+		document.querySelector('[idom-node-id="userInfo"]').idom$delete()
 		
-	//First, populate the Node Prototype of the Linked Node (the original outside the clone) 
+	//First, populate the Node Prototype of the original Linked Node (outside the clone) 
 	for (n = 0; n < jsonData.teams[2].members.length; n++) {
 	
 		document.querySelector('[idom-node-id="userInfo"]').idom$('clone3',
@@ -359,6 +365,7 @@ function button4() {
 	// perform replace on the host Node inside the clone (linked node gets re/linked with each idom$() call)
 	// clone reference is automatically added to the Node and the Linked Node and all their instances
 	// link reference is automatically added to the Linked Node and all its instances
+	// since we're doing a replace, no need to delete content with every invocation 
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$('clone3',
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
@@ -372,7 +379,6 @@ function button4() {
 	// now we can make the linked node inside the clone (and all its instances) visible
 	document.querySelector('[idom-node-id="userInfo@linked@team3@cloned@clone3"]').style.display = 'block';
 }
-
 
 function colorSelector(instanceId) {
 	
@@ -664,13 +670,19 @@ function button3() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype instance of the original node the clone is copied from)
+	
+	// delete content of the cloned node (including content of the cloned linked node)
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
 }
 
 function button4() {
+	
+	// delete content of the original Linked Node (outside the clone) 
+	if (document.querySelector('[idom-node-id="userInfo"]').idom$isPopulated()) 
+		document.querySelector('[idom-node-id="userInfo"]').idom$delete()
 		
-	//First, populate the Node Prototype of the Linked Node (the original outside the clone) 
-	for (n = 0; n &lt; jsonData.teams[2].members.length; n++) {
+	//First, populate the Node Prototype of the original Linked Node (outside the clone) 
+	for (n = 0; n < jsonData.teams[2].members.length; n++) {
 	
 		document.querySelector('[idom-node-id="userInfo"]').idom$('clone3',
 			{
@@ -687,6 +699,7 @@ function button4() {
 	// perform replace on the host Node inside the clone (linked node gets re/linked with each idom$() call)
 	// clone reference is automatically added to the Node and the Linked Node and all their instances
 	// link reference is automatically added to the Linked Node and all its instances
+	// since we're doing a replace, no need to delete content with every invocation 
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$('clone3',
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
@@ -700,7 +713,6 @@ function button4() {
 	// now we can make the linked node inside the clone (and all its instances) visible
 	document.querySelector('[idom-node-id="userInfo@linked@team3@cloned@clone3"]').style.display = 'block';
 }
-
 
 function colorSelector(instanceId) {
 	

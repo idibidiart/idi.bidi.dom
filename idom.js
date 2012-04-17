@@ -27,7 +27,7 @@
  * terms, it offers a list-based API for creating, updating, and deleting predetermined 
  * DOM structures with the ability to dynamically link and directly access other 
  * predetermined DOM structures at any depth within them, thus giving us a simple and
- * consistent alternative to the DOM's hierarchical API and allowing us to reduce the 
+ * consistent alternative to the DOM's hierarchical API while allowing us to reduce the 
  * amount of HTML as well as separate the HTML from our presentation logic.
  *
  *

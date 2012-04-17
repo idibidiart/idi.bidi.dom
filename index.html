@@ -401,106 +401,7 @@ function colorSelector(instanceId) {
 
 
 <pre>
-	
-/******************************************************************************
- * 
- * README:
- * 
- * This version works in Gecko and Webkit, not tested on IE
- *
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
- * different way for interfacting with the DOM. In abstract terms, it takes the DOM 
- * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
- * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, it offers a list-based API for creating, updating, and deleting predetermined 
- * DOM structures with the ability to dynamically nest and directly access other 
- * predetermined DOM structures at any depth within them.
- *
- * Why use it?
- * 
- * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
- * JSON API between presentation logic and the DOM
- * 
- * How does it work?
- * 
- * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
- * Node Prototype of which instances (copies, with the same or entirely different data) 
- * may be created, populated with JSON data, inserted into --and deleted from-- the Node 
- * (with the ability to target specific, previously inserted instances of the Node 
- * Prototype or all such instances), and where each Node can be linked by reference into 
- * any number of other Nodes.
- * 
- * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any Linked Nodes inserted into the host's Node Prototype 
- * and their populated instances) This means that we may re-use the same Node to create 
- * any number of differently populated Nodes.  
- *
- * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
- * to take the place of Javascript itself nor does it add its own boilerplate; it 
- * simply gives Javascript more power by leveraging a simple and consistent interface
- * to the DOM. 
- *
- * Usage:
- *
- * format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
- * 
- * output: creates a new instance of Node Prototype using 'data' (json) to populate the 
- * special variables in the Node, then append/prepend to (or replace) existing 
- * instance(s) of Node Prototype in the Node
- *
- * cloneId: unique id for the future or current clone the data is intended for  
- *
- * data: {key: value, key: value, key: value, etc} 
- * where the key must match the variable name in the data minus the idom$ prefix
- *
- * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
- * value}
- *
- * if there no populated instances of Node Prototype then append/prepend/replace 
- * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
- * in this case it will throw an error, so call .$isPopulated() first to be sure before 
- * invoking this method with targetInstanceId, unless you know the node is populated)
- *
- * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
- * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node Prototype, or to start of the list if none 
- * were previously populated.
- *
- * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
- * replace when in replace mode. If null, replace all instances.
- *
- * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
- *
- *********************************************************************************
- * 
- * Other available are methods are 
- *
- * .idom$delete([settings]) which can delete certain populated instances of the Node 
- * Prototype or all populated instances 
- *
- * .idom$isPopulated() may be queried before specifying targetInstanceId  
- * to verify existence of populated instance(s) of Node Prototype (the targets) 
- * 
- * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
- * been populated)
- *
- **********************************************************************************
- *
- * About Events:
- * If the handler is defined on the node it will only have access to the node id. If it's 
- * defined on or in the node prototype it will have access to the instance id
- *
- * The context of 'this' inside the handler becomes the element the event is defined on 
- * (i.e. the cloned node or the node prototype instance within it), which is the normal 
- * way 'this' is handled in this context
- *
- * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
- * etc) are not handled by idom at this time. Finding and cloning all event handlers that 
- * are attached via different means, like jQuery, will be supported in the future 
- * 
- *********************************************************************************/
-	
-	
+
 &lt;script>
 
 /*********************************************** SOURCE FOR TEST CASE ************************************************/
@@ -724,6 +625,106 @@ function colorSelector(instanceId) {
 	
 	}	
 }
+
+/******************************************************************************
+ * 
+ * README:
+ * 
+ * This version works in Gecko and Webkit, not tested on IE
+ *
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * different way for interfacting with the DOM. In abstract terms, it takes the DOM 
+ * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
+ * type polymorphism (with the Node Prototype as the user defined type) In logical 
+ * terms, it offers a list-based API for creating, updating, and deleting predetermined 
+ * DOM structures with the ability to dynamically nest and directly access other 
+ * predetermined DOM structures at any depth within them.
+ *
+ * Why use it?
+ * 
+ * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
+ * JSON API between presentation logic and the DOM
+ * 
+ * How does it work?
+ * 
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
+ * Node Prototype of which instances (copies, with the same or entirely different data) 
+ * may be created, populated with JSON data, inserted into --and deleted from-- the Node 
+ * (with the ability to target specific, previously inserted instances of the Node 
+ * Prototype or all such instances), and where each Node can be linked by reference into 
+ * any number of other Nodes.
+ * 
+ * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
+ * instances within it (including any Linked Nodes inserted into the host's Node Prototype 
+ * and their populated instances) This means that we may re-use the same Node to create 
+ * any number of differently populated Nodes.  
+ *
+ * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
+ * to take the place of Javascript itself nor does it add its own boilerplate; it 
+ * simply gives Javascript more power by leveraging a simple and consistent interface
+ * to the DOM. 
+ *
+ * Usage:
+ *
+ * format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
+ * 
+ * output: creates a new instance of Node Prototype using 'data' (json) to populate the 
+ * special variables in the Node, then append/prepend to (or replace) existing 
+ * instance(s) of Node Prototype in the Node
+ *
+ * cloneId: unique id for the future or current clone the data is intended for  
+ *
+ * data: {key: value, key: value, key: value, etc} 
+ * where the key must match the variable name in the data minus the idom$ prefix
+ *
+ * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
+ * value}
+ *
+ * if there no populated instances of Node Prototype then append/prepend/replace 
+ * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
+ * in this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * invoking this method with targetInstanceId, unless you know the node is populated)
+ *
+ * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
+ * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
+ * previously populated instance of the Node Prototype, or to start of the list if none 
+ * were previously populated.
+ *
+ * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
+ * replace when in replace mode. If null, replace all instances.
+ *
+ * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
+ *
+ *********************************************************************************
+ * 
+ * Other available are methods are 
+ *
+ * .idom$delete([settings]) which can delete certain populated instances of the Node 
+ * Prototype or all populated instances 
+ *
+ * .idom$isPopulated() may be queried before specifying targetInstanceId  
+ * to verify existence of populated instance(s) of Node Prototype (the targets) 
+ * 
+ * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
+ * been populated)
+ *
+ **********************************************************************************
+ *
+ * About Events:
+ * If the handler is defined on the node it will only have access to the node id. If it's 
+ * defined on or in the node prototype it will have access to the instance id
+ *
+ * The context of 'this' inside the handler becomes the element the event is defined on 
+ * (i.e. the cloned node or the node prototype instance within it), which is the normal 
+ * way 'this' is handled in this context
+ *
+ * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
+ * etc) are not handled by idom at this time. Finding and cloning all event handlers that 
+ * are attached via different means, like jQuery, will be supported in the future 
+ * 
+ *********************************************************************************/
+	
+
 
 &lt;/script>
 	

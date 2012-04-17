@@ -1,16 +1,16 @@
-/*****************************************************************************
+/******************************************************************************
  * 
  * README:
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
- * new way for interfacing to the DOM. In abstract terms, idi.bidi.dom takes the DOM 
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * different way for interfacting with the DOM. In abstract terms, it takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, idi.bidi.dom offers a list-wise API to create, update, and delete pred-
- * determined structures without losing the ability to directly access nested versions
- * of such structures.
+ * terms, it offers a list-based API for creating, updating, and deleting predetermined 
+ * DOM structures with the ability to dynamically nest and directly access other 
+ * predetermined DOM structures at any depth within them.
  *
  * Why use it?
  * 
@@ -20,16 +20,16 @@
  * How does it work?
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
- * Node Prototype of which instances (copies, usually with different data) can 
- * be created, populated with JSON data, inserted into and deleted from the Node 
+ * Node Prototype of which instances (copies, with the same or entirely different data) 
+ * may be created, populated with JSON data, inserted into --and deleted from-- the Node 
  * (with the ability to target specific, previously inserted instances of the Node 
- * Prototype or all such instances) and where the Node itself can be linked into 
+ * Prototype or all such instances), and where each Node can be linked by reference into 
  * any number of other Nodes.
  * 
  * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any Linked Nodes inserted into the Node Prototype and 
- * the populated instances of those Linked Nodes) This means that we may re-use the same 
- * Node to create any number of differently populated Nodes. 
+ * instances within it (including any Linked Nodes inserted into the host's Node Prototype 
+ * and their populated instances) This means that we may re-use the same Node to create 
+ * any number of differently populated Nodes.  
  *
  * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
@@ -71,7 +71,7 @@
  * 
  * Other available are methods are 
  *
- * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
+ * .idom$delete([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
  * .idom$isPopulated() may be queried before specifying targetInstanceId  

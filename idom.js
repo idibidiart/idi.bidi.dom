@@ -1,6 +1,6 @@
 /*! idi.bidi.dom 
 * 
-* v0.4
+* v0.5
 *
 * New Way To Interact With The DOM 
 *
@@ -20,13 +20,13 @@
  * 
  * This version works in Gecko and Webkit, not tested on IE
  *
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offering a radically 
- * new way for interfacing to the DOM. In abstract terms, idi.bidi.dom takes the DOM 
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * different way for interfacting with the DOM. In abstract terms, it takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, idi.bidi.dom offers a list-wise API to create, update, and delete pred-
- * determined structures without losing the ability to directly access nested versions
- * of such structures.
+ * terms, it offers a list-based API for creating, updating, and deleting predetermined 
+ * DOM structures with the ability to dynamically nest and directly access other 
+ * predetermined DOM structures at any depth within them.
  *
  * Why use it?
  * 
@@ -36,16 +36,16 @@
  * How does it work?
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
- * Node Prototype of which instances (copies, usually with different data) can 
- * be created, populated with JSON data, inserted into and deleted from the Node 
+ * Node Prototype of which instances (copies, with the same or entirely different data) 
+ * may be created, populated with JSON data, inserted into --and deleted from-- the Node 
  * (with the ability to target specific, previously inserted instances of the Node 
- * Prototype or all such instances) and where the Node itself can be linked into 
+ * Prototype or all such instances), and where each Node can be linked by reference into 
  * any number of other Nodes.
  * 
  * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any Linked Nodes inserted into the Node Prototype and 
- * the populated instances of those Linked Nodes) This means that we may re-use the same 
- * Node to create any number of differently populated Nodes. 
+ * instances within it (including any Linked Nodes inserted into the host's Node Prototype 
+ * and their populated instances) This means that we may re-use the same Node to create 
+ * any number of differently populated Nodes.  
  *
  * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
@@ -87,7 +87,7 @@
  * 
  * Other available are methods are 
  *
- * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
+ * .idom$delete([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
  * .idom$isPopulated() may be queried before specifying targetInstanceId  
@@ -111,7 +111,7 @@
  * are attached via different means, like jQuery, will be supported in the future 
  * 
  *********************************************************************************/
-
+	
 // define the glpbal idom object
 var idom = {};
 
@@ -320,10 +320,10 @@ idom.forEachExec = function(nodelist, str) {
 
 idom.eventHandler = function(event, el, func) {
 	
-	var elem = el;
-	
 	function getNodeId() { 
-	
+		
+		var elem = el;
+
 	    while (elem.parentNode) {
 	        elem = elem.parentNode;
 	        var id = elem.getAttribute('idom-node-id')
@@ -334,9 +334,9 @@ idom.eventHandler = function(event, el, func) {
    	}
    	
    	function getInstanceId() { 
+   		
+   		var elem = el;
 	
-		var elem = el;
-		
 	    while (elem.parentNode) {
 	        elem = elem.parentNode;
 	        var id = elem.getAttribute('idom-instance-id')
@@ -571,15 +571,6 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	// wildcards and the whole pattern repeating {1,} to see if the element has been wrongly updated 
 	// (from outside of idom), i.e. will not match the pattern, which would throw an error
 	
-	if (!this.children.length) {
-		
-		var err = new Error;
-			
-		err.message = "node is missing node prototype";
-					 
-		throw err.message + '\n' + err.stack;
-	}
-	
 	var cloneId = arguments[0];
 	
 	// assuming simple JSON
@@ -646,22 +637,13 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 	}
 		
-	if (!this.children ||
+	if (!this.children[0] ||
 		// condition 1: if Node has no populated instances of its Prototype Node 
 		this.innerHTML == idomDOM.cache[nid] || 
 		// condition 2: or settings were not given 	
 		!settings || settings == {} || 
 		// condition 3: or 'replace all' is assumed (if no target was specified and mode is replace or not specified)
 		(settings && !settings.targetInstanceId && (settings.mode == 'replace' || settings.mode == ''))) {
-		
-		if (!this.children) {
-			
-			var err = new Error;
-			
-			err.message = "node is missing its node prototype";
-			 
-			throw err.message + '\n' + err.stack;
-		}
 		
 		//exception under condition 1 if target is specified 
 		if (settings && settings.targetInstanceId) {
@@ -896,16 +878,17 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
 	
 	function setInstanceId(elem) {
-		
-		elem.setAttribute("idom-instance-id", settings.instanceId)
-		
+
 		var parentSel = elem.parentNode.getAttribute("idom-node-id")
 		
-		var refStart = elem.parentNode.getAttribute("idom-node-id").indexOf('@')
+		var refStart = parentSel.indexOf('@')
 		
 		if (refStart != -1) {
 			
 			elem.setAttribute("idom-instance-id", settings.instanceId + parentSel.substring(refStart))
+		} else {
+			
+			elem.setAttribute("idom-instance-id", settings.instanceId)
 		}	
 		
 	};
@@ -966,38 +949,17 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 					var el = nestedCommentNodes[n].parentNode.insertBefore(linkedNode.cloneNode(true), nestedCommentNodes[n]);
 					
 					el.parentNode.removeChild(nestedCommentNodes[n]);
-					
-					var sel = elem.getAttribute("idom-instance-id")
-						
-					var refStart = sel.indexOf('@cloned')
-						
-					// in case of cloned node, re-add clone reference to linked node	
-					if (refStart != -1) {
-						
-						var refStr = sel.substring(refStart);
-						
-						for (var n = 0; n < el.children.length || n < 1; n++) {
-										
-							el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id") + refStr);
-						    
-						} 
-						
-						el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id") + refStr);
-					
-				   } else {
 				   	
-						for (var n = 0; n < el.children.length || n < 1; n++) {
-										
-							el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id"));
-						  
-						} 
-						
-						el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id"));
+					for (var n = 0; n < el.children.length || n < 1; n++) {
+									
+						el.children[n].setAttribute("idom-instance-id", el.children[n].getAttribute("idom-instance-id") + "@linked@" + elem.getAttribute("idom-instance-id"));
+					  
+					} 
 					
-					}
-					
+					el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@linked@"  + elem.getAttribute("idom-instance-id"));
 				} 
 			}
+			
 		} else {
 			
 			return;
@@ -1094,17 +1056,8 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 					 
 		throw err.message + '\n' + err.stack;
 	}
-	
-	if (!this.children.length) {
-		
-		var err = new Error;
-			
-		err.message = "node is missing node prototype"
-					 
-		throw err.message + '\n' + err.stack;
-	}
 
-	if (this.innerHTML == idomDOM.cache[nid]) {
+	if (this.innerHTML == idomDOM.cache[nid] || !this.children[0]) {
 		
 		return false;
 	}		
@@ -1113,7 +1066,7 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 	
 };
 
-// .idom$dePopulate
+// .idom$delete
 //
 // format: document.querySelector('#someNode').idom$delete([settings]) 
 // settings: {'targetInstanceId': value}
@@ -1121,7 +1074,7 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 // targetInstanceId: settingal: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
 //
 
-Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || function() {
+Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
 	
 	if (!idomDOM.initDone) {
 		
@@ -1143,21 +1096,6 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 		throw err.message + '\n' + err.stack;
 	}
      
-	if (!this.children.length) {
-		
-		var err = new Error;
-			
-		err.message = "node is missing node prototype"
-					 
-		throw err.message + '\n' + err.stack;
-	}
-	
-	
-	if (this.innerHTML == idomDOM.cache[nid]) {
-		
-		// nothing to dePopulate
-		return;
-	}
 	
 	// take settings, assuming simple JSON
 	var settings = arguments[0];	
@@ -1203,29 +1141,34 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 		var targetNodeList = [];
 		
 		if (settings.targetInstanceId) {
-			
-			if (settings.targetInstanceId) {
+		
+			if (this.innerHTML == idomDOM.cache[nid] || !this.children[0]) {
+		
+				var err = new Error;
 				
-				for (var n = 0; n < this.children.length; n++) {
+				err.message = "node has not yet been populated (no matching instance)"
+							 
+				throw err.message + '\n' + err.stack;
+			}
+			
+			for (var n = 0; n < this.children.length; n++) {
+				
+				if (this.children[n].getAttribute("idom-instance-id") == settings.targetInstanceId) {
 					
-					if (this.children[n].getAttribute("idom-instance-id") == settings.targetInstanceId) {
+					targetNodeList.push(this.children[n])
+				}
+			}
 						
-						targetNodeList.push(this.children[n])
-					}
-				}
+			if (!targetNodeList) {
 							
-				if (!targetNodeList) {
-								
-					var err = new Error;
-			
-					err.message = "Invalid setting: targetInstanceId (" + settings.targetInstanceId + ") does not match" + 
-					"any idom-instance-id in any instance of the Node Prototype of the Node idom$() is invoked on\n" + 
-					"outerHTML of node:\n" + this.outerHTML;
-					 
-					throw err.message + '\n' + err.stack;	
-				}
-				
-			} 
+				var err = new Error;
+		
+				err.message = "Invalid setting: targetInstanceId (" + settings.targetInstanceId + ") does not match" + 
+				"any idom-instance-id in any instance of the Node Prototype of the Node idom$() is invoked on\n" + 
+				"outerHTML of node:\n" + this.outerHTML;
+				 
+				throw err.message + '\n' + err.stack;	
+			}
 			
 						
 			for (var n = 0; n < targetNodeList.length; n++) {
@@ -1233,14 +1176,18 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 				this.removeChild(targetNodeList[n]);
 			}
 			
-			if (!this.children.length) {
-				this.innerHTML = idomDOM.cache[nid];
-			}
-		} 
+		} else {
+			
+			var err = new Error;
+				
+			err.message = "this method only takes targetInstanceId in settings"
+						 
+			throw err.message + '\n' + err.stack;
+		}
 		
 	} else {
 		
-		this.innerHTML = idomDOM.cache[nid];
+		this.innerHTML = "";
 	}
 };
 

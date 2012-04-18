@@ -996,7 +996,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		throw err.message + '\n' + err.stack;
 	}
 	
-	var nid = this.getAttribute('idom-node-id').replace(new RegExp("([@])(.)+$", "g"), "");
+	var nid = fullNid.replace(new RegExp("([@])(.)+$", "g"), "");
 
 	if (!idomDOM.cache[nid]) {
 		

@@ -976,6 +976,47 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 
 Element.prototype.idom$clone = Element.prototype.idom$clone || function() { 
 	
+	var fullNid = this.getAttribute("idom-node-id");
+	
+	if (fullNid.indexOf('@') != -1) {
+		
+		var err = new Error;
+		
+		err.message = "this method may only be used on the original non-cloned, non-linked node"
+		 
+		throw err.message + '\n' + err.stack;
+	}
+	
+	if (!idomDOM.initDone) {
+		
+		var err = new Error;
+			
+		err.message = "you must run idom.init() from window.onload or $(document).ready before invoking .idom$ methods";
+					 
+		throw err.message + '\n' + err.stack;
+	}
+	
+	var nid = this.getAttribute('idom-node-id').replace(new RegExp("([@])(.)+$", "g"), "");
+
+	if (!idomDOM.cache[nid]) {
+		
+		// node was added after idom.init() 
+		var err = new Error;
+			
+		err.message = "node was not cached";
+					 
+		throw err.message + '\n' + err.stack;	
+	}
+	
+	if (fullNid.indexOf('@') != -1) {
+		
+		var err = new Error;
+		
+		err.message = "this method may only be used on the original non-cloned, non-linked node"
+		 
+		throw err.message + '\n' + err.stack;
+	}
+	
 	if (!arguments.length) {
 		
 		var err = new Error;
@@ -989,7 +1030,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 	 				
 		var err = new Error;
 		
-		err.message = "the node must be populated before it may be cloned"
+		err.message = "the node must be populated before it can be cloned"
 		 
 		throw err.message + '\n' + err.stack;
 	}

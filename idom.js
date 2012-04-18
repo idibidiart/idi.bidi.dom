@@ -978,15 +978,6 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 	
 	var fullNid = this.getAttribute("idom-node-id");
 	
-	if (fullNid.indexOf('@') != -1) {
-		
-		var err = new Error;
-		
-		err.message = "this method may only be used on the original non-cloned, non-linked node"
-		 
-		throw err.message + '\n' + err.stack;
-	}
-	
 	if (!idomDOM.initDone) {
 		
 		var err = new Error;

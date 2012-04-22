@@ -13,8 +13,7 @@
  * predetermined DOM structures at any depth within them, thus giving us a simple and
  * consistent alternative to the DOM's hierarchical API while allowing us to reduce the 
  * amount of HTML as well as separate the HTML from our presentation logic.
- *
- *
+ * 
  * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
@@ -47,7 +46,8 @@
  * special variables in the Node, then append/prepend to (or replace) existing 
  * instance(s) of Node Prototype in the Node
  *
- * cloneId: unique id for the future or current clone the data is intended for  
+ * cloneId: id for the clone the data is intended for. This is omitted when operating on 
+ * cloned nodes
  *
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix
@@ -98,7 +98,7 @@
  * are attached via different means, like jQuery, will be supported in the future 
  * 
  *********************************************************************************/
- 
+	
  
 With diagram and code
 

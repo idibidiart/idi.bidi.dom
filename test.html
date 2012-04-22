@@ -370,9 +370,6 @@ function button3() {
 	// and cloned versions of the node, but not the branched nodes) with the key being a combination of the base node 
 	// id, instance id, and clone id 
 	
-	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype of the original node the clone is copied from)
-	
 	// delete content of the cloned node (including content of the cloned linked node)
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
 }
@@ -384,6 +381,12 @@ function button4() {
 		document.querySelector('[idom-node-id="userInfo"]').idom$delete()
 		
 	//First, populate the Node Prototype of the original Linked Node (outside the clone) 
+	
+	// notice that we're only supplying the new/changed data (the delta not the whole set) for the idom$ variables 
+	// in the node prototype. The idom$ variable values are persisted for each node (shared among original, linked 
+	// and cloned versions of the node, but not the branched nodes) with the key being a combination of the base node 
+	// id, instance id, and clone id 
+	
 	for (n = 0; n < jsonData.teams[2].members.length; n++) {
 	
 		document.querySelector('[idom-node-id="userInfo"]').idom$('clone3',
@@ -400,8 +403,15 @@ function button4() {
 	
 	// Perform replace on the host Node inside the clone (linked node gets re/linked with each idom$() call)
 	// Clone and link references are automatically added to the Node and the Linked Node and all their instances
+	
+	// notice that we're only supplying the new/changed data (the delta not the whole set) for the idom$ variables 
+	// in the node prototype. The idom$ variable values are persisted for each node (shared among original, linked 
+	// and cloned versions of the node, but not the branched nodes) with the key being a combination of the base node 
+	// id, instance id, and clone id 
 
 	// Since we're doing a replace, no need to delete content with every invocation 
+	// When operating on a clone, we discard the cloneId argument
+	
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$(
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
@@ -631,9 +641,6 @@ function button3() {
 	// and cloned versions of the node, but not the branched nodes) with the key being a combination of the base node 
 	// id, instance id, and clone id 
 	
-	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
-	// node prototype of the original node the clone is copied from)
-	
 	// delete content of the cloned node (including content of the cloned linked node)
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
 }
@@ -645,6 +652,12 @@ function button4() {
 		document.querySelector('[idom-node-id="userInfo"]').idom$delete()
 		
 	//First, populate the Node Prototype of the original Linked Node (outside the clone) 
+	
+	// notice that we're only supplying the new/changed data (the delta not the whole set) for the idom$ variables 
+	// in the node prototype. The idom$ variable values are persisted for each node (shared among original, linked 
+	// and cloned versions of the node, but not the branched nodes) with the key being a combination of the base node 
+	// id, instance id, and clone id 
+	
 	for (n = 0; n &lt; jsonData.teams[2].members.length; n++) {
 	
 		document.querySelector('[idom-node-id="userInfo"]').idom$('clone3',
@@ -661,8 +674,15 @@ function button4() {
 	
 	// Perform replace on the host Node inside the clone (linked node gets re/linked with each idom$() call)
 	// Clone and link references are automatically added to the Node and the Linked Node and all their instances
+	
+	// notice that we're only supplying the new/changed data (the delta not the whole set) for the idom$ variables 
+	// in the node prototype. The idom$ variable values are persisted for each node (shared among original, linked 
+	// and cloned versions of the node, but not the branched nodes) with the key being a combination of the base node 
+	// id, instance id, and clone id 
 
 	// Since we're doing a replace, no need to delete content with every invocation 
+	// When operating on a clone, we discard the cloneId argument
+	
 	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$(
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated

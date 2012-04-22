@@ -62,7 +62,8 @@
  * special variables in the Node, then append/prepend to (or replace) existing 
  * instance(s) of Node Prototype in the Node
  *
- * cloneId: unique id for the future or current clone the data is intended for  
+ * cloneId: id for the clone the data is intended for. This is omitted when operating on 
+ * cloned nodes  
  *
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix

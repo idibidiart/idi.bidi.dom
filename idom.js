@@ -1,6 +1,6 @@
 /*! idi.bidi.dom 
 * 
-* v0.6
+* v0.07
 *
 * New Way To Interact With The DOM 
 *
@@ -115,14 +115,14 @@
  * 
  *********************************************************************************/
 	
-// define the glpbal idom object
+// define the global idom object
 var idom = {};
 
 // user defined iteration and DOM traversal functions should be added to idom.user
 // Example: idom.user.someFunction = function () { ... }
 idom.user = {};
  
-idom.version = "0.6";
+idom.version = "0.07";
 
 // define regular expression (RegEx) pattern for Prototype variables. use idom$ since that can't be confused 
 idom.regex = /(idom\$\w+)/g;
@@ -140,6 +140,8 @@ idomData = {};
 
 idomData.cache = {};
 
+idomData.outerCache = {};
+
 // internal use
 idomDOM = {};
 
@@ -147,6 +149,10 @@ idomDOM = {};
 idomDOM.cache = {};
 
 idomDOM.cidCache = {};
+
+idomDOM.clsCache = {};
+
+idomDOM.styleCache = {};
 
 // init method to be called from window.onload or $(document).ready 
 idom.init = function(json) {
@@ -174,7 +180,7 @@ idom.init = function(json) {
 		document.documentElement.innerHTML  = document.documentElement.innerHTML._idomMapValues(json, null, true);
 	}
 	
-	// fetch all elements with idom-node-id
+	// fetch all elements with idom-node-id (no need to loop thru script tags)
 	var els = document.querySelectorAll('[idom-node-id]');
 	
 	var elCount, elem;
@@ -185,7 +191,7 @@ idom.init = function(json) {
 		elCount = els.length;
 		
 	// element
-	} else if (els) {
+	} else if (typeof els.style != 'undefined') {
 		
 		elCount = 1;
 		elem = els;
@@ -367,6 +373,8 @@ idom.forEachExec = function(nodelist, str) {
 	
 	var exec = new Function("el", "el." + str);
 	
+	if (!nodelist[0])
+	
 	try {
 		
 		exec(nodelist[0] || nodelist);  
@@ -391,11 +399,16 @@ idom.eventHandler = function(event, el, func) {
 		var elem = el;
 
 	    while (elem.parentNode) {
+	    	
 	        elem = elem.parentNode;
+	        
 	        var id = elem.getAttribute('idom-node-id')
+	        
 	        if (id)
+	        
 	            return id;
 	    }
+	    
 	    return null;
    	}
    	
@@ -404,12 +417,17 @@ idom.eventHandler = function(event, el, func) {
    		var elem = el;
 	
 	    while (elem.parentNode) {
+	        
 	        elem = elem.parentNode;
+	        
 	        var id = elem.getAttribute('idom-instance-id')
+	        
 	        if (id) {
+	        
 	            return id;
 	        }    
 	    }
+	    
 	    return null;
    	}
   
@@ -440,9 +458,14 @@ idom.eventHandler = function(event, el, func) {
 //useful when assigning spaced or hyphenated strings from JSON/AJAX to idom$() setttings such as instanceId  
 
 idom.toCamelCase = function() {
+	
 	  return this.replace(/[\-_]/g, " ").replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
-	    if (+match === 0) return ""; // or if (/\s+/.test(match)) for white spaces
+	
+	    if (+match === 0) return ""; 
+	    // or if (/\s+/.test(match)) for white spaces
+	
 	    return index == 0 ? match.toLowerCase() : match.toUpperCase();
+	
 	  });	  
 };
 
@@ -450,7 +473,9 @@ idom.toCamelCase = function() {
 idom.baseSelector = function(sel) {
 	
 	function endIndex() {
+		
 		var nsel = sel.indexOf('@'); 
+		
 		return nsel != -1 ? nsel : sel.length
 	}
 	
@@ -557,7 +582,7 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 		
 		return this.replace(idom.initRegEx, function(match) { 
 			
-			var key = match.substr(idom.regexLength);
+			var key = match.substr(idom.initRegexLength);
 			var val = json[key];
 			
 			// if an init variable exists and has a value, replace with JSON value for corresponding key
@@ -576,6 +601,100 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 };
 
 
+// special version of the general data mapping function (for node-level variables)
+String.prototype._idomMapOuterValues = String.prototype._idomMapOuterValues || function() {
+	
+	// take the first argument, assuming simple JSON
+	var json = arguments[0];
+	
+	var uid = arguments[1];
+	
+	var forInit = arguments[2];
+	
+	var jsonStr, jsonErr; 
+	
+	try {
+		
+		jsonStr =JSON.stringify(json);
+	
+	} catch(e) {
+		
+		jsonErr = true;
+	}
+	
+	// primitive, fast error checking ... 
+	if (jsonErr || jsonStr.match(/[\{]{2,}|[\[]/) ) {
+		
+		var err = new Error;
+			
+		err.message = 'Invalid data: use simple JSON: {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}'
+					 
+		throw err.message + '\n' + err.stack;
+		 
+		// Notes:
+		//
+		// idom works with simple object literal or simple JSON
+		// 
+		// 'simple JSON' is defined as:
+		// {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}
+		
+		// Use Javascript to iterate thru more complex JSON then pass on simple JSON to idom
+		
+	} else if (jsonStr.match(idom.regex)) {
+		
+		var err = new Error;
+			
+		err.message = "Invalid data: idom node variables found in json"
+					 
+		throw err.message + '\n' + err.stack;
+	}
+		
+	// RegEx will iterate thru the idom node variables (keys) in target element's virgin innnerHTML (the template), 
+	// match to JSON values (by key), replacing the pseduo vars that match the supplied keys in JSON with the JSON values 
+	// (including null values), and returning the the modified string for updating the target element's innerHTML
+
+		
+	return this.replace(idom.regex, function(match) { 
+		
+		// if idom init() variable exists and has a value, replace with JSON value for corresponding key
+		
+		var key = match.substr(idom.regexLength);
+		var val = json[key];
+		
+		if (typeof eval("json." + key) != 'undefined') {
+			
+			// The data cache key for each key in the JSON for a given node is unique per instance id
+			// (instanceId), per each clone id (cloneId.) Since the node id (nid) and instance id are 
+			// used internally without the link or clone reference, the data cache keys for a given node 
+			// are shared at the node prototype instance level among the original node, the linked version 
+			// (if any, including inside a cloned host node) and the cloned version, and this sharing is 
+			// only per the given clone id, so it's globally unique per instance id, per clone id. 
+			
+			// Despite that the same node can be linked into multiple times within a given host node (i.e 
+			// with the same clone id) such duplicate linking must be done after the node is copied 
+			// with a different node id, so the data cache key will always be globally unique per instance 
+			// id, per clone id.  
+			
+		    // 1. you can't link @hkjhkkj@linked@ or @jghgjh@cloned .. no @ in id of node to be linked from comment
+		    
+		    // 2. stamp the clone id as attribute
+			
+			idomData.outerCache[uid.nid + "@" + uid.cloneId + '@' + key] = val;
+			
+			return val;
+			
+		} else {
+			
+			// if idom variable is missing or has an empty string value return empty string 	
+			return typeof idomData.outerCache[uid.nid + "@" + uid.cloneId + '@' + key] != 'undefined' ? 
+						idomData.outerCache[uid.nid + "@" + uid.cloneId + '@' + key] : 
+						'';
+		}
+	}); 
+			
+};
+
+
 // Todo: test if TreeWalker with SHOW_COMMENTS is faster
 Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeType || function() {
     
@@ -586,10 +705,14 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
     var result = [];
     
     for (var i = 0; i < childNodes.length; i++) {
+    
       if (childNodes[i].nodeType == Number(childNodeType)) {
+    
         result.push(childNodes[i]);
       } 
+    
       if (deep && (childNodes[i].nodeType == 1)) {
+    
         result = result.concat(childNodes[i].getElementsByNodeType(childNodeType, deep));
       }
     }
@@ -643,7 +766,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	} 
 	
 	//if arg0 is a non-null object (including {})
-	if (arguments[0] && typeof arguments[0] == 'object' ){
+	if ((arguments[0] && typeof arguments[0] == 'object') || (!cloneId && fullNid.indexOf('@cloned@') != -1)){
 			
 		cloneId = fullNid.substring(fullNid.indexOf('@cloned@') != -1 ? fullNid.indexOf('@cloned@') + 8 : fullNid.length); 
 
@@ -685,7 +808,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	}
 	
 	
-	if (settings) {
+	if (settings && settings != {}) {
 		
 		var optErr, settingsStr;
 			
@@ -714,7 +837,9 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			// 'simple JSON' is defined as a key-value collection, limited to string or numeric values 
 			// Like {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}
 			
-		} else if (settingsStr.match(idom.regex)) {
+		} 
+		
+		if (settingsStr.match(idom.regex)) {
 			
 			var err = new Error;
 			
@@ -723,6 +848,16 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			throw err.message + '\n' + err.stack;
 		}
 			
+		if (settingsStr.indexOf('@') != -1) {
+				
+				var err = new Error;
+				
+				err.message = "values in settings must not include @ references (they're inferred at run time) \n" +
+							  "use idom.baseSelector(long@format@value) to pass the base values"
+				 
+				throw err.message + '\n' + err.stack;
+				
+		}
 	}
 		
 	if (!this.children[0] || !this.children[0].getAttribute("idom-instance-id") ||
@@ -758,27 +893,14 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				
 		}
 		
-		if (settings.instanceId.indexOf('@') != -1) {
-				
-				var err = new Error;
-				
-				err.message = "instanceId in settings must not include any references to link or clone (they will be added automatically) \n" +
-							"use idom.baseSelector(long@format@instance@id) to get the original instance id"
-				 
-				throw err.message + '\n' + err.stack;
-				
-		}
 		
-		//all error paths hanlded in this case, so 
+		//all error paths handled in this case, so 
 		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId, "nid": nid, "cloneId": cloneId});
-			
+						
 		setInstanceId(this.children[0]);
 		
 		// insert Linked Nodes
 		insertLinkedNodes(this.children[0], cloneId);
-
-		// nothing else to do
-		return;
 		
 	// else (general case)					
 	} else {
@@ -954,7 +1076,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				
 					var err = new Error;
 			
-					err.message = "invalid or misspelled value for mode"
+					err.message = "invalid or misspelled setting for mode"
 					 
 					throw err.message + '\n' + err.stack;	
 			}
@@ -962,6 +1084,58 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			frag = null; 			
 	}	
 	
+	
+	var cls = this.getAttribute("class");
+	
+	if (cls && cls.match(idom.regex)) {
+		
+		idomDOM.clsCache[nid] = cls;
+		
+	} 
+		
+	if (idomDOM.clsCache[nid]) {
+	
+		var newCls = idomDOM.clsCache[nid]._idomMapOuterValues(json, {"instanceId": settings.instanceId, "nid": nid, "cloneId": cloneId});
+		
+		this.setAttribute("class", newCls)
+	}
+		
+	var style = this.getAttribute("style");
+	
+	if (style && style.match(idom.regex)) {
+		
+		idomDOM.styleCache[nid] = style;
+		
+	} 
+		
+	if (idomDOM.styleCache[nid]) {
+	
+		var newStyle = 	idomDOM.styleCache[nid]._idomMapOuterValues(json, {"instanceId": settings.instanceId, "nid": nid, "cloneId": cloneId});
+		
+		this.setAttribute("style", newStyle)
+	}
+	
+	if (typeof this.outerHTML != 'undefined') {
+	
+		if (this.cloneNode(false).outerHTML.match(idom.regex)) {
+			
+			var err = new Error;
+				
+			err.message = "idom$ vars are currently only supported in class and style strings on the node itself (but anywhere in the node prototype)"
+						 
+			throw err.message + '\n' + err.stack;
+		}
+		
+		if (this.outerHTML.match(idom.regex)) {
+			
+			var err = new Error;
+				
+			err.message = "data error: some idom$ vars were found after mapping was done"
+						 
+			throw err.message + '\n' + err.stack;
+		}
+	
+	}
 	
 	function setInstanceId(elem) {
 
@@ -1145,20 +1319,19 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 	
 	var linkedNodes = el.querySelectorAll("[idom-node-id]");
 	
-	if (linkedNodes) {
 		
-		if (linkedNodes[0]) {
+	if (linkedNodes[0]) {
+		
+		for (var n = 0; n < linkedNodes.length; n++) {
 			
-			for (var n = 0; n < linkedNodes.length; n++) {
-				
-				linkedNodes[n].setAttribute("idom-node-id", linkedNodes[n].getAttribute("idom-node-id") + "@cloned@" + cloneId)
-			}
-			
-		} else if (linkedNodes) {
-				
-				linkedNodes.setAttribute("idom-node-id", linkedNodes.getAttribute("idom-node-id") + "@cloned@" + cloneId)
+			linkedNodes[n].setAttribute("idom-node-id", linkedNodes[n].getAttribute("idom-node-id") + "@cloned@" + cloneId)
 		}
-	} 
+		
+	} else if (typeof linkedNodes.style != 'undefined') {
+			
+			linkedNodes.setAttribute("idom-node-id", linkedNodes.getAttribute("idom-node-id") + "@cloned@" + cloneId)
+	}
+
 	
 	var els = el.querySelectorAll("[idom-instance-id]");
 	
@@ -1169,7 +1342,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 				els[n].setAttribute("idom-instance-id", els[n].getAttribute("idom-instance-id") + "@cloned@" + cloneId)
 			}
 	
-	} else if (els) {
+	} else if (typeof els.style != 'undefined') {
 		
 		els.setAttribute("idom-instance-id", els.getAttribute("idom-instance-id") + "@cloned@" + cloneId)
 	} 

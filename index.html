@@ -57,7 +57,7 @@
 
 /*! idi.bidi.dom 
 * 
-* v0.6
+* v0.07
 *
 * New Way To Interact With The DOM 
 *
@@ -90,40 +90,72 @@
 Example:
 <br>
 <div style='color: gray'>
-&lt;!-- Start of Node -->
-&lt;div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; 
-border: none; background-color: gray; color: black; display: none;'>
+
+&lt;!--************************************************* VIEW OBJECTS ***************************************************-->
+&lt;style>
+.teams {
+	float: left; 
+	width: auto; 
+	height: auto;
+	margin: 10px;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+.teamsProto {
 	
-&lt;!-- Start of Node Prototype -->	
-&lt;div>
-&lt;div style='padding: 5px;'>idom$caption&lt;/div>
-&lt;!-- @idom userInfo -->	 
-&lt;/div> 
-&lt;!-- End of Node Prototype -->
+	padding: 20px; 
+	border-radius: 10px;
+	margin: 10px;
+	height: 400px; 
+	width: 70%;
+}
+
+.users {
+	border-radius: 10px;
+	height: 300px;
+	width: 240px;
+	padding: 10px;
+}
+
+.usersProto {
+	
+box-sizing: border-box ; 
+margin: 2px; 
+border-radius: 
+5px;padding: 5px;'
+}
+&lt;/style>
+
+&lt;div style='display: none'>
+&lt;!-- Start of Node -->
+&lt;div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams'>
+	
+	&lt;!-- Start of Node Prototype -->	
+	&lt;div class='teamsProto' style='background-color: idom$instanceColorTeams;'>
+		&lt;div style='padding: 5px;'>idom$caption&lt;/div>
+		&lt;!-- @idom userInfo -->	 
+	&lt;/div> 
+	&lt;!-- End of Node Prototype -->
 	
 &lt;/div>
 &lt;!-- End of Node -->
 
 &lt;!-- Start of Node -->
-&lt;div idom-node-id='userInfo' style='display: none;'>
+&lt;div idom-node-id='userInfo' class='idom$usersClass' style='background-color: idom$bgColorUsers'>
 	
-&lt;!-- Start of Node Prototype -->
-&lt;div class='classNameCanBEaVariableToo'>
-&lt;table cellspacing="20px">
-&lt;tr>
-&lt;td>
-&lt;div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username&lt;/div>
-&lt;/td>
-&lt;td>
-&lt;div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id&lt;/div>
-&lt;/td>
-&lt;/tr>
-&lt;/table>
-&lt;/div>
-&lt;!-- End of Node Prototype -->
+	&lt;!-- Start of Node Prototype -->
+	&lt;div class='usersProto' style='border: idom$itemColor;'> 
+		
+		&lt;div onclick='idom$someHandler'>idom$username&nbsp;&nbsp;&nbsp;idom$id&lt;/div>
+				
+	&lt;/div>
+	&lt;!-- End of Node Prototype -->
 	
 &lt;/div>
 &lt;!-- End of Node -->
+&lt;/div>
+
 </div>
 </pre>
 
@@ -148,12 +180,47 @@ border: none; background-color: gray; color: black; display: none;'>
 <script type="text/javascript" src="jsonData.js"></script>
 
 <!--************************************************* VIEW OBJECTS ***************************************************-->
+<style>
+.teams {
+	float: left; 
+	width: auto; 
+	height: auto;
+	margin: 10px;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+.teamsProto {
+	
+	padding: 20px; 
+	border-radius: 10px;
+	margin: 10px;
+	height: 400px; 
+	width: 70%;
+}
+
+.users {
+	border-radius: 10px;
+	height: 300px;
+	width: 240px;
+	padding: 10px;
+}
+
+.usersProto {
+	
+box-sizing: border-box ; 
+margin: 2px; 
+border-radius: 
+5px;padding: 5px;'
+}
+</style>
+
+<div style='display: none'>
 <!-- Start of Node -->
-<div idom-node-id='teamContainer' style='float: left; width: 200px; height: 400px; padding: 20px; margin: 20px; border-radius: 10px; 
-border: none; background-color: gray; color: black; display: none;'>
+<div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams'>
 	
 	<!-- Start of Node Prototype -->	
-	<div>
+	<div class='teamsProto' style='background-color: idom$instanceColorTeams;'>
 		<div style='padding: 5px;'>idom$caption</div>
 		<!-- @idom userInfo -->	 
 	</div> 
@@ -163,33 +230,26 @@ border: none; background-color: gray; color: black; display: none;'>
 <!-- End of Node -->
 
 <!-- Start of Node -->
-<div idom-node-id='userInfo' style='display: none;'>
+<div idom-node-id='userInfo' class='idom$usersClass' style='background-color: idom$bgColorUsers'>
 	
 	<!-- Start of Node Prototype -->
-	<div class='classNameCanBEaVariableToo'>
-		<table cellspacing="20px">
-			<tr>
-				<td>
-					<div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$username</div>
-				</td>
-				<td>
-					<div onclick='idom$someHandler' style='background-color: idom$itemColor; border-radius: 5px; padding: 5px'>idom$id</div>
-				</td>
-			</tr>
-		</table>
+	<div class='usersProto' style='border: idom$itemColor;'> 
+		
+		<div onclick='idom$someHandler'>idom$username&nbsp;&nbsp;&nbsp;idom$id</div>
+				
 	</div>
 	<!-- End of Node Prototype -->
 	
 </div>
 <!-- End of Node -->
-
+</div>
 
 
 <script>
 /*********************************************** PRESENTER *************************************************************/
 
 //cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any
-idom.init();	
+idom.init({containerClass: 'container', userInfoClass: 'users'});	
 
 for (m = 0; m < jsonData.teams.length; m++) {
 		
@@ -199,6 +259,8 @@ for (m = 0; m < jsonData.teams.length; m++) {
 	
 		document.querySelector('[idom-node-id=userInfo]').idom$('clone' + Number(m + 1),
 			{
+				usersClass: 'users',
+				bgColorUsers: rndColor(),
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
 				// we can have as many event handlers on or within a node but here we're just using the 
@@ -215,18 +277,21 @@ for (m = 0; m < jsonData.teams.length; m++) {
 	
 	// perform replace on the host Node (linked node gets re/linked with each idom$() call)
 	// and populate again each time before making a new clone of it
-	document.querySelector('[idom-node-id=teamContainer]').idom$('clone' + Number(m + 1),
+	document.querySelector('[idom-node-id=teamInfo]').idom$('clone' + Number(m + 1),
 		{
-			caption: jsonData.teams[m].caption
+			teamsClass: 'teams',
+			bgColorTeams: rndColor(),
+			caption: jsonData.teams[m].caption,
+			instanceColorTeams: rndColor() 
 		}, 
-		{
+		{	
 			mode: 'replace',
 			instanceId: 'team' + Number(m + 1)
 		})		
 
-	// at this point the teamContainer div is populated with the 'caption' data and the content of the linked userInfo node 
+	// at this point the teamInfo div is populated with the 'caption' data and the content of the linked userInfo node 
 	// so we may now clone it and provide a uid for the clone (e.g. 'clone1')
-	var clonedEl = document.querySelector('[idom-node-id=teamContainer]').idom$clone('clone' + Number(m + 1))
+	var clonedEl = document.querySelector('[idom-node-id=teamInfo]').idom$clone('clone' + Number(m + 1))
 
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
@@ -239,9 +304,6 @@ for (m = 0; m < jsonData.teams.length; m++) {
 	// no instances in the next iteration)
 	document.querySelector('[idom-node-id=userInfo]').idom$delete()
 
-	// now we can display the cloned node and the linked node within it (also cloned) both having been tagged during
-	// cloning with the clone uid at end of their idom-node-id's
-	idom.forEachExec(document.querySelectorAll("[idom-node-id$='clone" + Number(m + 1) + "']"), "style.display = 'block'")
 }
 
 var toggleColor = {};
@@ -371,7 +433,8 @@ function button3() {
 	// id, instance id, and clone id 
 	
 	// delete content of the cloned node (including content of the cloned linked node)
-	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$delete()
+
 }
 
 function button4() {
@@ -412,7 +475,7 @@ function button4() {
 	// Since we're doing a replace, no need to delete content with every invocation 
 	// When operating on a clone, we discard the cloneId argument
 	
-	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$(
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$(
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
 				
@@ -421,9 +484,8 @@ function button4() {
 			mode: 'replace',
 			instanceId: 'team3'
 		})	
+		
 	
-	// now we can make the linked node inside the clone (and all its instances) visible
-	document.querySelector('[idom-node-id="userInfo@linked@team3@cloned@clone3"]').style.display = 'block';
 }
 
 
@@ -435,19 +497,23 @@ function colorSelector(instanceId) {
 		
 	case 'user0': 
 			
-		return 'lightblue';
+		return '1px dashed white';
 	
 	case 'user1':
 		
-		return 'orange'
+		return '1px dotted white'
 		
 	case 'user2':
 		
-		return 'yellow'
+		return '1px solid white'
 		
-	default: return 'white'
+	default: return '1px solid white'
 	
 	}	
+}
+
+function rndColor() {
+    return '#' + ('00000' + (Math.random() * 16777216 << 0).toString(16)).substr(-6);
 }
 
 </script>
@@ -456,11 +522,80 @@ function colorSelector(instanceId) {
 <pre>
 
 
+&lt;!--************************************************* INTERFACE OBJECT ***********************************************-->
+&lt;script type="text/javascript" src="jsonData.js">&lt;/script>
+
+&lt;!--************************************************* VIEW OBJECTS ***************************************************-->
+&lt;style>
+.teams {
+	float: left; 
+	width: auto; 
+	height: auto;
+	margin: 10px;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+.teamsProto {
+	
+	padding: 20px; 
+	border-radius: 10px;
+	margin: 10px;
+	height: 400px; 
+	width: 70%;
+}
+
+.users {
+	border-radius: 10px;
+	height: 300px;
+	width: 240px;
+	padding: 10px;
+}
+
+.usersProto {
+	
+box-sizing: border-box ; 
+margin: 2px; 
+border-radius: 
+5px;padding: 5px;'
+}
+&lt;/style>
+
+&lt;div style='display: none'>
+&lt;!-- Start of Node -->
+&lt;div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams'>
+	
+	&lt;!-- Start of Node Prototype -->	
+	&lt;div class='teamsProto' style='background-color: idom$instanceColorTeams;'>
+		&lt;div style='padding: 5px;'>idom$caption&lt;/div>
+		&lt;!-- @idom userInfo -->	 
+	&lt;/div> 
+	&lt;!-- End of Node Prototype -->
+	
+&lt;/div>
+&lt;!-- End of Node -->
+
+&lt;!-- Start of Node -->
+&lt;div idom-node-id='userInfo' class='idom$usersClass' style='background-color: idom$bgColorUsers'>
+	
+	&lt;!-- Start of Node Prototype -->
+	&lt;div class='usersProto' style='border: idom$itemColor;'> 
+		
+		&lt;div onclick='idom$someHandler'>idom$username&nbsp;&nbsp;&nbsp;idom$id&lt;/div>
+				
+	&lt;/div>
+	&lt;!-- End of Node Prototype -->
+	
+&lt;/div>
+&lt;!-- End of Node -->
+&lt;/div>
+
+
 &lt;script>
 /*********************************************** PRESENTER *************************************************************/
 
 //cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any
-idom.init();	
+idom.init({containerClass: 'container', userInfoClass: 'users'});	
 
 for (m = 0; m &lt; jsonData.teams.length; m++) {
 		
@@ -470,6 +605,8 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 	
 		document.querySelector('[idom-node-id=userInfo]').idom$('clone' + Number(m + 1),
 			{
+				usersClass: 'users',
+				bgColorUsers: rndColor(),
 				username: jsonData.teams[m].members[n].username,
 				id: jsonData.teams[m].members[n].id,
 				// we can have as many event handlers on or within a node but here we're just using the 
@@ -486,18 +623,21 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 	
 	// perform replace on the host Node (linked node gets re/linked with each idom$() call)
 	// and populate again each time before making a new clone of it
-	document.querySelector('[idom-node-id=teamContainer]').idom$('clone' + Number(m + 1),
+	document.querySelector('[idom-node-id=teamInfo]').idom$('clone' + Number(m + 1),
 		{
-			caption: jsonData.teams[m].caption
+			teamsClass: 'teams',
+			bgColorTeams: rndColor(),
+			caption: jsonData.teams[m].caption,
+			instanceColorTeams: rndColor() 
 		}, 
-		{
+		{	
 			mode: 'replace',
 			instanceId: 'team' + Number(m + 1)
 		})		
 
-	// at this point the teamContainer div is populated with the 'caption' data and the content of the linked userInfo node 
+	// at this point the teamInfo div is populated with the 'caption' data and the content of the linked userInfo node 
 	// so we may now clone it and provide a uid for the clone (e.g. 'clone1')
-	var clonedEl = document.querySelector('[idom-node-id=teamContainer]').idom$clone('clone' + Number(m + 1))
+	var clonedEl = document.querySelector('[idom-node-id=teamInfo]').idom$clone('clone' + Number(m + 1))
 
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
@@ -510,9 +650,6 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 	// no instances in the next iteration)
 	document.querySelector('[idom-node-id=userInfo]').idom$delete()
 
-	// now we can display the cloned node and the linked node within it (also cloned) both having been tagged during
-	// cloning with the clone uid at end of their idom-node-id's
-	idom.forEachExec(document.querySelectorAll("[idom-node-id$='clone" + Number(m + 1) + "']"), "style.display = 'block'")
 }
 
 var toggleColor = {};
@@ -642,7 +779,8 @@ function button3() {
 	// id, instance id, and clone id 
 	
 	// delete content of the cloned node (including content of the cloned linked node)
-	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$delete()
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$delete()
+
 }
 
 function button4() {
@@ -683,7 +821,7 @@ function button4() {
 	// Since we're doing a replace, no need to delete content with every invocation 
 	// When operating on a clone, we discard the cloneId argument
 	
-	document.querySelector('[idom-node-id="teamContainer@cloned@clone3"]').idom$(
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$(
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
 				
@@ -692,9 +830,8 @@ function button4() {
 			mode: 'replace',
 			instanceId: 'team3'
 		})	
+		
 	
-	// now we can make the linked node inside the clone (and all its instances) visible
-	document.querySelector('[idom-node-id="userInfo@linked@team3@cloned@clone3"]').style.display = 'block';
 }
 
 
@@ -706,22 +843,27 @@ function colorSelector(instanceId) {
 		
 	case 'user0': 
 			
-		return 'lightblue';
+		return '1px dashed white';
 	
 	case 'user1':
 		
-		return 'orange'
+		return '1px dotted white'
 		
 	case 'user2':
 		
-		return 'yellow'
+		return '1px solid white'
 		
-	default: return 'white'
+	default: return '1px solid white'
 	
 	}	
 }
 
+function rndColor() {
+    return '#' + ('00000' + (Math.random() * 16777216 &lt;&lt; 0).toString(16)).substr(-6);
+}
+
 &lt;/script>
+
 	
 </pre>
 </body>

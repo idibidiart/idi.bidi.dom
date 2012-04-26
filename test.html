@@ -275,7 +275,7 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 	
 	// now that we have everything in the cloned node, delete the external linked node's content so we're startig with 
 	// no instances in the next iteration)
-	document.querySelector('[idom-node-id=userInfo]').idom$delete()
+	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
 
 }
 
@@ -406,7 +406,7 @@ function button3() {
 	// id, instance id, and clone id 
 	
 	// delete content of the cloned node (including content of the cloned linked node)
-	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$delete()
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$dePopulate()
 
 }
 
@@ -414,7 +414,7 @@ function button4() {
 	
 	// delete content of the original Linked Node (outside the clone) 
 	if (document.querySelector('[idom-node-id="userInfo"]').idom$isPopulated()) 
-		document.querySelector('[idom-node-id="userInfo"]').idom$delete()
+		document.querySelector('[idom-node-id="userInfo"]').idom$dePopulate()
 		
 	//First, populate the Node Prototype of the original Linked Node (outside the clone) 
 	
@@ -550,7 +550,7 @@ for (m = 0; m < jsonData.teams.length; m++) {
 	
 	// now that we have everything in the cloned node, delete the external linked node's content so we're startig with 
 	// no instances in the next iteration)
-	document.querySelector('[idom-node-id=userInfo]').idom$delete()
+	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
 
 }
 
@@ -681,7 +681,7 @@ function button3() {
 	// id, instance id, and clone id 
 	
 	// delete content of the cloned node (including content of the cloned linked node)
-	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$delete()
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$dePopulate()
 
 }
 
@@ -689,7 +689,7 @@ function button4() {
 	
 	// delete content of the original Linked Node (outside the clone) 
 	if (document.querySelector('[idom-node-id="userInfo"]').idom$isPopulated()) 
-		document.querySelector('[idom-node-id="userInfo"]').idom$delete()
+		document.querySelector('[idom-node-id="userInfo"]').idom$dePopulate()
 		
 	//First, populate the Node Prototype of the original Linked Node (outside the clone) 
 	

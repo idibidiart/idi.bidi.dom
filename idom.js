@@ -24,11 +24,12 @@
  * different way for interfacting with the DOM. In abstract terms, it takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, it offers a list-based API for creating, updating, and deleting predetermined 
- * DOM structures with the ability to dynamically link and directly access other 
- * predetermined DOM structures at any depth within them, thus giving us a simple and
- * consistent alternative to the DOM's hierarchical API while allowing us to reduce the 
- * amount of HTML as well as separate the HTML from our presentation logic.
+ * terms, it offers a list-based API for creating, populating, and de-populating 
+ * predetermined DOM structures with the ability to link, directly access, populate
+ * and de-populate other predetermined DOM structures at any depth within them, thus 
+ * giving us a simple and consistent alternative to the DOM's native API while allowing 
+ * us to reduce the amount of HTML as well as separate the presentation logic from the
+ * HTML.
  * 
  * Why use it?
  * 
@@ -90,7 +91,7 @@
  * 
  * Other available are methods are 
  *
- * .idom$delete([settings]) which can delete certain populated instances of the Node 
+ * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
  * .idom$isPopulated() may be queried before specifying targetInstanceId  
@@ -1396,15 +1397,15 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 	
 };
 
-// .idom$delete
+// .idom$dePopulate
 //
-// format: document.querySelector('#someNode').idom$delete([settings]) 
+// format: document.querySelector('#someNode').idom$dePopulate([settings]) 
 // settings: {'targetInstanceId': value}
 //
 // targetInstanceId: settingal: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
 //
 
-Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
+Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || function() {
 	
 	if (!idomDOM.initDone) {
 		
@@ -1551,7 +1552,7 @@ if (typeof(jQuery) == 'function') {
 		}
 	
 		// delete
-		$.fn.idom$delete = function() {
+		$.fn.idom$dePopulate = function() {
 		
 			// get Javascript's version of 'this' for Element
 			var thisJS = this.get(0);		

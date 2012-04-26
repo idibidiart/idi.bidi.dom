@@ -28,9 +28,9 @@
  * predetermined DOM structures with the ability to link, directly access, populate
  * and de-populate other predetermined DOM structures at any depth within them, thus 
  * giving us a simple and consistent alternative to the DOM's native API while allowing 
- * us to reduce the amount of HTML as well as separate the presentation logic from the
- * HTML.
- * 
+ * us to reduce the amount of HTML as well as separate the HTML from the presentation 
+ * logic.
+ *  
  * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent

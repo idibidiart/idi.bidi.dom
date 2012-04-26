@@ -56,13 +56,13 @@
  * value}
  *
  * if there no populated instances of Node Prototype then append/prepend/replace 
- * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
+ * will create a new instance of the Node (so if a targetInstanceId is supplied 
  * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceId, unless you know the node is populated)
  *
- * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
+ * targetInstanceId: (1) idom-instance-id value for the instance of the Node to 
  * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node Prototype, or to start of the list if none 
+ * previously populated instance of the Node, or to start of the list if none 
  * were previously populated.
  *
  * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
@@ -90,15 +90,14 @@
  * defined on or in the node prototype it will have access to the instance id
  *
  * The context of 'this' inside the handler becomes the element the event is defined on 
- * (i.e. the cloned node or the node prototype instance within it), which is the normal 
+ * (i.e. the cloned node or the node instances within it), which is the normal 
  * way 'this' is handled in this context
  *
  * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
  * etc) are not handled by idom at this time. Finding and cloning all event handlers that 
  * are attached via different means, like jQuery, will be supported in the future 
  * 
- *********************************************************************************/
-	
+ *********************************************************************************/	
  
 With diagram and code
 

@@ -254,9 +254,19 @@ idom.init = function(json) {
 			throw err.message + getPathTo(el)
 		}
 		
+		// verify base node is a div
 		// verify only one Node Prototype exists 
 		// verify no @idom linked nodes exist outside of Node Prototype 
 		// (linked nodes must be at root level within the Node Prototype) 
+		
+		if (el.tagName.toLowerCase() != "div") { 
+			
+			var err = new Error;
+			
+			err.message = "base node must be a div (you may incorporate any type of element inside the node prototype)" 
+			
+			throw err.message + getPathTo(el)
+		}
 		
 		if (el.children.length != 1 || el.firstElementChild.tagName.toLowerCase() != "div") { 
 			
@@ -1182,7 +1192,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						var err = new Error;
 						
-						err.message = "cannot link the same node more than once into the same host node: use idom$copy('newNodeId') to create a new copy of the node to link";
+						err.message = "cannot link the same node more than once into the same host node: use idom$copy('copy id') to create a new copy of the base node before linking (coming in v0.08)";
 						 
 						throw err.message + '\n' + err.stack;
 					}

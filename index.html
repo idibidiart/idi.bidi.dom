@@ -72,7 +72,9 @@
 */
  
 <br>
-<img src= "idom.png";/>
+<img src= "idom1.png";/>
+<br>
+<img src= "idom2.png";/>
 <br>
 /* 
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
@@ -80,10 +82,10 @@
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, it offers a list-based API for creating, updating, and deleting predetermined 
- * DOM structures with the ability to dynamically link and directly access other 
- * predetermined DOM structures at any depth within them, thus giving us a simple and
- * consistent alternative to the DOM's hierarchical API while allowing us to reduce the 
- * amount of HTML as well as separate the HTML from our presentation logic.
+ * DOM structures with the ability to link and directly access other predetermined DOM 
+ * structures at any depth within them, thus giving us a simple and consistent alternative 
+ * to the DOM's hierarchical API while allowing us to reduce the amount of HTML as well as 
+ * separate the HTML from the presentation logic.
  *
  */
 <br>
@@ -92,40 +94,6 @@ Example:
 <div style='color: gray'>
 
 &lt;!--************************************************* VIEW OBJECTS ***************************************************-->
-&lt;style>
-.teams {
-	float: left; 
-	width: auto; 
-	height: auto;
-	margin: 10px;
-	padding: 10px;
-	border-radius: 10px;
-}
-
-.teamsProto {
-	
-	padding: 20px; 
-	border-radius: 10px;
-	margin: 10px;
-	height: 400px; 
-	width: 70%;
-}
-
-.users {
-	border-radius: 10px;
-	height: 300px;
-	width: 240px;
-	padding: 10px;
-}
-
-.usersProto {
-	
-box-sizing: border-box ; 
-margin: 2px; 
-border-radius: 
-5px;padding: 5px;'
-}
-&lt;/style>
 
 &lt;div style='display: none'>
 &lt;!-- Start of Node -->
@@ -250,8 +218,8 @@ border-radius:
 &lt;script>
 /*********************************************** PRESENTER *************************************************************/
 
-//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any
-idom.init({containerClass: 'container', userInfoClass: 'users'});	
+//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any (as simple JSON)
+idom.init();	
 
 for (m = 0; m &lt; jsonData.teams.length; m++) {
 		
@@ -525,8 +493,8 @@ function rndColor() {
 <script>
 /*********************************************** PRESENTER *************************************************************/
 
-//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any
-idom.init({containerClass: 'container', userInfoClass: 'users'});	
+//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any (as simple JSON)
+idom.init();	
 
 for (m = 0; m < jsonData.teams.length; m++) {
 		

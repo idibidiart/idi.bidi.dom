@@ -9,15 +9,15 @@ var jsonData = { "teams": [
 	        		        "id": "605768768",
 	        		        "data": "some data"	
         		        },
-        		        {
-            		        "username": "George",	
-            		        "id": "87998798",
-            		        "data": "some data"	
-            		    },
             		    {
             		        "username": "Paul",	
             		        "id": "79879898",
             		        "otherData": "some data"	
+            		    },
+            		    {
+            		        "username": "George",	
+            		        "id": "87998798",
+            		        "data": "some data"	
             		    }
             		    
         		        ],

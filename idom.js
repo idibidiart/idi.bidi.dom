@@ -58,9 +58,9 @@
  *
  * format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
  * 
- * output: creates a new instance of Node Prototype using 'data' (json) to populate the 
+ * output: creates a new instance of the Node using 'data' (json) to populate the 
  * special variables in the Node, then append/prepend to (or replace) existing 
- * instance(s) of Node Prototype in the Node
+ * instance(s) of the Node
  *
  * cloneId: id for the clone the data is intended for. This is omitted when operating on 
  * cloned nodes
@@ -71,7 +71,7 @@
  * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
  * value}
  *
- * if there no populated instances of Node Prototype then append/prepend/replace 
+ * if there no populated instances of the Node then append/prepend/replace 
  * will create a new instance of the Node (so if a targetInstanceId is supplied 
  * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceId, unless you know the node is populated)

@@ -1221,7 +1221,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 							
 							var err = new Error;
 							
-							err.message = "can't have a linked node within a linked node";
+							err.message = "can't have a linked node within a linked node... until v0.08 (pending feature)";
 							 
 							throw err.message + '\n' + err.stack;
 						}

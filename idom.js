@@ -72,13 +72,13 @@
  * value}
  *
  * if there no populated instances of Node Prototype then append/prepend/replace 
- * will create a new instance of the Node Prototype (so if a targetInstanceId is supplied 
+ * will create a new instance of the Node (so if a targetInstanceId is supplied 
  * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceId, unless you know the node is populated)
  *
- * targetInstanceId: (1) idom-instance-id value for the instance of the Node Prototype to 
+ * targetInstanceId: (1) idom-instance-id value for the instance of the Node to 
  * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node Prototype, or to start of the list if none 
+ * previously populated instance of the Node, or to start of the list if none 
  * were previously populated.
  *
  * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
@@ -106,7 +106,7 @@
  * defined on or in the node prototype it will have access to the instance id
  *
  * The context of 'this' inside the handler becomes the element the event is defined on 
- * (i.e. the cloned node or the node prototype instance within it), which is the normal 
+ * (i.e. the cloned node or the node instances within it), which is the normal 
  * way 'this' is handled in this context
  *
  * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
@@ -308,7 +308,7 @@ idom.init = function(json) {
 			throw err.message + getPathTo(el)
 		}
 		
-		// using 'id' on Node would match the original Node outside of the Node Prototype that is 
+		// using 'id' on Node would match the base node outside of the Node Prototype that is 
 		// being linked. idom deals with this by changing the idom-node-id and idom-instance-id's 
 		// attribute in Linked Nodes inside the host Node Prototype by adding the link reference
 		
@@ -493,7 +493,7 @@ idom.baseSelector = function(sel) {
 };
 	
 
-// internal String method for injecting values into special varariable (keys) into the node prototype instance, 
+// internal String method for injecting values into special variable (keys) into the node instance, 
 // based on key-value JSON data (key-matched variables get their values from JSON values while unmatched
 // ones get empty string) -- for internal use
 
@@ -562,7 +562,7 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 				// The data cache key for each key in the JSON for a given node is unique per instance id
 				// (instanceId), per each clone id (cloneId.) Since the node id (nid) and instance id are 
 				// used internally without the link or clone reference, the data cache keys for a given node 
-				// are shared at the node prototype instance level among the original node, the linked version 
+				// are shared at the node instance level among the base node, the linked version 
 				// (if any, including inside a cloned host node) and the cloned version, and this sharing is 
 				// only per the given clone id, so it's globally unique per instance id, per clone id. 
 				
@@ -676,7 +676,7 @@ String.prototype._idomMapOuterValues = String.prototype._idomMapOuterValues || f
 			// The data cache key for each key in the JSON for a given node is unique per instance id
 			// (instanceId), per each clone id (cloneId.) Since the node id (nid) and instance id are 
 			// used internally without the link or clone reference, the data cache keys for a given node 
-			// are shared at the node prototype instance level among the original node, the linked version 
+			// are shared at the node instance level among the base node, the linked version 
 			// (if any, including inside a cloned host node) and the cloned version, and this sharing is 
 			// only per the given clone id, so it's globally unique per instance id, per clone id. 
 			
@@ -897,7 +897,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				
 				var err = new Error;
 				
-				err.message = "instanceId must be specified in settings when inserting a new instance of the node prototype"
+				err.message = "instanceId must be specified in settings when inserting a new instance"
 				 
 				throw err.message + '\n' + err.stack;
 				
@@ -919,7 +919,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 				var err = new Error;
 				
-				err.message = "instanceId must be specified in settings when inserting a new instance of the node prototype"
+				err.message = "instanceId must be specified in settings when inserting a new instance"
 				 
 				throw err.message + '\n' + err.stack;
 			}
@@ -958,7 +958,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				}; 
 			} 
 			
-			// populate instance of the Node Prototype with data     
+			// populate instance of the node with data     
 			content = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId, "nid": nid, "cloneId": cloneId});
 			
 			newChild = document.createElement("div"); 
@@ -978,7 +978,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						if (targetNodeList.length > 1) {
 							
-							// replace all matched targets with the new instance of the Node Prototype
+							// replace all matched targets with the new instance of the node
 							for (var n = 0; n < targetNodeList.length; n++) {
 							
 								this.insertBefore(frag.cloneNode(true), targetNodeList[n]);
@@ -1179,7 +1179,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 					
 					var err = new Error;
 			
-					err.message = "bad <--! @ id --> // id for node to be linked may not contain any link or clone references (link original node instead)"
+					err.message = "bad <--! @ id --> // id for node to be linked may not contain any link or clone references (link base node instead)"
 					 
 					throw err.message + '\n' + err.stack;	
 					
@@ -1279,7 +1279,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		var err = new Error;
 		
-		err.message = "error cloning linked node: you may only clone the original node"  
+		err.message = "error cloning linked node: you may only clone the base node"  
 		 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1288,7 +1288,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		var err = new Error;
 		
-		err.message = "error cloning cloned node: you may only clone the original node" 
+		err.message = "error cloning already cloned node: you may only clone the base node" 
 		 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1494,7 +1494,7 @@ Element.prototype.idom$delete = Element.prototype.idom$delete || function() {
 				var err = new Error;
 		
 				err.message = "Invalid setting: targetInstanceId (" + settings.targetInstanceId + ") does not match" + 
-				"any idom-instance-id in any instance of the Node Prototype of the Node idom$() is invoked on\n" + 
+				"any idom-instance-id in any instance of the node idom$() is invoked on\n" + 
 				"outerHTML of node:\n" + this.outerHTML;
 				 
 				throw err.message + '\n' + err.stack;	

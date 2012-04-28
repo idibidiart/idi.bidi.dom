@@ -216,8 +216,9 @@ border-radius:
 </div>
 
 <br>
-<div style='width: 1024px; overflow: hidden'>
+<div style='width: 1280px; overflow: hidden'>
 <pre>
+
 &lt;script>
 /*********************************************** PRESENTER *************************************************************/
 
@@ -242,6 +243,7 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -258,7 +260,6 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 			instanceColorTeams: rndColor() 
 		}, 
 		{	
-			mode: 'replace',
 			instanceId: 'team' + Number(m + 1)
 		})		
 
@@ -323,7 +324,6 @@ function changeColor(event, nodeId, instanceId) {
 					
 				
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
@@ -337,7 +337,6 @@ function changeColor(event, nodeId, instanceId) {
 					// without link/clone references (they're added automatically)
 					
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}
@@ -364,7 +363,6 @@ function button1() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -391,7 +389,6 @@ function button2() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -431,6 +428,7 @@ function button4() {
 				
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -454,7 +452,6 @@ function button4() {
 				
 		}, 
 		{
-			mode: 'replace',
 			instanceId: 'team3'
 		})	
 		
@@ -490,6 +487,7 @@ function rndColor() {
 }
 
 &lt;/script>
+
 </pre>	
 </div>
 
@@ -517,6 +515,7 @@ for (m = 0; m < jsonData.teams.length; m++) {
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -533,7 +532,6 @@ for (m = 0; m < jsonData.teams.length; m++) {
 			instanceColorTeams: rndColor() 
 		}, 
 		{	
-			mode: 'replace',
 			instanceId: 'team' + Number(m + 1)
 		})		
 
@@ -598,7 +596,6 @@ function changeColor(event, nodeId, instanceId) {
 					
 				
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
@@ -612,7 +609,6 @@ function changeColor(event, nodeId, instanceId) {
 					// without link/clone references (they're added automatically)
 					
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}
@@ -639,7 +635,6 @@ function button1() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -666,7 +661,6 @@ function button2() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -706,6 +700,7 @@ function button4() {
 				
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -729,7 +724,6 @@ function button4() {
 				
 		}, 
 		{
-			mode: 'replace',
 			instanceId: 'team3'
 		})	
 		

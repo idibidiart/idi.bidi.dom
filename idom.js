@@ -546,7 +546,7 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 	}
 		
 	// RegEx will iterate thru the idom node variables (keys) in target element's virgin innnerHTML (the template), 
-	// match to JSON values (by key), replacing the pseduo vars that match the supplied keys in JSON with the JSON values 
+	// match to JSON values (by key), replacing the idom$ vars that match the supplied keys in JSON with the JSON values 
 	// (including null values), and returning the the modified string for updating the target element's innerHTML
 	
 	if (!forInit) {
@@ -567,14 +567,10 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 				// (if any, including inside a cloned host node) and the cloned version, and this sharing is 
 				// only per the given clone id, so it's globally unique per instance id, per clone id. 
 				
-				// Despite that the same node can be linked into multiple times within a given host node (i.e 
+				// Despite that the same node can be linked-in multiple times within a given host node (i.e 
 				// with the same clone id) such duplicate linking must be done after the node is copied 
-				// with a different node id, so the data cache key will always be globally unique per instance 
-				// id, per clone id.  
-				
-			    // 1. you can't link @hkjhkkj@linked@ or @jghgjh@cloned .. no @ in id of node to be linked from comment
-			    
-			    // 2. stamp the clone id as attribute
+				// with a differentiated node id, so the data cache key will always be globally unique per 
+				// instance id per clone id.  
 				
 				idomData.cache[uid.nid + "@" + uid.instanceId + "@" + uid.cloneId + '@' + key] = val;
 				
@@ -661,7 +657,7 @@ String.prototype._idomMapOuterValues = String.prototype._idomMapOuterValues || f
 	}
 		
 	// RegEx will iterate thru the idom node variables (keys) in target element's virgin innnerHTML (the template), 
-	// match to JSON values (by key), replacing the pseduo vars that match the supplied keys in JSON with the JSON values 
+	// match to JSON values (by key), replacing the idom$ vars that match the supplied keys in JSON with the JSON values 
 	// (including null values), and returning the the modified string for updating the target element's innerHTML
 
 		
@@ -674,22 +670,19 @@ String.prototype._idomMapOuterValues = String.prototype._idomMapOuterValues || f
 		
 		if (typeof eval("json." + key) != 'undefined') {
 			
-			// The data cache key for each key in the JSON for a given node is unique per instance id
-			// (instanceId), per each clone id (cloneId.) Since the node id (nid) and instance id are 
-			// used internally without the link or clone reference, the data cache keys for a given node 
-			// are shared at the node instance level among the base node, the linked version 
-			// (if any, including inside a cloned host node) and the cloned version, and this sharing is 
-			// only per the given clone id, so it's globally unique per instance id, per clone id. 
+			// In the case of idom$ vars on the Node itself (outer variables) as opposed to on the Node
+			// Prototype (see the preceding version of this function) the data cache key for each 
+			// key in the JSON for a given node is unique per each clone id. Since the node id (nid) 
+			// is used internally without the link or clone reference, the data cache keys for a given node 
+			// are shared at the node level among the base node, the linked version (if any, including inside 
+			// a cloned host node) and the cloned version, and this sharing is only per the given clone id, 
+			// so it's globally unique per clone id. 
 			
-			// Despite that the same node can be linked into multiple times within a given host node (i.e 
+			// Despite that the same node can be linked-in multiple times within a given host node (i.e 
 			// with the same clone id) such duplicate linking must be done after the node is copied 
-			// with a different node id, so the data cache key will always be globally unique per instance 
-			// id, per clone id.  
-			
-		    // 1. you can't link @hkjhkkj@linked@ or @jghgjh@cloned .. no @ in id of node to be linked from comment
-		    
-		    // 2. stamp the clone id as attribute
-			
+			// with a different node id, so the data cache key will always be globally unique per 
+			// base node id, per clone id
+		
 			idomData.outerCache[uid.nid + "@" + uid.cloneId + '@' + key] = val;
 			
 			return val;
@@ -870,14 +863,14 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				
 		}
 	}
-		
+			
 	if (!this.children[0] || !this.children[0].getAttribute("idom-instance-id") ||
 		// condition 1: if Node has no populated instances of its Prototype Node 
 		this.innerHTML == idomDOM.cache[nid] || 
 		// condition 2: or settings were not given 	
 		!settings || settings == {} || 
 		// condition 3: or 'replace all' is assumed (if no target was specified and mode is replace or not specified)
-		(settings && !settings.targetInstanceId && (settings.mode == 'replace' || settings.mode == ''))) {
+		(settings && !settings.targetInstanceId && (settings.mode == 'replace' || !settings.mode))) {
 		
 		//exception under condition 1 if target is specified 
 		if (settings && settings.targetInstanceId) {
@@ -973,7 +966,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			switch (settings.mode) {
 				
-				case null: case '': case "replace": 
+				case null: case undefined: case "replace": 
 					
 					if (settings.targetInstanceId) {
 						

@@ -396,7 +396,9 @@ function changeInstance(event, nodeId, instanceId) {
 					// without link/clone references (they're added automatically)
 					
 				
-					instanceId: idom.baseSelector(instanceId), 
+					 // new instance id (same as old)
+					instanceId: idom.baseSelector(instanceId),
+					// target instance id (for instance to be replaced) 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
@@ -409,7 +411,9 @@ function changeInstance(event, nodeId, instanceId) {
 					// instanceId in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
 					
-					instanceId: idom.baseSelector(instanceId), 
+					 // new instance id (same as old)
+					instanceId: idom.baseSelector(instanceId),
+					// target instance id (for instance to be replaced) 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}
@@ -667,8 +671,9 @@ function changeInstance(event, nodeId, instanceId) {
 					// instanceId in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
 					
-				
-					instanceId: idom.baseSelector(instanceId), 
+				    // new instance id (same as old)
+					instanceId: idom.baseSelector(instanceId),
+					// target instance id (for instance to be replaced) 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
@@ -681,7 +686,9 @@ function changeInstance(event, nodeId, instanceId) {
 					// instanceId in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
 					
-					instanceId: idom.baseSelector(instanceId), 
+					 // new instance id (same as old)
+					instanceId: idom.baseSelector(instanceId),
+					// target instance id (for instance to be replaced) 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}

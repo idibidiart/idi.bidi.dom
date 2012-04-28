@@ -21,7 +21,7 @@
  * This version works in Gecko and Webkit, not tested on IE
  *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
- * different way for interfacting with the DOM. In abstract terms, it takes the DOM 
+ * different way for interacting with the DOM. In abstract terms, it takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, it offers a list-based API for creating, populating, and de-populating 

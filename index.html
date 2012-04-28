@@ -343,11 +343,11 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
 	
-	// normally, we'd delete the contents of the host node (so we're startig with no instances in the next iteration) but 
-	// in this case the host node's node prototype instance is being replaced each time (mode: 'replace') 
+	// normally, we'd delete the contents of the host node (so we're starting with no instances in the next iteration) but 
+	// in this case the host node's node prototype instance is being replaced each time (default 'mode' is 'replace') 
 	// so no need to delete it
 	
-	// now that we have everything in the cloned node, delete the external linked node's content so we're startig with 
+	// now that we have everything in the cloned node, delete the external linked node's content so we're starting with 
 	// no instances in the next iteration)
 	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
 
@@ -615,11 +615,11 @@ for (m = 0; m < jsonData.teams.length; m++) {
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
 	
-	// normally, we'd delete the contents of the host node (so we're startig with no instances in the next iteration) but 
-	// in this case the host node's node prototype instance is being replaced each time (mode: 'replace') 
+	// normally, we'd delete the contents of the host node (so we're starting with no instances in the next iteration) but 
+	// in this case the host node's node prototype instance is being replaced each time (default mode is 'replace') 
 	// so no need to delete it
 	
-	// now that we have everything in the cloned node, delete the external linked node's content so we're startig with 
+	// now that we have everything in the cloned node, delete the external linked node's content so we're starting with 
 	// no instances in the next iteration)
 	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
 

@@ -336,7 +336,7 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 			instanceId: 'team' + Number(m + 1)
 		})		
 
-	// at this point the teamInfo div is populated with the 'caption' data and the content of the linked userInfo node 
+	// at this point the teamInfo div is populated with the idom$ data and the content of the linked userInfo node 
 	// so we may now clone it and provide a uid for the clone (e.g. 'clone1')
 	var clonedEl = document.querySelector('[idom-node-id=teamInfo]').idom$clone('clone' + Number(m + 1))
 
@@ -608,7 +608,7 @@ for (m = 0; m < jsonData.teams.length; m++) {
 			instanceId: 'team' + Number(m + 1)
 		})		
 
-	// at this point the teamInfo div is populated with the 'caption' data and the content of the linked userInfo node 
+	// at this point the teamInfo div is populated with the idom$ data and the content of the linked userInfo node 
 	// so we may now clone it and provide a uid for the clone (e.g. 'clone1')
 	var clonedEl = document.querySelector('[idom-node-id=teamInfo]').idom$clone('clone' + Number(m + 1))
 

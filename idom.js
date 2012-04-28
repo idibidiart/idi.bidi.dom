@@ -1186,7 +1186,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						var err = new Error;
 						
-						err.message = "cannot link the same node more than once into the same host node: use idom$branch('copy id') to create a new version of the base node before linking (coming in v0.08)";
+						err.message = "cannot link the same node more than once into the same host node: use idom$cloneBase('version id') to create a new version of the base node before linking (coming in v0.08)";
 						 
 						throw err.message + '\n' + err.stack;
 					}

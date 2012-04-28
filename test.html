@@ -2,18 +2,89 @@
 <html>
 <head>
   <meta charset='utf-8'>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>idibidiart/idom @ GitHub</title>
  
- <script src='idom.js'></script>
+  <script src='idom.js'></script>
 
   <!-- github styles -->
-  <style type="text/css">
-  	
-    body {
-      margin-top: 1.0em;
-      font-family: Helvetica, Arial, FreeSans, san-serif;
-    }
+ 
+  <style>
+	body{
+	position: absolute;
+	width: 100%;
+	padding: 0px;
+	margin: 0px;
+	font-family: Helvetica, Arial, FreeSans, san-serif;
+	}
+	
+	#banner{
+	position: relative;
+
+	height: 149px;
+	width: 149px;
+	overflow:hidden;
+	padding: 0px;
+	float: right;
+	margin-right: 0px;
+	}
+	
+	#banner a{
+	
+	display: block;
+	width: 190px;
+	font-size: 14px;
+	font-family: Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT",
+	"Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma,
+	Geneva, "Helvetica Neue", Helvetica, Arial, sans serif;
+	background-color: #333;
+	color: #FFF;
+	word-spacing: 2px;
+	text-decoration: none;
+	padding: 5px 15px 5px 25px;
+	
+	position:relative;
+	left: 20px;
+	top: -37px;
+	text-align: center;
+	
+	-moz-transform-origin: 0 0 ;
+	-moz-transform:rotate(45deg);
+	-moz-box-shadow: 1px 1px 5px 1px #666;
+	
+	-webkit-transform-origin: 0 0 ;
+	-webkit-transform:rotate(45deg);
+	-webkit-box-shadow: 1px 1px 5px 1px #666;
+	
+	-ms-transform-origin: 0 0 ;
+	-ms-transform:rotate(45deg);
+	-ms-box-shadow: 1px 1px 5px 1px #666;
+	
+	transform-origin: 0 0 ;
+	transform:rotate(45deg);
+	box-shadow: 1px 1px 5px 1px #666;
+	
+	background-image: linear-gradient(bottom, #000000 3%, #666666 5%, #000000 7%, #000000 93%, #666666 95%, #000000 97%);
+	background-image: -o-linear-gradient(bottom, #000000 3%, #666666 5%, #000000 7%, #000000 93%, #666666 95%, #000000 97%);
+	background-image: -moz-linear-gradient(bottom, #000000 3%, #666666 5%, #000000 7%, #000000 93%, #666666 95%, #000000 97%);
+	background-image: -webkit-linear-gradient(bottom, #000000 3%, #666666 5%, #000000 7%, #000000 93%, #666666 95%, #000000 97%);
+	background-image: -ms-linear-gradient(bottom, #000000 3%, #666666 5%, #000000 7%, #000000 93%, #666666 95%, #000000 97%);
+	
+	background-image: -webkit-gradient(
+	linear,
+	left bottom,
+	left top,
+	color-stop(0.03, #000000),
+	color-stop(0.05, #666666),
+	color-stop(0.07, #000000),
+	color-stop(0.93, #000000),
+	color-stop(0.95, #666666),
+	color-stop(0.97, #000000)
+	);
+	
+	}	
+    
     #container {
       margin: 0 auto;
       width: 700px;
@@ -31,11 +102,13 @@
     .footer { text-align:center; padding-top:30px; font-style: italic; }
   
   </style>
+  
+  
 </head>
 
 <body style='color: black; background-color: snow'>
-  <a href="http://github.com/idibidiart/idi.bidi.dom"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://a248.e.akamai.net/assets.github.com/img/4c7dc970b89fd04b81c8e221ba88ff99a06c6b61/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub"></a>
-
+	<div id="banner"><a href="http://github.com/idibidiart/idi.bidi.dom">Spoon me on GitHub</a></div>
+  
   <div id="container">
 
     <div class="download">
@@ -148,7 +221,6 @@ randomly colored
 </div>
 
 
-
 <!--************************************************* INTERFACE OBJECT ***********************************************-->
 <script type="text/javascript" src="jsonData.js"></script>
 
@@ -217,8 +289,9 @@ border-radius:
 </div>
 
 <br>
-<div style='width: 1024px; overflow: hidden'>
+<div style='width: 1280px; overflow: hidden'>
 <pre>
+
 &lt;script>
 /*********************************************** PRESENTER *************************************************************/
 
@@ -243,6 +316,7 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -259,7 +333,6 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 			instanceColorTeams: rndColor() 
 		}, 
 		{	
-			mode: 'replace',
 			instanceId: 'team' + Number(m + 1)
 		})		
 
@@ -270,11 +343,11 @@ for (m = 0; m &lt; jsonData.teams.length; m++) {
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
 	
-	// normally, we'd delete the contents of the host node (so we're startig with no instances in the next iteration) but 
-	// in this case the host node's node prototype instance is being replaced each time (mode: 'replace') 
+	// normally, we'd delete the contents of the host node (so we're starting with no instances in the next iteration) but 
+	// in this case the host node's node prototype instance is being replaced each time (default 'mode' is 'replace') 
 	// so no need to delete it
 	
-	// now that we have everything in the cloned node, delete the external linked node's content so we're startig with 
+	// now that we have everything in the cloned node, delete the external linked node's content so we're starting with 
 	// no instances in the next iteration)
 	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
 
@@ -324,7 +397,6 @@ function changeColor(event, nodeId, instanceId) {
 					
 				
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
@@ -338,7 +410,6 @@ function changeColor(event, nodeId, instanceId) {
 					// without link/clone references (they're added automatically)
 					
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}
@@ -365,7 +436,6 @@ function button1() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -392,7 +462,6 @@ function button2() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -432,6 +501,7 @@ function button4() {
 				
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -455,7 +525,6 @@ function button4() {
 				
 		}, 
 		{
-			mode: 'replace',
 			instanceId: 'team3'
 		})	
 		
@@ -491,6 +560,7 @@ function rndColor() {
 }
 
 &lt;/script>
+
 </pre>	
 </div>
 
@@ -518,6 +588,7 @@ for (m = 0; m < jsonData.teams.length; m++) {
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -534,7 +605,6 @@ for (m = 0; m < jsonData.teams.length; m++) {
 			instanceColorTeams: rndColor() 
 		}, 
 		{	
-			mode: 'replace',
 			instanceId: 'team' + Number(m + 1)
 		})		
 
@@ -545,11 +615,11 @@ for (m = 0; m < jsonData.teams.length; m++) {
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
 	
-	// normally, we'd delete the contents of the host node (so we're startig with no instances in the next iteration) but 
-	// in this case the host node's node prototype instance is being replaced each time (mode: 'replace') 
+	// normally, we'd delete the contents of the host node (so we're starting with no instances in the next iteration) but 
+	// in this case the host node's node prototype instance is being replaced each time (default mode is 'replace') 
 	// so no need to delete it
 	
-	// now that we have everything in the cloned node, delete the external linked node's content so we're startig with 
+	// now that we have everything in the cloned node, delete the external linked node's content so we're starting with 
 	// no instances in the next iteration)
 	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
 
@@ -599,7 +669,6 @@ function changeColor(event, nodeId, instanceId) {
 					
 				
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	} else {
@@ -613,7 +682,6 @@ function changeColor(event, nodeId, instanceId) {
 					// without link/clone references (they're added automatically)
 					
 					instanceId: idom.baseSelector(instanceId), 
-					mode: 'replace', 
 					targetInstanceId: idom.baseSelector(instanceId)
 				})
 	}
@@ -640,7 +708,6 @@ function button1() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -667,7 +734,6 @@ function button2() {
 			// without link/clone references (they're added automatically)
 					
 			instanceId: "user1",
-			mode: "replace",
 			targetInstanceId: "user1"
 		}
 	
@@ -707,6 +773,7 @@ function button4() {
 				
 			}, 
 			{
+				// default mode is replace...
 				mode: 'append',
 				instanceId: 'user' + n
 			})
@@ -730,7 +797,6 @@ function button4() {
 				
 		}, 
 		{
-			mode: 'replace',
 			instanceId: 'team3'
 		})	
 		

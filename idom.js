@@ -1186,7 +1186,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						var err = new Error;
 						
-						err.message = "cannot link the same node more than once into the same host node: use idom$copy('copy id') to create a new copy of the base node before linking (coming in v0.08)";
+						err.message = "cannot link the same node more than once into the same host node: use idom$branch('copy id') to create a new version of the base node before linking (coming in v0.08)";
 						 
 						throw err.message + '\n' + err.stack;
 					}
@@ -1521,7 +1521,7 @@ if (typeof(jQuery) == 'function') {
 	
 	// all jQuery functions are exact replicas of the corresponding Element prototype extensions
 	
-	// Todo: move code from Element prototype into separate function and call from there and from here 
+	// Todo: move code from Element protype into separate function and call from there and from here 
 		
 	(function($) {
 		
@@ -1544,7 +1544,7 @@ if (typeof(jQuery) == 'function') {
 			
 		}
 	
-		// dePopulate
+		// delete
 		$.fn.idom$dePopulate = function() {
 		
 			// get Javascript's version of 'this' for Element

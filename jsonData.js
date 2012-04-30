@@ -7,17 +7,26 @@ var jsonData = { "teams": [
         		        {
 	        		        "username": "John",	
 	        		        "id": "605768768",
-	        		        "data": "some data"	
+	        		        "otherData": {
+	        		        	"lastName": "Lenon",
+	        		        	"work": "Beatles"
+	        		        	}	
         		        },
             		    {
             		        "username": "Paul",	
             		        "id": "79879898",
-            		        "otherData": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "McCartney",
+	        		        	"work": "Beatles"
+	        		        	}	
             		    },
             		    {
             		        "username": "George",	
             		        "id": "87998798",
-            		        "data": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "Harrison",
+	        		        	"work": "Beatles"
+	        		        	}	
             		    }
             		    
         		        ],
@@ -32,17 +41,26 @@ var jsonData = { "teams": [
         		        {
         		        "username": "Joe",	
         		        "id": "788768768",
-        		        "otherData": "some data"	
+        		        "otherData": {
+	        		        	"lastName": "Schmoe",
+	        		        	"work": "Mechanic"
+	        		        	}	
         		        },
         		        {
             		        "username": "Hana",	
             		        "id": "89090098",
-            		        "otherData": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "McGuire",
+	        		        	"work": "Show Girl"
+	        		        	}	
             		    },
             		    {
-            		        "username": "Joan",	
+            		        "username": "Jon",	
             		        "id": "8779898",
-            		        "otherData": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "Stewart",
+	        		        	"work": "Comedian"
+	        		        	}	
             		    }
             		    
         		        ],
@@ -57,12 +75,18 @@ var jsonData = { "teams": [
         		        {
         		        "username": "Dirk",	
         		        "id": "87987987",
-        		        "otherData": "some data"	
+        		        "otherData": {
+	        		        	"lastName": "Gentley",
+	        		        	"work": "Detective"
+	        		        	}	
         		        },
         		        {
-            		        "username": "Gentley",	
+            		        "username": "Silent",	
             		        "id": "23443543",
-            		        "otherData": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "Bob",
+	        		        	"work": "Hero"
+	        		        	}	
             		    }
         		        ],
         	},
@@ -73,19 +97,28 @@ var jsonData = { "teams": [
         		"members": [ 
         		
         		        {
-        		        "username": "Mike",	
+        		        "username": "Mel",	
         		        "id": "8723234",
-        		        "otherData": "some data"	
+        		        "otherData": {
+	        		        	"lastName": "Brooks",
+	        		        	"work": "Genius"
+	        		        	}	
         		        },
         		        {
-            		        "username": "Fay",	
+            		        "username": "Gene",	
             		        "id": "4234421",
-            		        "otherData": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "Wilder",
+	        		        	"work": "Actor"
+	        		        	}	
             		    },
         		        {
-            		        "username": "Jared",	
+            		        "username": "Gilda",	
             		        "id": "89080900",
-            		        "otherData": "some data"	
+            		        "otherData": {
+	        		        	"lastName": "Radner",
+	        		        	"work": "Actress"
+	        		        	}	
             		    }
         		        ],
         	}

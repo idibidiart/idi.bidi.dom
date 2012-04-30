@@ -1,3 +1,19 @@
+/*! idi.bidi.dom 
+* 
+* v0.08
+*
+* New Way To Interact With The DOM 
+*
+* Copyright (c) Marc Fawzi 2012
+* 
+* http://javacrypt.wordpress.com
+*
+* Apache License 2.0 
+* 
+* partly based on NattyJS, a BSD licensed precursor by the same author 
+*
+*/
+
 /******************************************************************************
  * 
  * README:
@@ -5,7 +21,7 @@
  * This version works in Gecko and Webkit, not tested on IE
  *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
- * different way for interfating with the DOM. In abstract terms, it takes the DOM 
+ * different way for interacting with the DOM. In abstract terms, it takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
  * terms, it offers a list-based API for creating, populating, and de-populating 
@@ -14,7 +30,7 @@
  * giving us a simple and consistent alternative to the DOM's native API while allowing 
  * us to reduce the amount of HTML as well as separate the HTML from the presentation 
  * logic.
- * 
+ *  
  * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
@@ -22,21 +38,22 @@
  * 
  * How does it work?
  * 
- * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a 
- * Node Prototype of which instances (copies, with the same or entirely different data) 
- * may be created, populated with JSON data, inserted into --and deleted from-- the Node 
- * (with the ability to target specific, previously inserted instances of the Node 
- * Prototype or all such instances), and where each Node can be linked by reference into 
- * any number of other Nodes.
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype 
+ * with data-injected variables in their markup. Multiple instances of each Node (i.e. 
+ * data populated versions, each with its own persisted data) may be created, populated 
+ * with data, and inserted into --and deleted from-- the Node (with the ability to target 
+ * specific, previously inserted instances of the Node or all such instances). Each Node 
+ * may embed any number of other Nodes, at any depth within its markup.
  * 
  * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any Linked Nodes inserted into the host's Node Prototype 
- * and their populated instances) This means that we may re-use the same Node to create 
- * any number of differently populated Nodes.  
+ * instances within it (including any populated Linked Nodes that were embedded into the 
+ * host's Node Prototype) This means that we could re-use the same host Node to create 
+ * any number of differently populated Clones with nested Nodes, which allows us to
+ * composite and nest DOM views.  
  *
- * Unlike other template-less DOM rendering frameworks, idi.bidi.dom does not attempt 
+ * Unlike other data-driven DOM rendering frameworks, idi.bidi.dom does not attempt 
  * to take the place of Javascript itself nor does it add its own boilerplate; it 
- * simply gives Javascript more power by leveraging a simple and consistent interface
+ * simply gives Javascript more power by offering a simple and consistent interface
  * to the DOM. 
  *
  * Usage:
@@ -54,7 +71,7 @@
  * where the key must match the variable name in the data minus the idom$ prefix
  *
  * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
- * value}
+ * value} // replace is default
  *
  * if there no populated instances of the Node then append/prepend/replace 
  * will create a new instance of the Node (so if a targetInstanceId is supplied 
@@ -75,7 +92,7 @@
  * 
  * Other available are methods are 
  *
- * .idom$delete([settings]) which can delete certain populated instances of the Node 
+ * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
  * .idom$isPopulated() may be queried before specifying targetInstanceId  
@@ -87,19 +104,16 @@
  **********************************************************************************
  *
  * About Events:
- * If the handler is defined on the node it will only have access to the node id. If it's 
+ * 
+ * If a handler is defined on the node it will only have access to the node id. If it's 
  * defined on or in the node prototype it will have access to the instance id
  *
- * The context of 'this' inside the handler becomes the element the event is defined on 
- * (i.e. the cloned node or the node instances within it), which is the normal 
- * way 'this' is handled in this context
+ * The context of 'this' inside the handler function is the element the event is 
+ * defined on
  *
- * event handlers that are not defined using element attributes (e.g. onclick, onmouseover, 
- * etc) are not handled by idom at this time. Finding and cloning all event handlers that 
- * are attached via different means, like jQuery, will be supported in the future 
+ * event handlers that are not defined using inline event handlers (like onclick, 
+ * onmouseover, etc) are not handled by idom at this time. Finding and cloning all event 
+ * handlers that are attached via different means, like jQuery, will be supported in the 
+ * future
  * 
  *********************************************************************************/
- 
-With diagram and code
-
-http://idibidiart.github.com/idi.bidi.dom/

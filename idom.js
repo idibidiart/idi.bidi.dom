@@ -419,14 +419,15 @@ idom.eventHandler = function(event, el, func) {
 	    while (elem.parentNode) {
 	    	
 	        elem = elem.parentNode;
-	        
+	      
 	        var id = elem.getAttribute('idom-node-id')
 	        
-	        if (id)
+	        if (id) {
 	        
 	            return id;
+	        }      
 	    }
-	    
+	 
 	    return null;
    	}
    	

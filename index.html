@@ -476,15 +476,8 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 					targetInstanceId: idom.baseSelector(Instance[nodeId])
 				})
 				
+				toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];	
 				
-				if (Instance[nodeId] != instanceId) { 
-				
-					toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];	
-				
-				} else {
-				
-					return;
-				}	
 	} 
 	
 	Instance[nodeId] = instanceId;
@@ -796,15 +789,8 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 					targetInstanceId: idom.baseSelector(Instance[nodeId])
 				})
 				
+				toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];	
 				
-				if (Instance[nodeId] != instanceId) { 
-				
-					toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];	
-				
-				} else {
-				
-					return;
-				}	
 	} 
 	
 	Instance[nodeId] = instanceId;

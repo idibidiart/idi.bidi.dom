@@ -990,7 +990,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			// populate instance of the node with data     
 			content = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId, "nid": nid, "cloneId": cloneId});
 			
-			newChild = document.createElement(this.children[0].tagName); 
+			newChild = document.createElement(this.tagName); 
 			
 			newChild.innerHTML = content;
 			

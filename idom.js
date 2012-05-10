@@ -1,6 +1,6 @@
 /*! idi.bidi.dom 
 * 
-* v0.08
+* v0.09
 *
 * New Way To Interact With The DOM 
 *
@@ -254,31 +254,22 @@ idom.init = function(json) {
 			
 			var err = new Error;
 			
-			err.message = "iframe is not allowed as a Node. You must load and use idom from within the iframe"
+			err.message = "iframe is not supported as Node. You must load and use idom from within the iframe"
 			
 			throw err.message + getPathTo(el)
 		}
 		
-		// verify base node is a div
 		// verify only one Node Prototype exists 
 		// verify no @idom linked nodes exist outside of Node Prototype 
 		// (linked nodes must be at root level within the Node Prototype) 
 		
-		if (el.tagName.toLowerCase() != "div") { 
-			
-			var err = new Error;
-			
-			err.message = "base node must be a div (you may incorporate any type of element inside the Node Prototype)" 
-			
-			throw err.message + getPathTo(el)
-		}
 		
-		if (el.children.length != 1 || el.firstElementChild.tagName.toLowerCase() != "div") { 
+		if (el.children.length != 1) { 
 			
 			var err = new Error;
 			
-			err.message = "At the time of caching, node must contain just one child div as the Node Prototype." + 
-							"You may encapsulate other elements within it."
+			err.message = "At the time of caching, node must contain just one child element as the Node Prototype." + 
+							"You may use any block level element and encapsulate other elements within it."
 			
 			throw err.message + getPathTo(el)
 		}
@@ -419,15 +410,15 @@ idom.eventHandler = function(event, el, func) {
 	    while (elem.parentNode) {
 	    	
 	        elem = elem.parentNode;
-	        
+	      
 	        var id = elem.getAttribute('idom-node-id')
 	        
 	        if (id) {
 	        
 	            return id;
-	        }
+	        }      
 	    }
-	    
+	 
 	    return null;
    	}
    	
@@ -999,7 +990,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			// populate instance of the node with data     
 			content = idomDOM.cache[nid]._idomMapValues(json, {"instanceId": settings.instanceId, "nid": nid, "cloneId": cloneId});
 			
-			newChild = document.createElement("div"); 
+			newChild = document.createElement(this.children[0].tagName); 
 			
 			newChild.innerHTML = content;
 			

@@ -1,6 +1,6 @@
 /*! idi.bidi.dom 
 * 
-* v0.09
+* v0.10
 *
 * New Way To Interact With The DOM 
 *
@@ -125,7 +125,9 @@ var idom = {};
 // Example: idom.user.someFunction = function () { ... }
 idom.user = {};
  
-idom.version = "0.08";
+idom.utils = {};
+ 
+idom.version = "0.10";
 
 // define regular expression (RegEx) pattern for Prototype variables. use idom$ since that can't be confused 
 idom.regex = /(idom\$\w+)/g;
@@ -287,7 +289,6 @@ idom.init = function(json) {
 					err.message = "@idom linked nodes must be placed within the Node Prototype, not the Node"
 					
 					throw err.message + getPathTo(el)
-				
 				}
 				
 				el.removeChild(commentNodes[i])
@@ -364,41 +365,18 @@ idom.init = function(json) {
 	            ix++;
 	    }
 	}
-}
+};
 
-//idom.forEachExec(document.querySelectorAll('[idom-id$=someCloneUID]'), 'style.display = "block"')
-
-idom.forEachExec = function(nodelist, str) {
+idom.baseSelector = function(sel) {
 	
-	if (arguments.length != 2) {
+	function endIndex() {
 		
-		var e = new Error;
+		var nsel = sel.indexOf('@'); 
 		
-		e.message = "wrong number of arguments: requires: nodelist, str"
-		
-		throw e.message + "\n" + e.stack;
-		
+		return nsel != -1 ? nsel : sel.length
 	}
 	
-	var exec = new Function("el", "el." + str);
-	
-	if (!nodelist[0])
-	
-	try {
-		
-		exec(nodelist[0] || nodelist);  
-			
-	} catch (e) {
-		
-		throw "invalid argument(s): " + e.message + "\n" + e.stack; 	
-	}
-	
-	if (nodelist[0]) {
-		for (var n = 1; n < nodelist.length; n++) {
-			
-			exec(nodelist[n]);	
-		}	
-	}
+	return sel.substring(0, endIndex());
 };
 
 idom.eventHandler = function(event, el, func) {
@@ -467,10 +445,97 @@ idom.eventHandler = function(event, el, func) {
 	}
 };
 
+// utility functions ... 
+// commonly needed functions missing from the popular 3rd party libraries
+
+/*  
+* 
+* idom.utils.forEachExec(object, property assignment or method invocation)
+* 
+* usage example:
+* 
+* idom.utils.forEachExec(document.querySelectorAll('[idom-id$=someCloneUID]'), 'style.display = "block"')
+*
+* executes property assignment on all elements in the returned nodelist, or on the returned element 
+* (if only one)
+*
+*/
+
+idom.utils.forEachExec = function(obj, str) {
+	
+	if (arguments.length != 2) {
+		
+		var e = new Error;
+		
+		e.message = "params must be: object, method invocation or property assigment"
+		
+		throw e.message + "\n" + e.stack;
+		
+	}
+	
+	var exec = new Function("el", "el." + str);
+	
+	try {
+		
+		exec(obj[0] || obj);  
+			
+	} catch (e) {
+		
+		throw "invalid argument(s): " + e.message + "\n" + e.stack; 	
+	}
+	
+	if (nodelist[0]) {
+		for (var n = 1; n < obj.length; n++) {
+			
+			exec(obj[n]);	
+		}	
+	}
+};
+
+/* 
+* 
+* idom.utils.asyncLoop(length, asyncFunction, callback)
+*  
+* usage example:
+*
+* idom.utils.asyncLoop(5, someAsyncFunc, someCallback)
+* 
+* someAsyncFunc(loop, iterationCount) {
+* 	doSomeAsyncStuff...
+*   when done call loop() to continue...
+* }
+* 
+* someCallback() {
+* 	this is called after 5 iterations
+* }
+* 
+*  
+*/
+
+idom.utils.asyncLoop = function(length, func, callback){
+    
+    var i=-1
+        
+    var loop = function(){     
+        
+        i++;
+        
+        if (i == length) {
+        	
+        	callback(); 
+        	
+        	return;
+        }
+        
+        func(loop, i);
+    } 
+    
+    loop();
+}
 
 //useful when assigning spaced or hyphenated strings from JSON/AJAX to idom$() settings such as instanceId  
 
-idom.toCamelCase = function() {
+idom.utils.toCamelCase = function() {
 	
 	  return this.replace(/[\-_]/g, " ").replace(/(?:^\w|[A-Z]|\b\w|\s+)/g, function(match, index) {
 	
@@ -482,31 +547,22 @@ idom.toCamelCase = function() {
 	  });	  
 };
 
-
-idom.baseSelector = function(sel) {
-	
-	function endIndex() {
-		
-		var nsel = sel.indexOf('@'); 
-		
-		return nsel != -1 ? nsel : sel.length
-	}
-	
-	return sel.substring(0, endIndex());
-};
-
-idom.regexIndexOf = function(str, regex, startpos) {
+// useful for finding indexOf a pattern
+idom.utils.regexIndexOf = function(str, regex, startpos) {
     
-    regex = (regex.global) ? regex : new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiLine ? "m" : ""));
+    //force global
+    regex = new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiLine ? "m" : ""));
    
     var indxOf = str.substring(startpos || 0).search(regex);
     
     return (indxOf >= 0) ? (indxOf + (startpos || 0)) : indxOf;
 }
 
-idom.regexLastIndexOf = function(str, regex, startpos) {
+// useful for finding lastIndexOf a pattern
+idom.utils.regexLastIndexOf = function(str, regex, startpos) {
    
-    regex = (regex.global) ? regex : new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiLine ? "m" : ""));
+    //force global
+    regex = new RegExp(regex.source, "g" + (regex.ignoreCase ? "i" : "") + (regex.multiLine ? "m" : ""));
    
     if(typeof (startpos) == "undefined") {
         startpos = str.length;

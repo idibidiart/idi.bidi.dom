@@ -168,15 +168,11 @@ Example:
 &lt;!--************************************************* VIEW OBJECTS ***************************************************-->
 
 &lt;div style='display: none'>
-
-&lt;!-- ANY ELEMENT CAN BE A NODE AS LONG AS IT HAS JUST ONE CHILD AT TIME OF CACHING
- (use block level child element to contain other elements) -->
-
 &lt;!-- Start of Node -->
-&lt;div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams'>
+&lt;div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams; idom$cssTransform'>
 	
 	&lt;!-- Start of Node Prototype -->	
-	&lt;div class='idom$teamsProtoClass' style='background-color: idom$instanceColorTeams;'>
+	&lt;div class='idom$teamsProtoClass' style='background-color: idom$instanceColorTeams'>
 		&lt;div style='padding: 5px;'>idom$caption&lt;/div>
 		
 		&lt;!-- @idom userInfo -->
@@ -209,7 +205,6 @@ Example:
 
 &lt;/div>
 
-</div>
 </pre>
 
 <div id='mainDiv' style='height: 600px; margin-left: 15px;'>
@@ -222,12 +217,15 @@ Example:
 <br><br>
 <button onclick='button3()'>dePopulate() clone 3</button>
 <button onclick='button4()'>Repopulate clone 3</button>
+<button onclick='button5()'>CSS Scale clone 4 (webkit and mozilla only)</button>
+<button onclick='button6()'>CSS reScale clone 4 </button>
 
 <br>
 <br>
 Randomly colored
 <br>
 <br>
+<br<br>
 
 </div>
 	
@@ -320,7 +318,7 @@ position: absolute;
 
 <div style='display: none'>
 <!-- Start of Node -->
-<div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams'>
+<div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams; idom$cssTransform'>
 	
 	<!-- Start of Node Prototype -->	
 	<div class='idom$teamsProtoClass' style='background-color: idom$instanceColorTeams;'>
@@ -369,8 +367,8 @@ position: absolute;
 
 /*************************** ALL SELECTOR DRIVEN LOGIC IS CONTAINED WITHIN THE PRESENTER ***********************************/
 
-//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any (as simple JSON)
-idom.init();	
+//cache DOM elements with idom-node-id (i.e. all node prototypes) 
+idom.cache();	
 
 (function() {
 	
@@ -380,8 +378,7 @@ idom.init();
 	 
 	for (n = 0; n < jsonData.teams[m].members.length; n++) {
 	
-	    // the next-level-up linked node is userInfo 
-		document.querySelector('[idom-node-id=userInfo]').idom$('clone' + Number(m + 1),
+		document.querySelector('[idom-node-id=userInfo]').idom$(
 			{
 				usersClass: 'users',
 				usersProtoClass: 'usersProto',
@@ -400,16 +397,19 @@ idom.init();
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
+				forClone: 'clone' + Number(m + 1),
 				// default mode is replace...
 				mode: 'append',
-				instanceId: 'user' + n
+				instanceName: 'user' + n
 			})
+		
 	
 	}
 	
 	// perform replace on the Host Node (linked node gets re/linked with each idom$() call)
 	// and populate again each time before making a new clone of it
-	document.querySelector('[idom-node-id=teamInfo]').idom$('clone' + Number(m + 1),
+
+	document.querySelector('[idom-node-id=teamInfo]').idom$(
 		{
 			teamsClass: 'teams' + Number(m + 1),
 			teamsProtoClass: 'teamsProto',
@@ -418,7 +418,8 @@ idom.init();
 			instanceColorTeams: rndColor() 
 		}, 
 		{	
-			instanceId: 'teamInfo' 
+			forClone: 'clone' + Number(m + 1),
+			instanceName: 'teamInfo' + Number(m + 1)
 		})		
 
 	// at this point the teamInfo div is populated with the idom$ data and the content of the linked userInfo node 
@@ -428,12 +429,11 @@ idom.init();
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
 	
-	// normally, we'd have to call idom$dePopulate() on the host node (so we may start with no instances in the next 
-	// iteration) but in this case the host node's only populated instance is being replaced each time (default mode is 
-	// 'replace') so no need to dePopulate it
-	
-	// dePopulate() the linked node so we can restart with new data 
+	// dePopulate() the linked node so we can restart with fresh node 
 	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
+		
+	// dePopulate() the host node (so we may start with no instances in the next iteration
+	document.querySelector('[idom-node-id=teamInfo]').idom$dePopulate()
 	
 	}
 
@@ -457,11 +457,11 @@ var Instance = {};
 // idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
 // will be supported in the future 
 
-function changeInstance(event, nodeId, instanceId, cloneId) {
+function changeInstance(event, nodeId, instanceName, cloneId) {
 	
-	// normally, a unique key is the combination of nodeId + instanceId + cloneId 
+	// normally, a unique key is the combination of nodeId + instanceName + cloneId 
 	// which assumes cloneId is globally unique (user enforced), node is unique within 
-	// the clone (framework enforced) and instanceId is unique within the node (user enforced)
+	// the clone (framework enforced) and instanceName is unique within the node (user enforced)
 	// but in this case the nodeId contains the cloneId so we're safe...
 	
 	if (Instance[nodeId]) {
@@ -472,20 +472,21 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 					displayStatus: 'none'
 				}, 
 				{
-					// instanceId in settings is the same as the original populated node 
-					// without link/clone references (they're added automatically)
 					
-				    // new instance id (same as old)
-					instanceId: idom.baseSelector(Instance[nodeId]),
+					// when operating on a clone, we discard the forClone argument
+					
+				    // instanceName in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					instanceName: idom.baseSelector(Instance[nodeId]),
 					// target instance id (for instance to be replaced) 
-					targetInstanceId: idom.baseSelector(Instance[nodeId])
+					targetInstanceName: idom.baseSelector(Instance[nodeId])
 				})
 				
 				toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];	
 				
 	} 
 	
-	Instance[nodeId] = instanceId;
+	Instance[nodeId] = instanceName;
 	
 	toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];
 	
@@ -499,21 +500,21 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 		
 		// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 		// node prototype of the original node the clone is copied from)
-		// when operating on a clone, we discard the cloneId argument
+		// when operating on a clone, we discard the forClone argument
 		
 		document.querySelector('[idom-node-id="' + nodeId + '"]').idom$(
 				{
-					borderStyle: borderSelector(instanceId),
+					borderStyle: borderSelector(instanceName),
 					displayStatus: 'block'
 				}, 
 				{
-					// instanceId in settings is the same as the original populated node 
-					// without link/clone references (they're added automatically)
+					// when operating on a clone, we discard the forClone argument
 					
-				    // new instance id (same as old)
-					instanceId: idom.baseSelector(instanceId),
+				    // instanceName in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					instanceName: idom.baseSelector(instanceName),
 					// target instance id (for instance to be replaced) 
-					targetInstanceId: idom.baseSelector(instanceId)
+					targetInstanceName: idom.baseSelector(instanceName)
 				})
 	} else {
 		
@@ -523,13 +524,13 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 					displayStatus: 'none'
 				}, 
 				{
-					// instanceId in settings is the same as the original populated node 
-					// without link/clone references (they're added automatically)
+					// when operating on a clone, we discard the forClone argument
 					
-					 // new instance id (same as old)
-					instanceId: idom.baseSelector(instanceId),
+				    // instanceName in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					instanceName: idom.baseSelector(instanceName),
 					// target instance id (for instance to be replaced) 
-					targetInstanceId: idom.baseSelector(instanceId)
+					targetInstanceName: idom.baseSelector(instanceName)
 				})
 	}
 }
@@ -543,18 +544,19 @@ function button1() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype of the original node the clone is copied from)
-	// when operating on a clone, we discard the cloneId argument
+	// when operating on a clone, we discard the forClone argument
 	
 	document.querySelector('[idom-node-id="userInfo@cloned@clone2"]').idom$( 
 		{
 			someHandler: "" //null value removes the handler
 		},
 		{
-			// instanceId in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)
+			// when operating on a clone, we discard the forClone argument
 					
-			instanceId: "user1",
-			targetInstanceId: "user1"
+		    // instanceName in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)		
+			instanceName: "user1",
+			targetInstanceName: "user1"
 		}
 	
 	)
@@ -569,18 +571,18 @@ function button2() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype of the original node the clone is copied from)
-	// when operating on a clone, we discard the cloneId argument
+	// when operating on a clone, we discard the forClone argument
 	
 	document.querySelector('[idom-node-id="userInfo@cloned@clone2"]').idom$( 
 		{
 			someHandler: "idom.eventHandler(event, this, changeInstance)" 
 		},
 		{
-			// instanceId in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)
+			// when operating on a clone, we discard the forClone argument
 					
-			instanceId: "user1",
-			targetInstanceId: "user1"
+			// instanceName in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)instanceName: "user1",
+			targetInstanceName: "user1"
 		}
 	
 	)
@@ -613,15 +615,16 @@ function button4() {
 	
 	for (n = 0; n < jsonData.teams[2].members.length; n++) {
 	
-		document.querySelector('[idom-node-id="userInfo"]').idom$('clone3',
+		document.querySelector('[idom-node-id="userInfo"]').idom$(
 			{
 				// data is remembered from the last time this instance (with this clone reference) was populated
 				
 			}, 
 			{
+				forClone: 'clone3',
 				// default mode is replace...
 				mode: 'append',
-				instanceId: 'user' + n
+				instanceName: 'user' + n
 			})
 	
 	}
@@ -634,24 +637,62 @@ function button4() {
 	// id, instance id (without the link/clone reference) and clone id 
 
 	// Since we're doing a replace, no need to delete content with every invocation 
-	// When operating on a clone, we discard the cloneId argument
+	// When operating on a clone, we discard the forClone argument
 	
 	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$(
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
 				
 		}, 
-		{
-			instanceId: 'teamInfo'
+		{   
+			// when operating on a clone, we discard the forClone argument
+					
+		    // instanceName in settings is the same as the original populated node 
+		    // without link/clone references (they're added automatically)
+			instanceName: 'teamInfo3'
 		})	
-		
-	
 }
 
-
-function borderSelector(instanceId) {
+function button5() {
 	
-	var item = idom.baseSelector(instanceId)
+		document.querySelector('[idom-node-id="teamInfo@cloned@clone4"]').idom$(
+			{
+			 
+			 // all other data is remembered for this instance and this clone
+			  cssTransform: '-webkit-transform: scale(0.5); -moz-transform: scale(0.5)'
+				
+			}, 
+			{
+				
+			// when operating on a clone, we discard the forClone argument
+			// no instanceName needed since in this mode we're only populating the node's class/stle attribute
+				mode: 'attr'
+			}
+			
+		)
+}
+
+function button6() {
+	
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone4"]').idom$(
+			{
+			 
+			 // all other data is remembered for this instance and this clone
+			  cssTransform: '-webkit-transform: scale(1); -moz-transform: scale(1)'
+				
+			}, 
+			{
+				// when operating on a clone, we discard the forClone argument
+				// no instanceName needed since in this mode we're only populating the node's class/stle attribute
+				mode: 'attr'
+			}
+			
+		)
+}
+
+function borderSelector(instanceName) {
+	
+	var item = idom.baseSelector(instanceName)
 	
 	switch(item) {
 		
@@ -678,14 +719,134 @@ function rndColor() {
 
 
 <pre>
+	
+/******************************************************************************
+ * 
+ * README:
+ * 
+ * This version works in Gecko and Webkit, not tested on IE
+ *
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * different way for interacting with the DOM. In abstract terms, it takes the DOM 
+ * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
+ * type polymorphism (with the Node Prototype as the user defined type) In logical 
+ * terms, it offers a list-based API for creating, populating, and de-populating 
+ * predetermined DOM structures with the ability to link, directly access, populate
+ * and de-populate other predetermined DOM structures at any depth within them, thus 
+ * giving us a simple and consistent alternative to the DOM's native API while allowing 
+ * us to reduce the amount of HTML as well as separate the HTML from the presentation 
+ * logic.
+ *  
+ * Why use it?
+ * 
+ * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
+ * JSON API between presentation logic and the DOM
+ * 
+ * How does it work?
+ * 
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype 
+ * with data-injected variables in their markup. Multiple instances of each Node (i.e. 
+ * data populated versions, each with its own persisted data) may be created, populated 
+ * with data, and inserted into --and deleted from-- the Node (with the ability to target 
+ * specific, previously inserted instances of the Node or all such instances). Each Node 
+ * may embed any number of other Nodes, at any depth within its markup.
+ * 
+ * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
+ * instances within it (including any populated Linked Nodes that were embedded into the 
+ * host's Node Prototype) This means that we could re-use the same host Node to create 
+ * any number of differently populated Clones with nested Nodes, which allows us to
+ * composite and nest DOM views.  
+ *
+ * Unlike other data-driven DOM rendering frameworks, idi.bidi.dom does not attempt 
+ * to take the place of Javascript itself nor does it add its own boilerplate; it 
+ * simply gives Javascript more power by offering a simple and consistent interface
+ * to the DOM. 
+ *
+ * Usage:
+ *
+ * format: document.querySelector('#someNode').idom$(data [, settings])
+ * 
+ * output: creates a new instance of the Node using 'data' (json) to populate the 
+ * special variables in the Node, then append/prepend to (or replace) existing 
+ * instance(s) of the Node
+ *
+ * forClone: id of the clone the data being populated is intended for. This is omitted 
+ * when operating on cloned nodes
+ *
+ * data: {key: value, key: value, key: value, etc} 
+ * where the key must match the variable name in the data minus the idom$ prefix
+ *
+ * settings: {mode: 'replace'|'append'|'prepend'|'attr', targetInstanceName: 
+ * value, instanceName: value} // replace is default mode
+ *
+ * if there no populated instances of the Node then append/prepend/replace 
+ * will create a new instance of the Node (so if a targetInstanceName is supplied 
+ * in this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * invoking this method with targetInstanceName, unless you know the node is populated)
+ * 
+ * If 'mode' is set to 'attr' in settings then no other settings param is expected 
+ * and only the node's style and class attributes are populated (all node instance 
+ * attributes, including inline event handlers, as well as the node's style and class 
+ * attributes, and all idom$ vars at the node instance level can be populated in any of 
+ * the other modes during instance creation and replacement. Setting mode to attr will 
+ * cause idom to populate only the style and class attributes in the node itself and does 
+ * not touch any of the populated instances. This is useful if the instance hosts a
+ * jQuery plugin or UI widget as it will prevent the jQuery event handlers from being 
+ * detached during idom updates to the node's style and/or class attributes. 
+ *
+ * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
+ * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
+ * previously populated instance of the Node, or to start of the list if none 
+ * were previously populated.
+ *
+ * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
+ * replace when in replace mode. If null, replace all instances.
+ *
+ * instanceName: idom-instance-name value for instance of Prototype Node being populated. 
+ *
+ *********************************************************************************
+ * 
+ * Other idom methods are 
+ *
+ * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
+ * Prototype or all populated instances 
+ *
+ * .idom$isPopulated() may be queried before specifying targetInstanceName  
+ * to verify existence of populated instance(s) of Node Prototype (the targets) 
+ * 
+ * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
+ * been populated)
+ * 
+ * idom.eventHandler may be used to defined inline events, e.g. onclick=idom$someHandler and
+ * setting someHandler to idom.eventHandler(event, this, someFunction) during instance 
+ * creation which binds 'this' context to the element the event was triggered on and passes
+ * the event, parent node id for the instance, and the instanceName  
+ * 
+ * idom.baseSelector maybe used on node and instance id's to strip out the clone and any link
+ * references from instanceName which is 
+ *
+ **********************************************************************************
+ *
+ * About Events:
+ * 
+ * If a handler is defined on the node it will only have access to the node id. If it's 
+ * defined on or in the node prototype it will have access to the instance id
+ *
+ * The context of 'this' inside the handler function is the element the event is 
+ * defined on
+ *
+ * Event handlers that are NOT defined using inline event handlers (like onclick, 
+ * onmouseover, etc) are not supported by idom at this time. 
+ * 
+ *********************************************************************************/
 
 &lt;script>
 /*********************************************** PRESENTER *************************************************************/
 
 /*************************** ALL SELECTOR DRIVEN LOGIC IS CONTAINED WITHIN THE PRESENTER ***********************************/
 
-//cache DOM elements with idom-node-id (i.e. all node prototypes) and supply values for init() variables (i$var) if any (as simple JSON)
-idom.init();	
+//cache DOM elements with idom-node-id (i.e. all node prototypes) 
+idom.cache();	
 
 (function() {
 	
@@ -695,8 +856,7 @@ idom.init();
 	 
 	for (n = 0; n &lt; jsonData.teams[m].members.length; n++) {
 	
-	    // the next-level-up linked node is userInfo 
-		document.querySelector('[idom-node-id=userInfo]').idom$('clone' + Number(m + 1),
+		document.querySelector('[idom-node-id=userInfo]').idom$(
 			{
 				usersClass: 'users',
 				usersProtoClass: 'usersProto',
@@ -715,16 +875,19 @@ idom.init();
 				// event handler can be removed by simply setting someHandler to null
 			}, 
 			{
+				forClone: 'clone' + Number(m + 1),
 				// default mode is replace...
 				mode: 'append',
-				instanceId: 'user' + n
+				instanceName: 'user' + n
 			})
+		
 	
 	}
 	
 	// perform replace on the Host Node (linked node gets re/linked with each idom$() call)
 	// and populate again each time before making a new clone of it
-	document.querySelector('[idom-node-id=teamInfo]').idom$('clone' + Number(m + 1),
+
+	document.querySelector('[idom-node-id=teamInfo]').idom$(
 		{
 			teamsClass: 'teams' + Number(m + 1),
 			teamsProtoClass: 'teamsProto',
@@ -733,7 +896,8 @@ idom.init();
 			instanceColorTeams: rndColor() 
 		}, 
 		{	
-			instanceId: 'teamInfo' 
+			forClone: 'clone' + Number(m + 1),
+			instanceName: 'teamInfo' + Number(m + 1)
 		})		
 
 	// at this point the teamInfo div is populated with the idom$ data and the content of the linked userInfo node 
@@ -743,12 +907,11 @@ idom.init();
 	//insert cloned node into body
 	document.querySelector('#mainDiv').appendChild(clonedEl);
 	
-	// normally, we'd have to call idom$dePopulate() on the host node (so we may start with no instances in the next 
-	// iteration) but in this case the host node's only populated instance is being replaced each time (default mode is 
-	// 'replace') so no need to dePopulate it
-	
-	// dePopulate() the linked node so we can restart with new data 
+	// dePopulate() the linked node so we can restart with fresh node 
 	document.querySelector('[idom-node-id=userInfo]').idom$dePopulate()
+		
+	// dePopulate() the host node (so we may start with no instances in the next iteration
+	document.querySelector('[idom-node-id=teamInfo]').idom$dePopulate()
 	
 	}
 
@@ -772,11 +935,11 @@ var Instance = {};
 // idom at this time. Finding and cloning all event handlers that are attached via different means, like jQuery, 
 // will be supported in the future 
 
-function changeInstance(event, nodeId, instanceId, cloneId) {
+function changeInstance(event, nodeId, instanceName, cloneId) {
 	
-	// normally, a unique key is the combination of nodeId + instanceId + cloneId 
+	// normally, a unique key is the combination of nodeId + instanceName + cloneId 
 	// which assumes cloneId is globally unique (user enforced), node is unique within 
-	// the clone (framework enforced) and instanceId is unique within the node (user enforced)
+	// the clone (framework enforced) and instanceName is unique within the node (user enforced)
 	// but in this case the nodeId contains the cloneId so we're safe...
 	
 	if (Instance[nodeId]) {
@@ -787,20 +950,21 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 					displayStatus: 'none'
 				}, 
 				{
-					// instanceId in settings is the same as the original populated node 
-					// without link/clone references (they're added automatically)
 					
-				    // new instance id (same as old)
-					instanceId: idom.baseSelector(Instance[nodeId]),
+					// when operating on a clone, we discard the forClone argument
+					
+				    // instanceName in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					instanceName: idom.baseSelector(Instance[nodeId]),
 					// target instance id (for instance to be replaced) 
-					targetInstanceId: idom.baseSelector(Instance[nodeId])
+					targetInstanceName: idom.baseSelector(Instance[nodeId])
 				})
 				
 				toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];	
 				
 	} 
 	
-	Instance[nodeId] = instanceId;
+	Instance[nodeId] = instanceName;
 	
 	toggle[Instance[nodeId]] = !toggle[Instance[nodeId]];
 	
@@ -814,21 +978,21 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 		
 		// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 		// node prototype of the original node the clone is copied from)
-		// when operating on a clone, we discard the cloneId argument
+		// when operating on a clone, we discard the forClone argument
 		
 		document.querySelector('[idom-node-id="' + nodeId + '"]').idom$(
 				{
-					borderStyle: borderSelector(instanceId),
+					borderStyle: borderSelector(instanceName),
 					displayStatus: 'block'
 				}, 
 				{
-					// instanceId in settings is the same as the original populated node 
-					// without link/clone references (they're added automatically)
+					// when operating on a clone, we discard the forClone argument
 					
-				    // new instance id (same as old)
-					instanceId: idom.baseSelector(instanceId),
+				    // instanceName in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					instanceName: idom.baseSelector(instanceName),
 					// target instance id (for instance to be replaced) 
-					targetInstanceId: idom.baseSelector(instanceId)
+					targetInstanceName: idom.baseSelector(instanceName)
 				})
 	} else {
 		
@@ -838,13 +1002,13 @@ function changeInstance(event, nodeId, instanceId, cloneId) {
 					displayStatus: 'none'
 				}, 
 				{
-					// instanceId in settings is the same as the original populated node 
-					// without link/clone references (they're added automatically)
+					// when operating on a clone, we discard the forClone argument
 					
-					 // new instance id (same as old)
-					instanceId: idom.baseSelector(instanceId),
+				    // instanceName in settings is the same as the original populated node 
+					// without link/clone references (they're added automatically)
+					instanceName: idom.baseSelector(instanceName),
 					// target instance id (for instance to be replaced) 
-					targetInstanceId: idom.baseSelector(instanceId)
+					targetInstanceName: idom.baseSelector(instanceName)
 				})
 	}
 }
@@ -858,18 +1022,19 @@ function button1() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype of the original node the clone is copied from)
-	// when operating on a clone, we discard the cloneId argument
+	// when operating on a clone, we discard the forClone argument
 	
 	document.querySelector('[idom-node-id="userInfo@cloned@clone2"]').idom$( 
 		{
 			someHandler: "" //null value removes the handler
 		},
 		{
-			// instanceId in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)
+			// when operating on a clone, we discard the forClone argument
 					
-			instanceId: "user1",
-			targetInstanceId: "user1"
+		    // instanceName in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)		
+			instanceName: "user1",
+			targetInstanceName: "user1"
 		}
 	
 	)
@@ -884,18 +1049,18 @@ function button2() {
 	
 	// directly accessing the linked node inside the cloned node (the linked can be nested anywhere in the
 	// node prototype of the original node the clone is copied from)
-	// when operating on a clone, we discard the cloneId argument
+	// when operating on a clone, we discard the forClone argument
 	
 	document.querySelector('[idom-node-id="userInfo@cloned@clone2"]').idom$( 
 		{
 			someHandler: "idom.eventHandler(event, this, changeInstance)" 
 		},
 		{
-			// instanceId in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)
+			// when operating on a clone, we discard the forClone argument
 					
-			instanceId: "user1",
-			targetInstanceId: "user1"
+			// instanceName in settings is the same as the original populated node 
+			// without link/clone references (they're added automatically)instanceName: "user1",
+			targetInstanceName: "user1"
 		}
 	
 	)
@@ -928,15 +1093,16 @@ function button4() {
 	
 	for (n = 0; n &lt; jsonData.teams[2].members.length; n++) {
 	
-		document.querySelector('[idom-node-id="userInfo"]').idom$('clone3',
+		document.querySelector('[idom-node-id="userInfo"]').idom$(
 			{
 				// data is remembered from the last time this instance (with this clone reference) was populated
 				
 			}, 
 			{
+				forClone: 'clone3',
 				// default mode is replace...
 				mode: 'append',
-				instanceId: 'user' + n
+				instanceName: 'user' + n
 			})
 	
 	}
@@ -949,24 +1115,62 @@ function button4() {
 	// id, instance id (without the link/clone reference) and clone id 
 
 	// Since we're doing a replace, no need to delete content with every invocation 
-	// When operating on a clone, we discard the cloneId argument
+	// When operating on a clone, we discard the forClone argument
 	
 	document.querySelector('[idom-node-id="teamInfo@cloned@clone3"]').idom$(
 		{
 			// data is remembered from the last time this instance (with this clone reference) was populated
 				
 		}, 
-		{
-			instanceId: 'teamInfo'
+		{   
+			// when operating on a clone, we discard the forClone argument
+					
+		    // instanceName in settings is the same as the original populated node 
+		    // without link/clone references (they're added automatically)
+			instanceName: 'teamInfo3'
 		})	
-		
-	
 }
 
-
-function borderSelector(instanceId) {
+function button5() {
 	
-	var item = idom.baseSelector(instanceId)
+		document.querySelector('[idom-node-id="teamInfo@cloned@clone4"]').idom$(
+			{
+			 
+			 // all other data is remembered for this instance and this clone
+			  cssTransform: '-webkit-transform: scale(0.5); -moz-transform: scale(0.5)'
+				
+			}, 
+			{
+				
+			// when operating on a clone, we discard the forClone argument
+			// no instanceName needed since in this mode we're only populating the node's class/stle attribute
+				mode: 'attr'
+			}
+			
+		)
+}
+
+function button6() {
+	
+	document.querySelector('[idom-node-id="teamInfo@cloned@clone4"]').idom$(
+			{
+			 
+			 // all other data is remembered for this instance and this clone
+			  cssTransform: '-webkit-transform: scale(1); -moz-transform: scale(1)'
+				
+			}, 
+			{
+				// when operating on a clone, we discard the forClone argument
+				// no instanceName needed since in this mode we're only populating the node's class/stle attribute
+				mode: 'attr'
+			}
+			
+		)
+}
+
+function borderSelector(instanceName) {
+	
+	var item = idom.baseSelector(instanceName)
 	
 	switch(item) {
 		

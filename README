@@ -1,6 +1,6 @@
 /*! idi.bidi.dom 
 * 
-* v0.09
+* v0.11
 *
 * New Way To Interact With The DOM 
 *
@@ -58,48 +58,66 @@
  *
  * Usage:
  *
- * format: document.querySelector('#someNode').idom$(cloneId, data [, settings])
+ * format: document.querySelector('#someNode').idom$(data [, settings])
  * 
  * output: creates a new instance of the Node using 'data' (json) to populate the 
  * special variables in the Node, then append/prepend to (or replace) existing 
  * instance(s) of the Node
  *
- * cloneId: id for the clone the data is intended for. This is omitted when operating on 
- * cloned nodes
+ * forClone: id of the clone the data being populated is intended for. This is omitted 
+ * when operating on cloned nodes
  *
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix
  *
- * settings: {mode: 'replace'|'append'|'prepend', targetInstanceId: value, instanceId: 
- * value} // replace is default
+ * settings: {mode: 'replace'|'append'|'prepend'|'attr', targetInstanceName: 
+ * value, instanceName: value} // replace is default mode
  *
  * if there no populated instances of the Node then append/prepend/replace 
- * will create a new instance of the Node (so if a targetInstanceId is supplied 
+ * will create a new instance of the Node (so if a targetInstanceName is supplied 
  * in this case it will throw an error, so call .$isPopulated() first to be sure before 
- * invoking this method with targetInstanceId, unless you know the node is populated)
+ * invoking this method with targetInstanceName, unless you know the node is populated)
+ * 
+ * If 'mode' is set to 'attr' in settings then no other settings param is expected 
+ * and only the node's style and class attributes are populated (all node instance 
+ * attributes, including inline event handlers, as well as the node's style and class 
+ * attributes, and all idom$ vars at the node instance level can be populated in any of 
+ * the other modes during instance creation and replacement. Setting mode to attr will 
+ * cause idom to populate only the style and class attributes in the node itself and does 
+ * not touch any of the populated instances. This is useful if the instance hosts a
+ * jQuery plugin or UI widget as it will prevent the jQuery event handlers from being 
+ * detached during idom updates to the node's style and/or class attributes. 
  *
- * targetInstanceId: (1) idom-instance-id value for the instance of the Node to 
+ * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
  * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
  * previously populated instance of the Node, or to start of the list if none 
  * were previously populated.
  *
- * targetInstanceId: (2) dom-instance-id value for instance(s) of the Node Protoype to 
+ * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
  * replace when in replace mode. If null, replace all instances.
  *
- * instanceId: idom-instance-id value for instance of Prototype Node being populated. 
+ * instanceName: idom-instance-name value for instance of Prototype Node being populated. 
  *
  *********************************************************************************
  * 
- * Other available are methods are 
+ * Other idom methods are 
  *
  * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
- * .idom$isPopulated() may be queried before specifying targetInstanceId  
+ * .idom$isPopulated() may be queried before specifying targetInstanceName  
  * to verify existence of populated instance(s) of Node Prototype (the targets) 
  * 
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
+ * 
+ * idom.eventHandler may be used to defined inline events, e.g. onclick=idom$someHandler and
+ * setting someHandler to idom.eventHandler(event, this, someFunction) during instance 
+ * creation which binds 'this' context to the element the event was triggered on and passes
+ * the event, parent node id for the instance, and the instanceName  
+ * 
+ * idom.baseSelector maybe used on node and instance id's to strip out the clone and any link
+ * references from instanceName which is 
  *
  **********************************************************************************
  *
@@ -111,9 +129,8 @@
  * The context of 'this' inside the handler function is the element the event is 
  * defined on
  *
- * event handlers that are not defined using inline event handlers (like onclick, 
- * onmouseover, etc) are not handled by idom at this time. Finding and cloning all event 
- * handlers that are attached via different means, like jQuery, will be supported in the 
- * future
+ * Event handlers that are NOT defined using inline event handlers (like onclick, 
+ * onmouseover, etc) are not supported by idom at this time. 
  * 
  *********************************************************************************/
+	

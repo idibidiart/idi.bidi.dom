@@ -85,17 +85,13 @@
  * attributes, and all idom$ vars at the node instance level can be populated in any of 
  * the other modes during instance creation and replacement. Setting mode to 'node' will 
  * cause idom to populate only the style and class attributes in the node itself and does 
- * not touch any of the populated instances of its node prototype. This is useful if the 
- * instance hosts a jQuery plugin or UI widget as it will prevent the jQuery event handlers 
- * from being detached which is what happens when instances are created. Additionally,
- * it's possible to have many node instances with jQuery UI widgets or plugins 
- * instantiated on them so idom offers a way to populate the class and style attributes of 
- * each of the node instances, by setting mode to 'proto' and specifying targetInstanceName
- * or none for all instances. This way we don't create a new version of the target 
- * instance(s), as is the case when mode is set to any other value (other than 'node' or 
- * 'proto') -- This is for both speed and for working with elements managed by other
- * libraries like jQuery. 
- *
+ * not touch any of the populated instances of its node prototype.)
+ * 
+ * If 'mode' is set to 'proto' in settings then only targetInstanceName (optional) will
+ * be accepted in the param. In 'proto' mode only the style and class attributes on the 
+ * node prototype instance(s) are populated. If no targetInstanceName is supplied then
+ * then all instances are populated.  
+ * 
  * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
  * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
  * previously populated instance of the Node, or to start of the list if none 
@@ -139,24 +135,10 @@
  *
  * Event handlers that are NOT defined using inline event handlers (like onclick, 
  * onmouseover, etc) are not supported by idom at this time. 
- * 
- * Events & jQuery:
- * 
- * jQuery attached events on the node prototype won't be transferred to the node
- * instance(s) or the cloned node (scheme for fetching all events defined outside of the
- * HTML is being worked out. So this limitation will be fixed in a future release.)
- * 
- * For now, when integrating jQuery UI widgets or plugins and idom, we must create
- * the instances first then instantiate jQuery widgets/plugin on the already created
- * instances, and set mode to 'node' with instanceName to limit idom data population 
- * to the style and class attributes of the the node instance the jQuery widget/plugin
- * is instantiated on, without creating a new instance from the node prototype (e.g. when
- * as is the case when mode is set to 'replace', 'append' or 'prepend' We can also
- * set mode to 'proto' so we can update the node instance' style and class attributes 
- * rather than those of the node itself, useful for working with multiple jQuery plugins 
- * within a node, with one jQuery widget/plugin for per node instance.   
+ *    
  * 
  *********************************************************************************/
+	
 	
 // define the global idom object
 var idom = {};

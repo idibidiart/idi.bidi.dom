@@ -1,17 +1,23 @@
 /*! idi.bidi.dom 
 * 
-* v0.12
+* v0.13
 *
 * A New Way To Interact With The DOM 
 *
+* ****************************************************************************
+* 
 * Copyright (c) Marc Fawzi 2012-
 * 
 * http://javacrypt.wordpress.com
-*
-* This software is released under the Apache License 2.0 
 * 
-* This software is derived in part from NattyJS, an early precursor by the same
-* author, "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" under "BSD License"  
+* Apache License 2.0 
+* 
+* 
+* *****************************************************************************
+* 
+* This software is derived in certain parts from NattyJS, an early work by the 
+* same author "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" released under 
+* the BSD License.  
 *
 */
 
@@ -62,7 +68,7 @@
  * format: document.querySelector('#someNode').idom$(data [, settings])
  * 
  * output: creates a new instance of the Node using 'data' (json) to populate the 
- * special variables in the Node, then append/prepend to (or replace) existing 
+ * special variables in the Node, then after/before to (or replace) existing 
  * instance(s) of the Node
  *
  * forClone: id of the clone the data being populated is intended for. This is omitted 
@@ -71,31 +77,31 @@
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix
  *
- * settings: {mode: 'replace'|'append'|'prepend'|'node'|'proto', targetInstanceName: 
+ * settings: {mode: 'replace'|'after'|'before'|'node'|'proto', targetInstanceName: 
  * value, instanceName: value} ... replace is default mode
  *
- * if there no populated instances of the Node then append/prepend/replace 
+ * if there no populated instances of the Node then after/before/replace 
  * will create a new instance of the Node (so if a targetInstanceName is supplied 
  * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceName, unless you know the node is populated)
  * 
  * If 'mode' is set to 'node' in settings then no other settings param is expected 
- * and only the node's style and class attributes are populated (all node instance 
- * attributes, including inline event handlers, as well as the node's style and class 
- * attributes, and all idom$ vars at the node instance level can be populated in any of 
- * the other modes during instance creation and replacement. Setting mode to 'node' will 
- * cause idom to populate only the style and class attributes in the node itself and does 
- * not touch any of the populated instances of its node prototype.)
- * 
- * If 'mode' is set to 'proto' in settings then only targetInstanceName (optional) will
- * be accepted in the param. In 'proto' mode only the style and class attributes on the 
- * node prototype instance(s) are populated. If no targetInstanceName is supplied then
- * then all instances are populated.  
- * 
+ * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
+ * to populate only the attributes in the node itself and does not create any populated 
+ * instances of its node prototype. This is useful if the instance hosts a jQuery plugin 
+ * or UI widget as it will prevent the jQuery event handlers from being detached which is 
+ * what happens when instances are created. Additionally, it's possible to have many node 
+ * instances with jQuery UI widgets or plugins instantiated on them so idom offers a way 
+ * to populate the class and style attributes of each of the node instances, by setting 
+ * mode to 'proto' and specifying targetInstanceName or none for all instances. This way 
+ * we don't create a new instance(s), as is the case when mode is set to any other value 
+ * (other than 'node' or 'proto') -- This is both for performance and for working with node
+ * instances on which jQuery plugins/widgets have been instantiated. 
+ *
  * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
- * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node, or to start of the list if none 
- * were previously populated.
+ * insert _at_ when in after and before modes. If null, insert after/before the last/first 
+ * previously populated instance of the Node, or as the first instance if none were previously 
+ * populated.
  *
  * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
  * replace when in replace mode. If null, replace all instances.
@@ -134,8 +140,8 @@
  * defined on
  *
  * Event handlers that are NOT defined using inline event handlers (like onclick, 
- * onmouseover, etc) are not supported by idom at this time. 
- *    
+ * onmouseover, etc) are not handled by idom at this time. 
+ *  
  * 
  *********************************************************************************/
 	
@@ -167,10 +173,8 @@ idomData.outerCache = {};
 // internal use
 idomDOM = {};
 idomDOM.cache = {};
-idomDOM.nodeClassCache = {};
-idomDOM.nodeStyleCache = {};
-idomDOM.instanceClassCache = {};
-idomDOM.instanceStyleCache = {};
+idomDOM.nodeAttributes = {};
+idomDOM.instanceAttributes = {};
 idomDOM.nodeShell = {};
 
 
@@ -308,11 +312,12 @@ idom.cache = function() {
 					
 					var err = new Error;
 			
-					err.message = "@idom linked nodes must be placed within the Node Prototype, not the Node"
+					err.message = "@idom linked nodes must be placed inside the Node Prototype (the direct child of the Node)"
 					
 					throw err.message + getPathTo(el)
 				}
 				
+				// remove comments from cached copy of template
 				el.removeChild(commentNodes[i])
 			}
 		}
@@ -335,18 +340,16 @@ idom.cache = function() {
 			
 			var err = new Error;
 			
-			err.message = "Node should not have an 'id' attribute (to query you may use document.querySelector with '[idom-node-id=\"someString\"]'"
+			err.message = "Node or Node Prototype should not have an 'id' attribute (to query the DOM for the element, you may use document.querySelector with '[idom-node-id=\"someString\"]' or '[idom-instance-id=\"someString\"]'"
 			
 			throw err.message + getPathTo(el)
-				
-			
 		}
 			
-		if (el.getAttribute("idom-instance-name\=")) {
+		if (el.outerHTML.match("(idom-instance-name)")) {
 			
 			var err = new Error;
 			
-			err.message = "at time of caching, node should not have any idom-generated attributes (idom-instance-name)"
+			err.message = "idom-instance-name not expected at time of caching (created automatically for node prototype instances during idom operations)"
 			
 			throw err.message + getPathTo(el)
 		}
@@ -357,35 +360,24 @@ idom.cache = function() {
 		// cache the virgin outerHTML of node (minus the innerHTML)
 		idomDOM.nodeShell[nid]	= el.cloneNode(false).outerHTML;
 		
-		
-		var cls = el.getAttribute("class");
-		
-		if (cls && cls.match(idom.regex)) {
-			
-			idomDOM.nodeClassCache[nid] = cls;
-		}
+		// cache the node attributes
+		for (var i = 0; i < el.attributes.length; i++) {
+			  var attrib = el.attributes[i];
+			  if (attrib.specified == true && 
+					  attrib.name != 'idom-node-id') {
 				
-		var style = el.getAttribute("style");
+				  idomDOM.nodeAttributes[nid + '@' + attrib.name] = el.getAttribute(attrib.name);
+			  }
+		};
 		
-		if (style && style.match(idom.regex)) {
-			
-			idomDOM.nodeStyleCache[nid] = style;
-		}
-		
-		
-		cls = el.children[0].getAttribute("class");
-		
-		if (cls && cls.match(idom.regex)) {
-			
-			idomDOM.instanceClassCache[nid] = cls;
-		}
-				
-		style = el.children[0].getAttribute("style");
-		
-		if (style && style.match(idom.regex)) {
-			
-			idomDOM.instanceStyleCache[nid] = style;
-		}
+		// cache the node instance attributes
+		for (var i = 0; i < el.children[0].attributes.length; i++) {
+			  var attrib = el.children[0].attributes[i];
+			  if (attrib.specified == true) {
+				  
+				  idomDOM.instanceAttributes[nid + '@' + attrib.name] = el.children[0].getAttribute(attrib.name);
+			  }
+		};
 		
 		el = null;
 	}
@@ -783,15 +775,15 @@ String.prototype._idomMapInstanceAttributes = String.prototype._idomMapInstanceA
 			// with a differentiated node id (using idom$cloneBase), so the data cache key will be 
 			// globally unique (although not guaranteed yet due to room for user error in the current release)  
 			
-			idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.forClone + '@' + key] = val;
+			idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] = val;
 			
 			return val;
 			
 		} else {
 			
 			// if idom variable is missing or has an empty string value return empty string 	
-			return typeof idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.forClone + '@' + key] != 'undefined' ? 
-						idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.forClone + '@' + key] : 
+			return typeof idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] != 'undefined' ? 
+						idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] : 
 						'';
 		}
 	}); 
@@ -868,15 +860,15 @@ String.prototype._idomMapNodeAttributes = String.prototype._idomMapNodeAttribute
 			// with a differentiated node id (using idom$cloneBase), so the node-level data cache key will 
 			// be globally unique (although not guaranteed yet due to room for user error in the current release) 
 		
-			idomData.outerCache[uid.nid + "@" + uid.forClone + '@' + key] = val;
+			idomData.outerCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] = val;
 			
 			return val;
 			
 		} else {
 			
 			// if idom variable is missing or has an empty string value return empty string 	
-			return typeof idomData.outerCache[uid.nid + "@" + uid.forClone + '@' + key] != 'undefined' ? 
-						idomData.outerCache[uid.nid + "@" + uid.forClone + '@' + key] : 
+			return typeof idomData.outerCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] != 'undefined' ? 
+						idomData.outerCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] : 
 						'';
 		}
 	}); 		
@@ -1082,7 +1074,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			var err = new Error;
 			
-			err.message = "changing node attributes: no other paramters allowed in settings";
+			err.message = "changing node attributes only: instance parameters are not expected in settings";
 					 
 			throw err.message + '\n' + err.stack;
 			
@@ -1121,7 +1113,8 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			var err = new Error;
 			
-			err.message = "changing node instance attributes: only targetInstanceName maybe specified for proto mode";
+			err.message = "changing node instance attributes only: instanceName is not expected (no instance is being created) \n"  + 
+							"but you may specify the targetInstanceName for the instance whose atttributes you wish to populate";
 					 
 			throw err.message + '\n' + err.stack;
 			
@@ -1279,11 +1272,11 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 				break;
 				
-				case "append":
+				case "after":
 				
 				    if (settings.targetInstanceName) {
 						
-						// append to last matched target
+						// after to last matched target
 						if (targetInstanceList.length > 1) {
 							
 							var targetEl = targetInstanceList[targetInstanceList.length - 1];
@@ -1314,11 +1307,11 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 				    
 				break;
 				
-				case "prepend":
+				case "before":
 				
 					if (settings.targetInstanceName) {
 						
-						// prepend to first matching target
+						// before to first matching target
 						this.insertBefore(frag.cloneNode(true), targetInstanceList[0]);
 							
 						newEl[0] = targetInstanceList[0].previousElementSibling;
@@ -1355,7 +1348,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
 	populateOuter(this, forClone);	
 	
-	populateInner(this, forClone);
+	populateInner(this, forClone, settings.instanceName);
 	
 	// encapsulated functions.. probably should move to idom.internal{}
 	
@@ -1368,7 +1361,8 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			for (var n = 0; n < el.children.length; n++) {
 				
 				var sel = el.children[n].getAttribute('idom-instance-name');
-				 if (sel && idom.baseSelector(sel) ==  settings.targetInstanceName) {
+				 
+				 if (sel && idom.baseSelector(sel) ==  targetInstanceName) {
 					 
 					 targetInstanceList.push(el.children[n])
 				 }
@@ -1396,46 +1390,37 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			var instanceName = idom.baseSelector(targetInstanceList[n].getAttribute("idom-instance-name"))
 			
-			if (idomDOM.instanceClassCache[nid]) {
-				
-			
-				
-				var newCls = idomDOM.instanceClassCache[nid]._idomMapInstanceAttributes(json, {"targetInstanceName": instanceName, "nid": nid, "forClone": forClone});
-				
-				targetInstanceList[n].setAttribute("class", newCls)
+			for (var i = 0; i < targetInstanceList[n].attributes.length; i++) {
+				  var attrib = targetInstanceList[n].attributes[i];
+				  if (attrib.specified == true && 
+						  attrib.name != 'idom-instance-name') {
+					
+					  if (idomDOM.instanceAttributes[nid + '@' + attrib.name]) {
+							
+							var newAttribValue = idomDOM.instanceAttributes[nid + '@' + attrib.name]._idomMapInstanceAttributes(json, {"nid": nid, "targetInstanceName": instanceName, "attribName": attrib.name, "forClone": forClone});
+							
+							targetInstanceList[n].setAttribute(attrib.name, newAttribValue)
+						}
+				  }
 			}
-
-			// new or previous
-			if (idomDOM.instanceStyleCache[nid]) {
-				
-				var newStyle = 	idomDOM.instanceStyleCache[nid]._idomMapInstanceAttributes(json, {"targetInstanceName": instanceName, "nid": nid, "forClone": forClone});
-				
-				targetInstanceList[n].setAttribute("style", newStyle)
-			}
-		
 		}	
-		
-	
 	}
 		
 	function populateOuter(el, forClone) {
 		
-		// new or previous
-		if (idomDOM.nodeClassCache[nid]) {
-			
-			var newCls = idomDOM.nodeClassCache[nid]._idomMapNodeAttributes(json, {"nid": nid, "forClone": forClone});
-			
-			el.setAttribute("class", newCls)
-		}
-		
-	
-		// new or previous
-		if (idomDOM.nodeStyleCache[nid]) {
-		
-			var newStyle = 	idomDOM.nodeStyleCache[nid]._idomMapNodeAttributes(json, {"nid": nid, "forClone": forClone});
-			
-			el.setAttribute("style", newStyle)
-		}
+		for (var i = 0; i < el.attributes.length; i++) {
+			  var attrib = el.attributes[i];
+			  if (attrib.specified == true && 
+					  attrib.name != 'idom-node-id') {
+				
+				  if (idomDOM.nodeAttributes[nid + '@' + attrib.name]) {
+						
+						var newAttribValue = idomDOM.nodeAttributes[nid + '@' + attrib.name]._idomMapNodeAttributes(json, {"nid": nid, "attribName": attrib.name, "forClone": forClone});
+						
+						el.setAttribute(attrib.name, newAttribValue)
+					}
+			  }
+		};
 		
 	};
 	

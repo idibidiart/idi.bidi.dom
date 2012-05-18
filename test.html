@@ -130,21 +130,27 @@
 
 /*! idi.bidi.dom 
 * 
-* v0.12
+* v0.13
 *
 * A New Way To Interact With The DOM 
 *
+* ****************************************************************************
+* 
 * Copyright (c) Marc Fawzi 2012-
 * 
 * http://javacrypt.wordpress.com
-*
-* This software is released under the Apache License 2.0 
 * 
-* This software is derived in part from NattyJS, an early precursor by the same
-* author, "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" under "BSD License"  
+* Apache License 2.0 
+* 
+* 
+* *****************************************************************************
+* 
+* This software is derived in certain parts from NattyJS, an early work by the 
+* same author "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" released under 
+* the BSD License.  
 *
 */
-
+ 
 <br>
 <img src= "idom.png";/>
 <br>
@@ -400,7 +406,7 @@ idom.cache();
 			{
 				forClone: 'clone' + Number(m + 1),
 				// default mode is replace...
-				mode: 'append',
+				mode: 'after',
 				instanceName: 'user' + n
 			})
 		
@@ -475,6 +481,7 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 				{
 					
 					// when operating on a clone, we discard the forClone argument
+					
 					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
@@ -582,7 +589,8 @@ function button2() {
 			// when operating on a clone, we discard the forClone argument
 					
 			// instanceName in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)instanceName: "user1",
+			// without link/clone references (they're added automatically)instanceName: "user1"
+			instanceName: "user1",
 			targetInstanceName: "user1"
 		}
 	
@@ -624,7 +632,7 @@ function button4() {
 			{
 				forClone: 'clone3',
 				// default mode is replace...
-				mode: 'append',
+				mode: 'after',
 				instanceName: 'user' + n
 			})
 	
@@ -774,7 +782,7 @@ function rndColor() {
  * format: document.querySelector('#someNode').idom$(data [, settings])
  * 
  * output: creates a new instance of the Node using 'data' (json) to populate the 
- * special variables in the Node, then append/prepend to (or replace) existing 
+ * special variables in the Node, then after/before to (or replace) existing 
  * instance(s) of the Node
  *
  * forClone: id of the clone the data being populated is intended for. This is omitted 
@@ -783,28 +791,31 @@ function rndColor() {
  * data: {key: value, key: value, key: value, etc} 
  * where the key must match the variable name in the data minus the idom$ prefix
  *
- * settings: {mode: 'replace'|'append'|'prepend'|'node', targetInstanceName: 
- * value, instanceName: value} // replace is default mode
+ * settings: {mode: 'replace'|'after'|'before'|'node'|'proto', targetInstanceName: 
+ * value, instanceName: value} ... replace is default mode
  *
- * if there no populated instances of the Node then append/prepend/replace 
+ * if there no populated instances of the Node then after/before/replace 
  * will create a new instance of the Node (so if a targetInstanceName is supplied 
  * in this case it will throw an error, so call .$isPopulated() first to be sure before 
  * invoking this method with targetInstanceName, unless you know the node is populated)
  * 
  * If 'mode' is set to 'node' in settings then no other settings param is expected 
- * and only the node's style and class attributes are populated (all node instance 
- * attributes, including inline event handlers, as well as the node's style and class 
- * attributes, and all idom$ vars at the node instance level can be populated in any of 
- * the other modes during instance creation and replacement. Setting mode to attr will 
- * cause idom to populate only the style and class attributes in the node itself and does 
- * not touch any of the populated instances. This is useful if the instance hosts a
- * jQuery plugin or UI widget as it will prevent the jQuery event handlers from being 
- * detached during idom updates to the node's style and/or class attributes. 
+ * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
+ * to populate only the attributes in the node itself and does not create any populated 
+ * instances of its node prototype. This is useful if the instance hosts a jQuery plugin 
+ * or UI widget as it will prevent the jQuery event handlers from being detached which is 
+ * what happens when instances are created. Additionally, it's possible to have many node 
+ * instances with jQuery UI widgets or plugins instantiated on them so idom offers a way 
+ * to populate the class and style attributes of each of the node instances, by setting 
+ * mode to 'proto' and specifying targetInstanceName or none for all instances. This way 
+ * we don't create a new instance(s), as is the case when mode is set to any other value 
+ * (other than 'node' or 'proto') -- This is both for performance and for working with node
+ * instances on which jQuery plugins/widgets have been instantiated. 
  *
  * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
- * insert _at_ when in append and prepend modes. If null, append/prepend at last/first 
- * previously populated instance of the Node, or to start of the list if none 
- * were previously populated.
+ * insert _at_ when in after and before modes. If null, insert after/before the last/first 
+ * previously populated instance of the Node, or as the first instance if none were previously 
+ * populated.
  *
  * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
  * replace when in replace mode. If null, replace all instances.
@@ -818,14 +829,14 @@ function rndColor() {
  * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
  * Prototype or all populated instances 
  *
- * .idom$isPopulated() may be queried before specifying targetInstanceName  
- * to verify existence of populated instance(s) of Node Prototype (the targets) 
+ * .idom$isPopulated() may be queried before specifying targetInstanceName to verify the 
+ * existence of populated instance(s) of the node prototype (the targets) 
  * 
  * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
  * been populated)
  * 
- * idom.eventHandler may be used to defined inline events, e.g. onclick=idom$someHandler and
- * setting someHandler to idom.eventHandler(event, this, someFunction) during instance 
+ * idom.eventHandler may be used to defined inline events, e.g. onclick=idom$someHandler 
+ * and setting someHandler to idom.eventHandler(event, this, someFunction) during instance 
  * creation which binds 'this' context to the element the event was triggered on and passes
  * the event, parent node id for the instance, and the instanceName  
  * 
@@ -843,7 +854,8 @@ function rndColor() {
  * defined on
  *
  * Event handlers that are NOT defined using inline event handlers (like onclick, 
- * onmouseover, etc) are not supported by idom at this time. 
+ * onmouseover, etc) are not handled by idom at this time. 
+ *  
  * 
  *********************************************************************************/
 
@@ -884,7 +896,7 @@ idom.cache();
 			{
 				forClone: 'clone' + Number(m + 1),
 				// default mode is replace...
-				mode: 'append',
+				mode: 'after',
 				instanceName: 'user' + n
 			})
 		
@@ -1108,7 +1120,7 @@ function button4() {
 			{
 				forClone: 'clone3',
 				// default mode is replace...
-				mode: 'append',
+				mode: 'after',
 				instanceName: 'user' + n
 			})
 	

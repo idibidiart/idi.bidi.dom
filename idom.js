@@ -195,12 +195,13 @@ idom.cache = function() {
 		!("outerHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_")) ||
 		!("innerHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_")) ||
 		typeof document.querySelector == 'undefined' || 
-		typeof document.querySelectorAll == 'undefined' 
+		typeof document.querySelectorAll == 'undefined' ||
+		typeof Object.keys == 'undefined'
 		) {
 		
 		var err = new Error;
 			
-		err.message = "This browser is not supported: some DOM objects, methods or properties are missing"
+		err.message = "Browser is not supported: some basic browser objects, methods or properties are missing"
 					 
 		throw err.message + '\n' + err.stack;
 	}
@@ -277,11 +278,22 @@ idom.cache = function() {
 			throw err.message + getPathTo(el)
 		}
 		
-		if (typeof el.outerHTML == 'undefined') {
+		if (typeof el.outerHTML == 'undefined' || typeof el.innerHTML == 'undefined') {
 			
 			var err = new Error;
 			
 			err.message = "this element type is not supported by idom"
+			
+			throw err.message + getPathTo(el)
+			
+		}
+		
+		if (Object.keys(el).join(",").match("(jQuery)")) {
+			
+			var err = new Error;
+			
+			err.message = "Cannot instantiate jQuery object on an idom node before it's cached. \n" +
+							"The recommended way is to instntiate jQuery plugin/widget on a populated node instance in a cloned idom node"
 			
 			throw err.message + getPathTo(el)
 			

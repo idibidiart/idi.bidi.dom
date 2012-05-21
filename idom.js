@@ -1,23 +1,34 @@
 /*! idi.bidi.dom 
 * 
-* v0.13
+* 
+* idom v0.14
+* 
+* Key-value JSON API for template-based HTML view nesting and compositing 
 *
-* A New Way To Interact With The DOM 
-*
+* 
 * ****************************************************************************
 * 
-* Copyright (c) Marc Fawzi 2012-
+* Copyright (c) Marc Fawzi, Deep Thought, Inc. 2012
 * 
 * http://javacrypt.wordpress.com
 * 
-* Apache License 2.0 
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 * 
 * 
 * *****************************************************************************
 * 
-* This software is derived in certain parts from NattyJS, an early work by the 
-* same author "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" released under 
-* the BSD License.  
+* Some portions are derived from NattyJS, an early precursor by the same author 
+* "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" published under BSD License.  
 *
 */
 
@@ -88,15 +99,12 @@
  * If 'mode' is set to 'node' in settings then no other settings param is expected 
  * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
  * to populate only the attributes in the node itself and does not create any populated 
- * instances of its node prototype. This is useful if the instance hosts a jQuery plugin 
- * or UI widget as it will prevent the jQuery event handlers from being detached which is 
- * what happens when instances are created. Additionally, it's possible to have many node 
- * instances with jQuery UI widgets or plugins instantiated on them so idom offers a way 
- * to populate the class and style attributes of each of the node instances, by setting 
- * mode to 'proto' and specifying targetInstanceName or none for all instances. This way 
- * we don't create a new instance(s), as is the case when mode is set to any other value 
- * (other than 'node' or 'proto') -- This is both for performance and for working with node
- * instances on which jQuery plugins/widgets have been instantiated. 
+ * instances of its node prototype. idom also offers a way to populate the class and style 
+ * attributes of each of the node instances inside the node, by setting mode to 'proto' and 
+ * specifying targetInstanceName or none for all instances. Both 'proto' and 'node' modes
+ * exist for performance reasons and for working with node attributes or the node instance
+ * attributes where a jQuery plugin/widget is instantiated (after template caching) on a
+ * node instance within the node. 
  *
  * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
  * insert _at_ when in after and before modes. If null, insert after/before the last/first 
@@ -144,14 +152,18 @@
  *  
  * 
  *********************************************************************************/
+
+(function() {
 	
 // define the global idom object
-var idom = {};
+idom = {};
 
 // user defined iteration and DOM traversal functions should be added to idom.user
 // Example: idom.user.someFunction = function () { ... }
 idom.user = {};
  
+idom.internal = {};
+
 idom.utils = {};
 
 // define regular expression (RegEx) pattern for Prototype variables. use idom$ since that can't be confused 
@@ -160,18 +172,16 @@ idom.regex = /(idom\$\w+)/g;
 // define length of Prototype variables pattern
 idom.regexLength = 5;
 
-// define regular expression (RegEx) pattern for idom.cache() variables. use i$ since that can't be confused 
-idom.cacheRegEx =  /(init\$\w+)/g;
-
-// define length of DOM presets pattern
-idom.cacheRegexLength = 5;
-
+// data caches
 idomData = {};
+
 idomData.cache = {};
-idomData.outerCache = {};
+idomData.nodeCache = {};
+idomData.instanceCache = {};
 
 // internal use
 idomDOM = {};
+
 idomDOM.cache = {};
 idomDOM.nodeAttributes = {};
 idomDOM.instanceAttributes = {};
@@ -292,8 +302,10 @@ idom.cache = function() {
 			
 			var err = new Error;
 			
-			err.message = "Cannot instantiate jQuery object on an idom node before it's cached. \n" +
-							"The recommended way is to instntiate jQuery plugin/widget on a populated node instance in a cloned idom node"
+			err.message = "Cannot instantiate jQuery object on an idom node before it's cached.\n" +
+							"The recommended way is to instntiate jQuery plugin/jQuery UI widget on a populated node instance in a cloned idom node\n" +
+							"and use 'node' and/or 'proto' mode to populate attribbutes on the containing node or on the plugin/widget node\n" +
+							"instance, e.g. adding in-line style rules to override the jQuery added CSS classes "
 			
 			throw err.message + getPathTo(el)
 			
@@ -314,7 +326,7 @@ idom.cache = function() {
 			throw err.message + getPathTo(el)
 		}
 		
-		var commentNodes = el.getElementsByNodeType(8);
+		var commentNodes = el._idomElementsByNodeType(8);
 		
 		if (commentNodes.length) {
 			
@@ -344,9 +356,9 @@ idom.cache = function() {
 			throw err.message + getPathTo(el)
 		}
 		
-		// using 'id' on Node would match the base node outside of the Node Prototype that is 
-		// being linked. idom deals with this by changing the idom-node-id and idom-instance-name's 
-		// attribute in Linked Nodes inside the host Node Prototype by adding the link reference
+		// using 'id' is problematic when the node gets linked and/or cloned as you'll have duplicate id's. idom deals with this by 
+		// changing the idom-node-id and idom-instance-name's attribute in Linked Nodes inside the host Node Prototype by adding the 
+		// link and clone reference
 		
 		if (el.getAttribute("id" || el.children[0].getAttribute("id"))) {
 			
@@ -398,29 +410,6 @@ idom.cache = function() {
 	
 	idomDOM.cacheDone = true;
 	
-	function getPathTo(element) {
-			
-	  	switch (element.tagName.toLowerCase()) {
-	    
-	        case "html" : case "body" : return element.tagName;  
-	    }
-	   
-	    var ix= 0;
-	    
-	    var siblings= element.parentNode.childNodes;
-	    
-	    for (var i= 0; i<siblings.length; i++) {
-	    
-	        var sibling= siblings[i];
-	    
-	        if (sibling === element)
-	    
-	            return getPathTo(element.parentNode) + '/' + element.tagName + '[' + (ix+1) + ']';
-	    
-	        if (sibling.nodeType === 1 && sibling.tagName === element.tagName)
-	            ix++;
-	    }
-	}
 };
 
 idom.baseSelector = function(sel) {
@@ -436,46 +425,8 @@ idom.baseSelector = function(sel) {
 };
 
 idom.eventHandler = function(event, el, func) {
-	
-	function getNodeId() { 
-		
-		var elem = el;
-
-	    while (elem.parentNode) {
-	    	
-	        elem = elem.parentNode;
-	      
-	        var id = elem.getAttribute('idom-node-id')
-	        
-	        if (id) {
-	        
-	            return id;
-	        }      
-	    }
-	 
-	    return null;
-   	}
-   	
-   	function getInstanceId() { 
-   		
-   		var elem = el;
-	
-	    while (elem.parentNode) {
-	        
-	        elem = elem.parentNode;
-	        
-	        var id = elem.getAttribute('idom-instance-name')
-	        
-	        if (id) {
-	        
-	            return id;
-	        }    
-	    }
-	    
-	    return null;
-   	}
   
-	var nodeId = el.getAttribute("idom-node-id") ? el.getAttribute("idom-node-id") : getNodeId();
+	var nodeId = el.getAttribute("idom-node-id") ? el.getAttribute("idom-node-id") : getNodeId(el);
 	
 	if (!nodeId || nodeId.indexOf('@clone@') == -1) {
 		
@@ -489,7 +440,7 @@ idom.eventHandler = function(event, el, func) {
     var cidStart = nodeId.indexOf('@clone@'); 
 	var forClone = nodeId.substring(cidStart + 7)
 	
-	var instanceName = el.getAttribute("idom-instance-name") ? el.getAttribute("idom-instance-name") : getInstanceId();
+	var instanceName = el.getAttribute("idom-instance-name") ? el.getAttribute("idom-instance-name") : getInstanceId(el);
 	
 	if (instanceName) {
 		
@@ -499,6 +450,7 @@ idom.eventHandler = function(event, el, func) {
 		
 		func.call(el, event, nodeId, null, forClone);
 	}
+	
 };
 
 // utility functions ... 
@@ -571,14 +523,20 @@ idom.utils.forEachExec = function(obj, str) {
 idom.utils.asyncLoop = function(length, func, callback){
     
     var i=-1  
+    
     var loop = function(){     
-        i++;
-        if (i == length) {
-        	callback(); 
+        
+    	i++;
+        
+    	if (i == length) {
+        
+    		callback(); 
         	return;
         }
+    
         func(loop, i);
-    } 
+    }
+    
     loop(); 
 }
 
@@ -638,10 +596,12 @@ idom.utils.regexLastIndexOf = function(str, regex, startpos) {
 
 String.prototype._idomMapValues = String.prototype._idomMapValues || function() {
 	
+	// function used internally so args are assumed to be present
 	var json = arguments[0];
 	
 	var uid = arguments[1];
 	
+    //error check json
 	var jsonStr, jsonErr; 
 	
 	try {
@@ -687,8 +647,6 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 	// (including null values), and returning the the modified string for updating the target element's innerHTML
 		
 	return this.replace(idom.regex, function(match) { 
-		
-		// if idom init() variable exists and has a value, replace with JSON value for corresponding key
 		
 		var key = match.substr(idom.regexLength);
 		var val = json[key];
@@ -721,10 +679,12 @@ String.prototype._idomMapValues = String.prototype._idomMapValues || function() 
 
 String.prototype._idomMapInstanceAttributes = String.prototype._idomMapInstanceAttributes || function() {
 	
+	// function used internally so args are assumed to be present
 	var json = arguments[0];
 	
 	var uid = arguments[1];
 	
+    //error check json
 	var jsonStr, jsonErr; 
 	
 	try {
@@ -771,8 +731,6 @@ String.prototype._idomMapInstanceAttributes = String.prototype._idomMapInstanceA
 		
 	return this.replace(idom.regex, function(match) { 
 		
-		// if idom init() variable exists and has a value, replace with JSON value for corresponding key
-		
 		var key = match.substr(idom.regexLength);
 		var val = json[key];
 		
@@ -787,15 +745,15 @@ String.prototype._idomMapInstanceAttributes = String.prototype._idomMapInstanceA
 			// with a differentiated node id (using idom$cloneBase), so the data cache key will be 
 			// globally unique (although not guaranteed yet due to room for user error in the current release)  
 			
-			idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] = val;
+			idomData.instanceCache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] = val;
 			
 			return val;
 			
 		} else {
 			
 			// if idom variable is missing or has an empty string value return empty string 	
-			return typeof idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] != 'undefined' ? 
-						idomData.cache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] : 
+			return typeof idomData.instanceCache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] != 'undefined' ? 
+						idomData.instanceCache[uid.nid + "@" + uid.targetInstanceName + "@" + uid.attribName + '@' + uid.forClone + '@' + key] : 
 						'';
 		}
 	}); 
@@ -805,11 +763,12 @@ String.prototype._idomMapInstanceAttributes = String.prototype._idomMapInstanceA
 // special version of the general data mapping function (for node-level variables)
 String.prototype._idomMapNodeAttributes = String.prototype._idomMapNodeAttributes || function() {
 	
-	// take the first argument, assuming simple JSON
+	// function used internally so args are assumed to be present
 	var json = arguments[0];
 	
 	var uid = arguments[1];
 	
+    //error check json
 	var jsonStr, jsonErr; 
 	
 	try {
@@ -856,8 +815,6 @@ String.prototype._idomMapNodeAttributes = String.prototype._idomMapNodeAttribute
 		
 	return this.replace(idom.regex, function(match) { 
 		
-		// if idom init() variable exists and has a value, replace with JSON value for corresponding key
-		
 		var key = match.substr(idom.regexLength);
 		var val = json[key];
 		
@@ -872,22 +829,21 @@ String.prototype._idomMapNodeAttributes = String.prototype._idomMapNodeAttribute
 			// with a differentiated node id (using idom$cloneBase), so the node-level data cache key will 
 			// be globally unique (although not guaranteed yet due to room for user error in the current release) 
 		
-			idomData.outerCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] = val;
+			idomData.nodeCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] = val;
 			
 			return val;
 			
 		} else {
 			
 			// if idom variable is missing or has an empty string value return empty string 	
-			return typeof idomData.outerCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] != 'undefined' ? 
-						idomData.outerCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] : 
+			return typeof idomData.nodeCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] != 'undefined' ? 
+						idomData.nodeCache[uid.nid + "@" + uid.attribName + '@' + uid.forClone + '@' + key] : 
 						'';
 		}
 	}); 		
 };
 
-// Todo: test if TreeWalker with SHOW_COMMENTS is faster
-Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeType || function() {
+Element.prototype._idomElementsByNodeType =  Element.prototype._idomElementsByNodeType || function() {
     
     var elem = this;
     var childNodeType = arguments[0];
@@ -904,7 +860,7 @@ Element.prototype.getElementsByNodeType =  Element.prototype.getElementsByNodeTy
     
       if (deep && (childNodes[i].nodeType == 1)) {
     
-        result = result.concat(childNodes[i].getElementsByNodeType(childNodeType, deep));
+        result = result.concat(childNodes[i]._idomElementsByNodeType(childNodeType, deep));
       }
     }
     
@@ -952,27 +908,12 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	// return value is used elsewhere in this function 
 	var isPopulated = this.idom$isPopulated();
 	
-	// Todo: need to check if node has been populated from outside of the framework, which should throw an error
-
-	// if arg0 is a non-empty string and node is already a clone
-	if (arguments[0] && typeof arguments[0] == 'string') {
 	
-		if (fullNid.indexOf('@clone@') != -1) {
-			
-			var err = new Error;
-			
-			err.message = "did not expect a string (assuming clone id) as first argument (node is already a clone)";
-						 
-			throw err.message + '\n' + err.stack;	
-		} 
-	} 
-	
-	//if arg0 is a not null (including {}) and it's an object or if it's null and the node is already a clone 
-	if ((typeof arguments[0] != 'object') || (typeof arguments[1] != 'object') || arguments.length > 2){
+	if ((!arguments[0] || typeof arguments[0] != 'object') || (!arguments[1] || typeof arguments[1] != 'object') || arguments.length != 2){
 		
 		var err = new Error;
 		
-		err.message = "idom$ expects two arguments as simple JSON objects: data and settings";
+		err.message = "idom$ expects two arguments as Simple JSON objects: data, settings";
 					 
 		throw err.message + '\n' + err.stack;
 
@@ -985,17 +926,10 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
 	
 	// json is error checked in string replace function
-	if (!json) {
-		
-		var err = new Error;
-			
-		err.message = "required argument: data (json)";
-					 
-		throw err.message + '\n' + err.stack;	
-	}
 	
+    // error check settings
 	
-	if (settings && settings != {}) {
+	if (settings != {}) {
 		
 		var optErr, settingsStr;
 			
@@ -1064,7 +998,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		
 	} else {
 		
-		if (settings && settings.forClone) {
+		if (settings.forClone) {
 			
 			var err = new Error;
 			
@@ -1080,7 +1014,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	}
 		
 	// if only populating node's style and class attributes
-	if (settings && settings.mode == 'node') {
+	if (settings.mode == 'node') {
 		
 		if (settings.instanceName || settings.targetInstanceName) {
 			
@@ -1102,14 +1036,14 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 		}
 		
-		populateOuter(this, forClone);
+		populateOuter(this, forClone, nid, json);
 		
 		return;
 	};
 	
 	
 	// if only populating node instance' style and class attributes
-	if (settings && settings.mode == 'proto') {
+	if (settings.mode == 'proto') {
 		
 		if (!isPopulated) {
 			
@@ -1125,53 +1059,65 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 			var err = new Error;
 			
-			err.message = "changing node instance attributes only: instanceName is not expected (no instance is being created) \n"  + 
-							"but you may specify the targetInstanceName for the instance whose atttributes you wish to populate";
+			err.message = "changing node instance attributes: instanceName is not expected (no instance is being created) \n"  + 
+							"but you may specify targetInstanceName for the instance whose atttributes you wwant to populate";
 					 
 			throw err.message + '\n' + err.stack;
 			
 		}
 		
 		// may or may not contain targetInstanceName
-		populateInner(this, forClone, settings.targetInstanceName);
+		populateInner(this, forClone, settings.targetInstanceName, nid, json);
 		
 		return;
 	};
+	
 
 	if (// 1: if Node has no populated instances 
 		!isPopulated || 
-		// 2: settings were not given 	
-		!settings || settings == {} || 
-		// 3: 'replace all' is assumed (if no target was specified and mode is replace or not specified)
-		(settings && !settings.targetInstanceName && (settings.mode == 'replace' || !settings.mode))) {
+		// 2: settings were empty object 	
+		settings == {} || 
+		// 3: 'replace all' is assumed (if no target was specified and 'mode' is replace or not specified)
+		(!settings.targetInstanceName && (settings.mode == 'replace' || !settings.mode))) {
 		
-		//exception under condition 1 if target is specified 
-		if (settings && settings.targetInstanceName) {
-				
-				if (!this.isPopulated) {
-
-					var err = new Error;
+		var instanceName;
 			
-					err.message = "invalid setting: targetInstanceName cannot be applied: this node currently has no populated instances of its node prototype";
-					 
-					throw err.message + '\n' + err.stack;			
-				};
-		} 
+		if (!settings.instanceName) {
+			
+			// Node is populated, has only one instance, and 'mode' is 'replace' or undefined/null/''
+			if (isPopulated && this.children.length == 1 && (settings.mode == 'replace' || !settings.mode)) {
+			
+				instanceName = idom.baseSelector(this.children[0].getAttribute("idom-instance-name"))
+			
+			}  else {
 		
-		//exception under condition 2 and 3 
-		if (!settings || !settings.instanceName) {
-				
 				var err = new Error;
 				
 				err.message = "instanceName must be specified in settings when inserting a new instance"
 				 
 				throw err.message + '\n' + err.stack;	
+			}
+		
+		} else {
+			
+			instanceName = settings.instanceName;	
 		}
+			
+		// Node is not populated and target instance is specified 
+		if (!isPopulated && settings.targetInstanceName) {
+
+			var err = new Error;
+	
+			err.message = "invalid setting: targetInstanceName cannot be applied: this node currently has no populated instances of its node prototype";
+			 
+			throw err.message + '\n' + err.stack;			
+		} 
+		
 		
 		//all error paths handled in this case, so 
-		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": settings.instanceName, "nid": nid, "forClone": forClone});
+		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": instanceName, "nid": nid, "forClone": forClone});
 						
-		setInstanceId(this.children[0]);
+		setInstanceId(this.children[0], instanceName);
 		
 		// insert Linked Nodes
 		insertLinkedNodes(this.children[0]);
@@ -1180,17 +1126,34 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		
 	// (general case)					
 	} else {
-		
+		 
+		    var instanceName;
+		    
 			if (!settings.instanceName) {
-			
-				var err = new Error;
 				
-				err.message = "instanceName must be specified in settings when inserting a new instance"
-				 
-				throw err.message + '\n' + err.stack;
+				// Node is populated, target instance is specified, and 'mode' is 'replace' or undefined/null/''
+				
+				if (isPopulated && settings.targetInstanceName && (settings.mode == 'replace' || !settings.mode)) {
+					
+					instanceName = settings.targetInstanceName;
+				
+				} else {
+			
+					var err = new Error;
+					
+					err.message = "instanceName must be specified in settings when inserting a new instance"
+					 
+					throw err.message + '\n' + err.stack;
+				
+				}
+			} else {
+				
+				instanceName = settings.instanceName;
+				
 			}
 			
-			if (settings.instanceName.indexOf('@') != -1) {
+		
+			if (instanceName.indexOf('@') != -1) {
 				
 				var err = new Error;
 				
@@ -1225,7 +1188,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			} 
 			
 			// populate instance of the node with data     
-			content = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": settings.instanceName, "nid": nid, "forClone": forClone});
+			content = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": instanceName, "nid": nid, "forClone": forClone});
 			
 			newChild = document.createElement(this.tagName); 
 			
@@ -1253,7 +1216,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								
 								this.removeChild(targetInstanceList[n]);
 								
-								setInstanceId(newEl[n]);
+								setInstanceId(newEl[n], instanceName);
 								
 								insertLinkedNodes(newEl[n]);
 							}
@@ -1266,18 +1229,18 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								
 							this.removeChild(targetInstanceList[0])
 								
-							setInstanceId(newEl[0]);
+							setInstanceId(newEl[0], instanceName);
 							
 							insertLinkedNodes(newEl[0]);	
 						}
 						
 					} else {
 						
-						this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": settings.instanceName, "nid": nid, "forClone": forClone});
+						this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": instanceName, "nid": nid, "forClone": forClone});
 						
 						newEl[0] = this.children[0];
 						
-						setInstanceId(newEl[0]);
+						setInstanceId(newEl[0], instanceName);
 						
 						insertLinkedNodes(newEl[0]);
 					}
@@ -1302,7 +1265,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						newEl[0] = targetEl.nextElementSibling;
 						
-						setInstanceId(newEl[0]);
+						setInstanceId(newEl[0], instanceName);
 						
 						insertLinkedNodes(newEl[0]);
 						
@@ -1312,7 +1275,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 					
 						newEl[0] = this.children[this.children.length - 1];
 						 
-						setInstanceId(newEl[0]);
+						setInstanceId(newEl[0], instanceName);
 		
 						insertLinkedNodes(newEl[0]);
 					}
@@ -1328,7 +1291,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 							
 						newEl[0] = targetInstanceList[0].previousElementSibling;
 						
-						setInstanceId(newEl[0]);
+						setInstanceId(newEl[0], instanceName);
 						
 						insertLinkedNodes(newEl[0]);
 						
@@ -1338,7 +1301,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						
 						newEl[0] = this.children[0];
 						
-						setInstanceId(newEl[0]);
+						setInstanceId(newEl[0], instanceName);
 						
 						insertLinkedNodes(newEl[0]);
 					}
@@ -1358,186 +1321,10 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	};
 	
 	
-	populateOuter(this, forClone);	
+	populateOuter(this, forClone, nid, json);	
 	
-	populateInner(this, forClone, settings.instanceName);
+	populateInner(this, forClone, instanceName, nid, json);
 	
-	// encapsulated functions.. probably should move to idom.internal{}
-	
-	function populateInner(el, forClone, targetInstanceName) {
-		
-		var targetInstanceList = [];
-		
-		if (targetInstanceName) {
-			
-			for (var n = 0; n < el.children.length; n++) {
-				
-				var sel = el.children[n].getAttribute('idom-instance-name');
-				 
-				 if (sel && idom.baseSelector(sel) ==  targetInstanceName) {
-					 
-					 targetInstanceList.push(el.children[n])
-				 }
-			}
-			
-			if (!targetInstanceList[0]) {
-				
-				var err = new Error;
-		
-				err.message = "Invalid setting: targetInstanceName (" + settings.targetInstanceName + ") does not match " + 
-				"the idom-instance-name of any of the instances of the node prototype in the node idom$() was invoked on\n";
-				 
-				throw err.message + '\n' + err.stack;	
-			};
-				
-		} else {
-				
-			for (var n = 0; n < el.children.length; n++) {
-				
-				targetInstanceList.push(el.children[n]);	
-			}
-		}
-		
-		for (var n = 0; n < targetInstanceList.length; n++) {
-			
-			var instanceName = idom.baseSelector(targetInstanceList[n].getAttribute("idom-instance-name"))
-			
-			for (var i = 0; i < targetInstanceList[n].attributes.length; i++) {
-				  var attrib = targetInstanceList[n].attributes[i];
-				  if (attrib.specified == true && 
-						  attrib.name != 'idom-instance-name') {
-					
-					  if (idomDOM.instanceAttributes[nid + '@' + attrib.name]) {
-							
-							var newAttribValue = idomDOM.instanceAttributes[nid + '@' + attrib.name]._idomMapInstanceAttributes(json, {"nid": nid, "targetInstanceName": instanceName, "attribName": attrib.name, "forClone": forClone});
-							
-							targetInstanceList[n].setAttribute(attrib.name, newAttribValue)
-						}
-				  }
-			}
-		}	
-	}
-		
-	function populateOuter(el, forClone) {
-		
-		for (var i = 0; i < el.attributes.length; i++) {
-			  var attrib = el.attributes[i];
-			  if (attrib.specified == true && 
-					  attrib.name != 'idom-node-id') {
-				
-				  if (idomDOM.nodeAttributes[nid + '@' + attrib.name]) {
-						
-						var newAttribValue = idomDOM.nodeAttributes[nid + '@' + attrib.name]._idomMapNodeAttributes(json, {"nid": nid, "attribName": attrib.name, "forClone": forClone});
-						
-						el.setAttribute(attrib.name, newAttribValue)
-					}
-			  }
-		};
-		
-	};
-	
-	
-	function setInstanceId(elem) {
-
-		var parentSel = elem.parentNode.getAttribute("idom-node-id")
-		
-		var refStart = parentSel.indexOf('@')
-		
-		if (refStart != -1) {
-			
-			elem.setAttribute("idom-instance-name", settings.instanceName + parentSel.substring(refStart))
-		} else {
-			
-			elem.setAttribute("idom-instance-name", settings.instanceName)
-		}	
-	};
-	
-	function insertLinkedNodes(elem) {
-		
-		var nestedCommentNodes = elem.getElementsByNodeType(8, true);
-		
-		if (nestedCommentNodes[0]) {
-		
-			var linkedNodeIDList = '';
-			
-			for (var n = 0; n < nestedCommentNodes.length; n++) {
-			
-				var id = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
-		
-				if (id.indexOf('@') != -1) {
-					
-					var err = new Error;
-			
-					err.message = "bad <--! @ id --> // id for node to be linked may not contain any link or clone references (link base node instead)"
-					 
-					throw err.message + '\n' + err.stack;	
-				}
-				
-				if (id) {
-									
-					if (linkedNodeIDList.indexOf(id) != -1) {
-						
-						var err = new Error;
-						
-						err.message = "cannot link the same node more than once into the same host node: use idom$cloneBase('version id') to create a new version of the base node before linking (coming in v0.12)";
-						 
-						throw err.message + '\n' + err.stack;
-					}
-					
-					linkedNodeIDList += id + ",";
-						
-					var linkedNode = document.querySelector('[idom-node-id=' + id + ']');
-					
-					if (!linkedNode) {
-						
-						var err = new Error;
-						
-						err.message = "linked node not found";
-							 
-						throw err.message + '\n' + err.stack;
-						
-					} 
-					
-					if (!linkedNode.idom$isPopulated()) {
-						
-						var err = new Error;
-							
-						err.message = "linked node must be populated before being linked";
-							 
-						throw err.message + '\n' + err.stack;
-					}
-					
-					
-				    // use the HTML, Luke!
-					if (idomDOM.cache[id].indexOf('@idom') != -1) {
-						
-							var err = new Error;
-							
-							err.message = "can't nest linked nodes within each other (bad idea)... \n";
-							 
-							throw err.message + '\n' + err.stack;	
-					}
-					
-					var el = nestedCommentNodes[n].parentNode.insertBefore(linkedNode.cloneNode(true), nestedCommentNodes[n]);
-					
-					el.parentNode.removeChild(nestedCommentNodes[n]);
-				   	
-				   	var elemInstanceId = elem.getAttribute("idom-instance-name");
-				   	
-					for (var n = 0; n < el.children.length || n < 1; n++) {
-									
-						el.children[n].setAttribute("idom-instance-name", el.children[n].getAttribute("idom-instance-name") + "@link@" + elemInstanceId);
-					} 
-					
-					el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@link@"  + elemInstanceId);
-				} 
-			}
-			
-		} else {
-			
-			return;
-		}
-	}; 
 };
 
 // format: clonedNode = document.querySelector('#someNode').idom$clone(uid) 
@@ -1713,10 +1500,8 @@ Element.prototype.idom$isPopulated = Element.prototype.idom$isPopulated || funct
 
 // .idom$dePopulate
 //
-// format: document.querySelector('#someNode').idom$dePopulate([settings]) 
-// settings: {'targetInstanceName': value}
-//
-// targetInstanceName: settingal: for specifying instance(s) of Node Prototype to delete. If null, reset node's innerHTML to Node Prototype
+// format: document.querySelector('#someNode').idom$dePopulate() 
+// arguments: targetInstanceName (string)
 //
 
 Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || function() {
@@ -1754,100 +1539,298 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 	}
 	
 	// take settings, assuming simple JSON
-	var settings = arguments[0];	
+	var targetInstance = arguments[0];	
 	
-	var settingsStr, optErr;
+	if (targetInstance && typeof targetInstance != 'string') {
+		
+		var err = new Error;
+		
+		err.message = "invalid param: expected string type for target instance name";
+					 
+		throw err.message + '\n' + err.stack;
+		
+	}
 	
-	if (settings) {
-		
-		try {
+	if (targetInstance) {
 			
-			settingsStr = JSON.stringify(settings);
-			
-		} catch (e) {
-			
-			optErr = true;
-		}
-		
-		// primitive, fast error checking ... 
-		if (optErr || settingsStr.match(/[\{]{2,}|[\[]/)) {
-			
-			var err = new Error;
-			
-			err.message = 'Invalid settings: use simple JSON. {"someKey": "some value", "anotherKey": 5, "yetAnotherKey": true, "andLastButNotLeast": null}'
-						 
-			throw err.message + '\n' + err.stack; 
-			 
-			// Notes:
-			//
-			// idom works with simple JSON
-			// 
-			// 'simple JSON' is defined as a key-value collection, limited to string or numeric values 
-			// Like {somesetting: 'value', anothersetting: 'anotherValue', etc}
-			
-		} else if (settingsStr.match(idom.regex)) {
-			
-			var err = new Error;
-			
-			err.message = "Invalid data: idom node variables found in settings"
-						 
-			throw err.message + '\n' + err.stack;
+		if (targetInstance.indexOf('@') != -1) {
+				
+				var err = new Error;
+				
+				err.message = "values in settings must not include @ references (they're inferred at run time) \n" +
+							  "use idom.baseSelector(long@format@value) to pass the base values"
+				 
+				throw err.message + '\n' + err.stack;
 		}
 		
 		var targetInstanceList = [];
 		
-		if (settings.targetInstanceName) {
 		
-			if (this.innerHTML == idomDOM.cache[nid] || !this.children[0]) {
-		
-				var err = new Error;
-				
-				err.message = "node has not yet been populated (no matching instance)"
-							 
-				throw err.message + '\n' + err.stack;
-			}
-			
-			for (var n = 0; n < this.children.length; n++) {
-				
-				if (this.children[n].getAttribute("idom-instance-name") == settings.targetInstanceName) {
-					
-					targetInstanceList.push(this.children[n])
-				}
-			}
-						
-			if (!targetInstanceList[0]) {
-							
-				var err = new Error;
-		
-				err.message = "Invalid setting: targetInstanceName (" + settings.targetInstanceName + ") does not match" + 
-				"the idom-instance-name of any of the instances of the node idom$() was invoked on\n" + 
-				"outerHTML of node:\n" + this.outerHTML;
-				 
-				throw err.message + '\n' + err.stack;	
-			}
-			
-						
-			for (var n = 0; n < targetInstanceList.length; n++) {
-				
-				this.removeChild(targetInstanceList[n]);
-			}
-			
-		} else {
-			
+		if (this.innerHTML == idomDOM.cache[nid] || !this.children[0]) {
+	
 			var err = new Error;
-				
-			err.message = "this method only takes targetInstanceName in settings"
+			
+			err.message = "node has not yet been populated (no matching instance)"
 						 
 			throw err.message + '\n' + err.stack;
 		}
 		
+		for (var n = 0; n < this.children.length; n++) {
+			
+			if (!this.children[n].getAttribute("idom-instance-name")) {
+				
+				var err = new Error;
+					
+				err.message = "node structure has been corrupted (external source)";
+							 
+				throw err.message + '\n' + err.stack;
+			}
+		}
+		
+		for (var n = 0; n < this.children.length; n++) {
+			
+			if (this.children[n].getAttribute("idom-instance-name") == targetInstance) {
+				
+				targetInstanceList.push(this.children[n])
+			}
+		}
+					
+		if (!targetInstanceList[0]) {
+						
+			var err = new Error;
+	
+			err.message = "Invalid param: targetInstanceName (" + targetInstance + ") does not match" + 
+			"the idom-instance-name of any of the instances of the node idom$() was invoked on\n\n" + 
+			"outerHTML of node:\n" + this.outerHTML;
+			 
+			throw err.message + '\n' + err.stack;	
+		}
+		
+					
+		for (var n = 0; n < targetInstanceList.length; n++) {
+			
+			this.removeChild(targetInstanceList[n]);
+		}
+
+		
 	} else {
 		
-		//dePopulate (outerCache includes node-level markup only, no innerHTML)
+		//dePopulate (nodeShell includes node-level markup only, no innerHTML)
 		this.outerHTML = idomDOM.nodeShell[nid].replace(idom.regex, "").replace(idom.baseSelector(nodeId), nodeId);
 		
 	}
 };
+
+
+// encapsulated functions.. probably should move to idom.internal{}
+	
+function setInstanceId(elem, instanceName) {
+
+	var parentSel = elem.parentNode.getAttribute("idom-node-id")
+	
+	var refStart = parentSel.indexOf('@')
+	
+	if (refStart != -1) {
+		
+		elem.setAttribute("idom-instance-name", instanceName + parentSel.substring(refStart))
+	} else {
+		
+		elem.setAttribute("idom-instance-name", instanceName)
+	}	
+};
+
+function insertLinkedNodes(elem) {
+	
+	var nestedCommentNodes = elem._idomElementsByNodeType(8, true);
+	
+	if (nestedCommentNodes[0]) {
+	
+		var linkedNodeIDList = '';
+		
+		for (var n = 0; n < nestedCommentNodes.length; n++) {
+		
+			var id = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
+	
+			if (id.indexOf('@') != -1) {
+				
+				var err = new Error;
+		
+				err.message = "bad <--! @ id --> // id for node to be linked may not contain any link or clone references (link base node instead)"
+				 
+				throw err.message + '\n' + err.stack;	
+			}
+			
+			if (id) {
+								
+				if (linkedNodeIDList.indexOf(id) != -1) {
+					
+					var err = new Error;
+					
+					err.message = "cannot link the same node more than once into the same host node: use idom$cloneBase('version id') to create a new version of the base node before linking (coming in v0.12)";
+					 
+					throw err.message + '\n' + err.stack;
+				}
+				
+				linkedNodeIDList += id + ",";
+					
+				var linkedNode = document.querySelector('[idom-node-id=' + id + ']');
+				
+				if (!linkedNode) {
+					
+					var err = new Error;
+					
+					err.message = "linked node not found";
+						 
+					throw err.message + '\n' + err.stack;
+					
+				} 
+				
+				if (!linkedNode.idom$isPopulated()) {
+					
+					var err = new Error;
+						
+					err.message = "linked node must be populated before being linked";
+						 
+					throw err.message + '\n' + err.stack;
+				}
+				
+				
+			    // use the HTML, Luke!
+				if (idomDOM.cache[id].indexOf('@idom') != -1) {
+					
+						var err = new Error;
+						
+						err.message = "can't nest linked nodes within each other (bad idea)... \n";
+						 
+						throw err.message + '\n' + err.stack;	
+				}
+				
+				var el = nestedCommentNodes[n].parentNode.insertBefore(linkedNode.cloneNode(true), nestedCommentNodes[n]);
+				
+				el.parentNode.removeChild(nestedCommentNodes[n]);
+			   	
+			   	var elemInstanceId = elem.getAttribute("idom-instance-name");
+			   	
+				for (var n = 0; n < el.children.length || n < 1; n++) {
+								
+					el.children[n].setAttribute("idom-instance-name", el.children[n].getAttribute("idom-instance-name") + "@link@" + elemInstanceId);
+				} 
+				
+				el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@link@"  + elemInstanceId);
+			} 
+		}
+		
+	} else {
+		
+		return;
+	}
+}; 
+
+function populateInner(el, forClone, targetInstanceName, nid, json) {
+	
+	var targetInstanceList = [];
+	
+	if (targetInstanceName) {
+		
+		for (var n = 0; n < el.children.length; n++) {
+			
+			var sel = el.children[n].getAttribute('idom-instance-name');
+			 
+			 if (sel && idom.baseSelector(sel) ==  targetInstanceName) {
+				 
+				 targetInstanceList.push(el.children[n])
+			 }
+		}
+		
+		if (!targetInstanceList[0]) {
+			
+			var err = new Error;
+	
+			err.message = "Invalid setting: targetInstanceName (" + targetInstanceName + ") does not match " + 
+			"the idom-instance-name of any of the instances of the node prototype in the node idom$() was invoked on\n";
+			 
+			throw err.message + '\n' + err.stack;	
+		};
+			
+	} else {
+			
+		for (var n = 0; n < el.children.length; n++) {
+			
+			targetInstanceList.push(el.children[n]);	
+		}
+	}
+	
+	for (var n = 0; n < targetInstanceList.length; n++) {
+		
+		var instanceName = idom.baseSelector(targetInstanceList[n].getAttribute("idom-instance-name"))
+		
+		for (var i = 0; i < targetInstanceList[n].attributes.length; i++) {
+			  var attrib = targetInstanceList[n].attributes[i];
+			  if (attrib.specified == true && 
+					  attrib.name != 'idom-instance-name') {
+				
+				  if (idomDOM.instanceAttributes[nid + '@' + attrib.name]) {
+						
+						var newAttribValue = idomDOM.instanceAttributes[nid + '@' + attrib.name]._idomMapInstanceAttributes(json, {"nid": nid, "targetInstanceName": instanceName, "attribName": attrib.name, "forClone": forClone});
+						
+						targetInstanceList[n].setAttribute(attrib.name, newAttribValue)
+					}
+			  }
+		}
+	}	
+}
+	
+function populateOuter(el, forClone, nid, json) {
+
+	for (var i = 0; i < el.attributes.length; i++) {
+		  var attrib = el.attributes[i];
+		  if (attrib.specified == true && 
+				  attrib.name != 'idom-node-id') {
+			
+			  if (idomDOM.nodeAttributes[nid + '@' + attrib.name]) {
+					
+					var newAttribValue = idomDOM.nodeAttributes[nid + '@' + attrib.name]._idomMapNodeAttributes(json, {"nid": nid, "attribName": attrib.name, "forClone": forClone});
+					
+					el.setAttribute(attrib.name, newAttribValue)
+				}
+		  }
+	};
+};
+
+function getNodeId(el) { 
+
+    while (el.parentNode) {
+    	
+        el = el.parentNode;
+      
+        var id = el.getAttribute('idom-node-id')
+        
+        if (id) {
+        
+            return id;
+        }      
+}
+ 
+    return null;
+};
+	
+function getInstanceId(el) { 
+		
+    while (el.parentNode) {
+        
+        el = el.parentNode;
+        
+        var id = el.getAttribute('idom-instance-name')
+        
+        if (id) {
+        
+            return id;
+        }    
+    }
+    
+    return null;
+};
+
 
 // this block is needed only for jQuery elements
 
@@ -1888,3 +1871,5 @@ if (typeof(jQuery) == 'function') {
 
 	})(jQuery);
 } 
+
+})()

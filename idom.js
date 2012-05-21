@@ -155,6 +155,17 @@
 
 (function() {
 	
+_$ = function(selector) {
+
+    return document.querySelector(selector);
+}
+
+_$$ = function(selector) {
+
+    return document.querySelectorAll(selector);
+    
+}	
+	
 // define the global idom object
 idom = {};
 

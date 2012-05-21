@@ -130,24 +130,35 @@
 
 /*! idi.bidi.dom 
 * 
-* v0.13
+* 
+* idom v0.14
+* 
+* Key-value JSON API for template-based HTML view nesting and compositing 
 *
-* A New Way To Interact With The DOM 
-*
+* 
 * ****************************************************************************
 * 
-* Copyright (c) Marc Fawzi 2012-
+* Copyright (c) Marc Fawzi, Deep Thought, Inc. 2012
 * 
 * http://javacrypt.wordpress.com
 * 
-* Apache License 2.0 
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+* http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 * 
 * 
 * *****************************************************************************
 * 
-* This software is derived in certain parts from NattyJS, an early work by the 
-* same author "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" released under 
-* the BSD License.  
+* Some portions are derived from NattyJS, an early precursor by the same author 
+* "Copyright (c) Marc Fawzi, NiNu, Inc. 2011-2012" published under BSD License.  
 *
 */
  
@@ -362,12 +373,8 @@ position: absolute;
 </div>
 
 <br>
+
 <div style='width: 1280px; overflow: hidden'>
-<pre>
-
-
-</pre>	
-</div>
 
 <script>
 /*********************************************** PRESENTER *************************************************************/
@@ -482,10 +489,12 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 					
 					// when operating on a clone, we discard the forClone argument
 					
-					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
-					instanceName: idom.baseSelector(Instance[nodeId]),
+					// since we're in the default 'replace' mode and there's a target instance
+					// name given we can use the same name for the new instance (unless we
+					// explicitly specify a new one
+					
 					// target instance id (for instance to be replaced) 
 					targetInstanceName: idom.baseSelector(Instance[nodeId])
 				})
@@ -520,7 +529,10 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
-					instanceName: idom.baseSelector(instanceName),
+					// since we're in the default 'replace' mode and there's a target instance
+					// name given we can use the same name for the new instance (unless we
+					// explicitly specify a new one
+					
 					// target instance id (for instance to be replaced) 
 					targetInstanceName: idom.baseSelector(instanceName)
 				})
@@ -536,7 +548,10 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
-					instanceName: idom.baseSelector(instanceName),
+					// since we're in the default 'replace' mode and there's a target instance
+					// name given we can use the same name for the new instance (unless we
+					// explicitly specify a new one
+					
 					// target instance id (for instance to be replaced) 
 					targetInstanceName: idom.baseSelector(instanceName)
 				})
@@ -562,9 +577,15 @@ function button1() {
 			// when operating on a clone, we discard the forClone argument
 					
 		    // instanceName in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)		
-			instanceName: "user1",
+			// without link/clone references (they're added automatically)
+			// since we're in the default 'replace' mode and there's a target instance
+			// name given we can use the same name for the new instance (unless we
+			// explicitly specify a new one  
+			
 			targetInstanceName: "user1"
+			
+			// we could also set 'mode' as 'proto' and only supply the targetInstanceName
+			// whose attributes (including inline-event handlers) we want changed
 		}
 	
 	)
@@ -589,8 +610,11 @@ function button2() {
 			// when operating on a clone, we discard the forClone argument
 					
 			// instanceName in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)instanceName: "user1"
-			instanceName: "user1",
+			// without link/clone references (they're added automatically)
+			// since we're in the default 'replace' mode and there's a target instance
+			// name given we can use the same name for the new instance (unless we
+			// explicitly specify a new one  
+			
 			targetInstanceName: "user1"
 		}
 	
@@ -677,7 +701,7 @@ function button5() {
 			{
 				
 			// when operating on a clone, we discard the forClone argument
-			// no instanceName needed since in this mode we're only populating the node's class/stle attribute
+			// no instanceName needed since in this mode we're only populating the node's class/style attribute
 				mode: 'node'
 			}
 			
@@ -732,132 +756,14 @@ function rndColor() {
 
 </script>
 
+</div>
 
-<pre>
-	
-/******************************************************************************
- * 
- * README:
- * 
- * This version works in Gecko and Webkit, not tested on IE
- *
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
- * different way for interacting with the DOM. In abstract terms, it takes the DOM 
- * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
- * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, it offers a list-based API for creating, populating, and de-populating 
- * predetermined DOM structures with the ability to link, directly access, populate
- * and de-populate other predetermined DOM structures at any depth within them, thus 
- * giving us a simple and consistent alternative to the DOM's native API while allowing 
- * us to reduce the amount of HTML as well as separate the HTML from the presentation 
- * logic.
- *  
- * Why use it?
- * 
- * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
- * JSON API between presentation logic and the DOM
- * 
- * How does it work?
- * 
- * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype 
- * with data-injected variables in their markup. Multiple instances of each Node (i.e. 
- * data populated versions, each with its own persisted data) may be created, populated 
- * with data, and inserted into --and deleted from-- the Node (with the ability to target 
- * specific, previously inserted instances of the Node or all such instances). Each Node 
- * may embed any number of other Nodes, at any depth within its markup.
- * 
- * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any populated Linked Nodes that were embedded into the 
- * host's Node Prototype) This means that we could re-use the same host Node to create 
- * any number of differently populated Clones with nested Nodes, which allows us to
- * composite and nest DOM views.  
- *
- * Unlike other data-driven DOM rendering frameworks, idi.bidi.dom does not attempt 
- * to take the place of Javascript itself nor does it add its own boilerplate; it 
- * simply gives Javascript more power by offering a simple and consistent interface
- * to the DOM. 
- *
- * Usage:
- *
- * format: document.querySelector('#someNode').idom$(data [, settings])
- * 
- * output: creates a new instance of the Node using 'data' (json) to populate the 
- * special variables in the Node, then after/before to (or replace) existing 
- * instance(s) of the Node
- *
- * forClone: id of the clone the data being populated is intended for. This is omitted 
- * when operating on cloned nodes
- *
- * data: {key: value, key: value, key: value, etc} 
- * where the key must match the variable name in the data minus the idom$ prefix
- *
- * settings: {mode: 'replace'|'after'|'before'|'node'|'proto', targetInstanceName: 
- * value, instanceName: value} ... replace is default mode
- *
- * if there no populated instances of the Node then after/before/replace 
- * will create a new instance of the Node (so if a targetInstanceName is supplied 
- * in this case it will throw an error, so call .$isPopulated() first to be sure before 
- * invoking this method with targetInstanceName, unless you know the node is populated)
- * 
- * If 'mode' is set to 'node' in settings then no other settings param is expected 
- * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
- * to populate only the attributes in the node itself and does not create any populated 
- * instances of its node prototype. This is useful if the instance hosts a jQuery plugin 
- * or UI widget as it will prevent the jQuery event handlers from being detached which is 
- * what happens when instances are created. Additionally, it's possible to have many node 
- * instances with jQuery UI widgets or plugins instantiated on them so idom offers a way 
- * to populate the class and style attributes of each of the node instances, by setting 
- * mode to 'proto' and specifying targetInstanceName or none for all instances. This way 
- * we don't create a new instance(s), as is the case when mode is set to any other value 
- * (other than 'node' or 'proto') -- This is both for performance and for working with node
- * instances on which jQuery plugins/widgets have been instantiated. 
- *
- * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
- * insert _at_ when in after and before modes. If null, insert after/before the last/first 
- * previously populated instance of the Node, or as the first instance if none were previously 
- * populated.
- *
- * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
- * replace when in replace mode. If null, replace all instances.
- *
- * instanceName: idom-instance-name value for instance of Prototype Node being populated. 
- *
- *********************************************************************************
- * 
- * Other idom methods are 
- *
- * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
- * Prototype or all populated instances 
- *
- * .idom$isPopulated() may be queried before specifying targetInstanceName to verify the 
- * existence of populated instance(s) of the node prototype (the targets) 
- * 
- * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
- * been populated)
- * 
- * idom.eventHandler may be used to defined inline events, e.g. onclick=idom$someHandler 
- * and setting someHandler to idom.eventHandler(event, this, someFunction) during instance 
- * creation which binds 'this' context to the element the event was triggered on and passes
- * the event, parent node id for the instance, and the instanceName  
- * 
- * idom.baseSelector maybe used on node and instance id's to strip out the clone and any link
- * references from instanceName which is 
- *
- **********************************************************************************
- *
- * About Events:
- * 
- * If a handler is defined on the node it will only have access to the node id. If it's 
- * defined on or in the node prototype it will have access to the instance id
- *
- * The context of 'this' inside the handler function is the element the event is 
- * defined on
- *
- * Event handlers that are NOT defined using inline event handlers (like onclick, 
- * onmouseover, etc) are not handled by idom at this time. 
- *  
- * 
- *********************************************************************************/
+<pre>	
+<a href="javascript:document.querySelector('#code1').style.display='block'">Show Code for Example 1</a>
+<a href="javascript:document.querySelector('#code1').style.display='none'">Hide Code for Example 1</a>
+
+
+<div id='code1' style='display: none'>
 
 &lt;script>
 /*********************************************** PRESENTER *************************************************************/
@@ -974,7 +880,10 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
-					instanceName: idom.baseSelector(Instance[nodeId]),
+					// since we're in the default 'replace' mode and there's a target instance
+					// name given we can use the same name for the new instance (unless we
+					// explicitly specify a new one
+					
 					// target instance id (for instance to be replaced) 
 					targetInstanceName: idom.baseSelector(Instance[nodeId])
 				})
@@ -1009,7 +918,10 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
-					instanceName: idom.baseSelector(instanceName),
+					// since we're in the default 'replace' mode and there's a target instance
+					// name given we can use the same name for the new instance (unless we
+					// explicitly specify a new one
+					
 					// target instance id (for instance to be replaced) 
 					targetInstanceName: idom.baseSelector(instanceName)
 				})
@@ -1025,7 +937,10 @@ function changeInstance(event, nodeId, instanceName, cloneId) {
 					
 				    // instanceName in settings is the same as the original populated node 
 					// without link/clone references (they're added automatically)
-					instanceName: idom.baseSelector(instanceName),
+					// since we're in the default 'replace' mode and there's a target instance
+					// name given we can use the same name for the new instance (unless we
+					// explicitly specify a new one
+					
 					// target instance id (for instance to be replaced) 
 					targetInstanceName: idom.baseSelector(instanceName)
 				})
@@ -1051,9 +966,15 @@ function button1() {
 			// when operating on a clone, we discard the forClone argument
 					
 		    // instanceName in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)		
-			instanceName: "user1",
+			// without link/clone references (they're added automatically)
+			// since we're in the default 'replace' mode and there's a target instance
+			// name given we can use the same name for the new instance (unless we
+			// explicitly specify a new one  
+			
 			targetInstanceName: "user1"
+			
+			// we could also set 'mode' as 'proto' and only supply the targetInstanceName
+			// whose attributes (including inline-event handlers) we want changed
 		}
 	
 	)
@@ -1078,7 +999,11 @@ function button2() {
 			// when operating on a clone, we discard the forClone argument
 					
 			// instanceName in settings is the same as the original populated node 
-			// without link/clone references (they're added automatically)instanceName: "user1",
+			// without link/clone references (they're added automatically)
+			// since we're in the default 'replace' mode and there's a target instance
+			// name given we can use the same name for the new instance (unless we
+			// explicitly specify a new one  
+			
 			targetInstanceName: "user1"
 		}
 	
@@ -1165,7 +1090,7 @@ function button5() {
 			{
 				
 			// when operating on a clone, we discard the forClone argument
-			// no instanceName needed since in this mode we're only populating the node's class/stle attribute
+			// no instanceName needed since in this mode we're only populating the node's class/style attribute
 				mode: 'node'
 			}
 			
@@ -1218,7 +1143,131 @@ function rndColor() {
     return (function(h){return '#000000'.substr(0,7-h.length)+h}) ((~~(Math.random()*(1&lt;&lt;24))).toString(16));
 }
 
-&lt;/script>
+&lt;/script>	
+
+</div>
+	
+/******************************************************************************
+ * 
+ * README:
+ * 
+ * This version works in Gecko and Webkit, not tested on IE
+ *
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * different way for interacting with the DOM. In abstract terms, it takes the DOM 
+ * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
+ * type polymorphism (with the Node Prototype as the user defined type) In logical 
+ * terms, it offers a list-based API for creating, populating, and de-populating 
+ * predetermined DOM structures with the ability to link, directly access, populate
+ * and de-populate other predetermined DOM structures at any depth within them, thus 
+ * giving us a simple and consistent alternative to the DOM's native API while allowing 
+ * us to reduce the amount of HTML as well as separate the HTML from the presentation 
+ * logic.
+ *  
+ * Why use it?
+ * 
+ * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
+ * JSON API between presentation logic and the DOM
+ * 
+ * How does it work?
+ * 
+ * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype 
+ * with data-injected variables in their markup. Multiple instances of each Node (i.e. 
+ * data populated versions, each with its own persisted data) may be created, populated 
+ * with data, and inserted into --and deleted from-- the Node (with the ability to target 
+ * specific, previously inserted instances of the Node or all such instances). Each Node 
+ * may embed any number of other Nodes, at any depth within its markup.
+ * 
+ * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
+ * instances within it (including any populated Linked Nodes that were embedded into the 
+ * host's Node Prototype) This means that we could re-use the same host Node to create 
+ * any number of differently populated Clones with nested Nodes, which allows us to
+ * composite and nest DOM views.  
+ *
+ * Unlike other data-driven DOM rendering frameworks, idi.bidi.dom does not attempt 
+ * to take the place of Javascript itself nor does it add its own boilerplate; it 
+ * simply gives Javascript more power by offering a simple and consistent interface
+ * to the DOM. 
+ *
+ * Usage:
+ *
+ * format: document.querySelector('#someNode').idom$(data [, settings])
+ * 
+ * output: creates a new instance of the Node using 'data' (json) to populate the 
+ * special variables in the Node, then after/before to (or replace) existing 
+ * instance(s) of the Node
+ *
+ * forClone: id of the clone the data being populated is intended for. This is omitted 
+ * when operating on cloned nodes
+ *
+ * data: {key: value, key: value, key: value, etc} 
+ * where the key must match the variable name in the data minus the idom$ prefix
+ *
+ * settings: {mode: 'replace'|'after'|'before'|'node'|'proto', targetInstanceName: 
+ * value, instanceName: value} ... replace is default mode
+ *
+ * if there no populated instances of the Node then after/before/replace 
+ * will create a new instance of the Node (so if a targetInstanceName is supplied 
+ * in this case it will throw an error, so call .$isPopulated() first to be sure before 
+ * invoking this method with targetInstanceName, unless you know the node is populated)
+ * 
+ * If 'mode' is set to 'node' in settings then no other settings param is expected 
+ * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
+ * to populate only the attributes in the node itself and does not create any populated 
+ * instances of its node prototype. idom also offers a way to populate the class and style 
+ * attributes of each of the node instances inside the node, by setting mode to 'proto' and 
+ * specifying targetInstanceName or none for all instances. Both 'proto' and 'node' modes
+ * exist for performance reasons and for working with node attributes or the node instance
+ * attributes where a jQuery plugin/widget is instantiated (after template caching) on a
+ * node instance within the node. 
+ *
+ * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
+ * insert _at_ when in after and before modes. If null, insert after/before the last/first 
+ * previously populated instance of the Node, or as the first instance if none were previously 
+ * populated.
+ *
+ * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
+ * replace when in replace mode. If null, replace all instances.
+ *
+ * instanceName: idom-instance-name value for instance of Prototype Node being populated. 
+ *
+ *********************************************************************************
+ * 
+ * Other idom methods are 
+ *
+ * .idom$dePopulate([settings]) which can delete certain populated instances of the Node 
+ * Prototype or all populated instances 
+ *
+ * .idom$isPopulated() may be queried before specifying targetInstanceName to verify the 
+ * existence of populated instance(s) of the node prototype (the targets) 
+ * 
+ * idom$clone may be used to clone an entire node (including any linked nodes) after it's 
+ * been populated)
+ * 
+ * idom.eventHandler may be used to defined inline events, e.g. onclick=idom$someHandler 
+ * and setting someHandler to idom.eventHandler(event, this, someFunction) during instance 
+ * creation which binds 'this' context to the element the event was triggered on and passes
+ * the event, parent node id for the instance, and the instanceName  
+ * 
+ * idom.baseSelector maybe used on node and instance id's to strip out the clone and any link
+ * references from instanceName which is 
+ *
+ **********************************************************************************
+ *
+ * About Events:
+ * 
+ * If a handler is defined on the node it will only have access to the node id. If it's 
+ * defined on or in the node prototype it will have access to the instance id
+ *
+ * The context of 'this' inside the handler function is the element the event is 
+ * defined on
+ *
+ * Event handlers that are NOT defined using inline event handlers (like onclick, 
+ * onmouseover, etc) are not handled by idom at this time. 
+ *  
+ * 
+ *********************************************************************************/
+
 
 
 	

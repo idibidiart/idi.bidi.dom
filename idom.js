@@ -1,7 +1,7 @@
 /*! idi.bidi.dom 
 * 
 * 
-* idom v0.14
+* idom v0.15
 * 
 * Key-value JSON API for template-based HTML view nesting and compositing 
 *
@@ -36,7 +36,9 @@
  * 
  * README:
  * 
- * This version works in Gecko and Webkit, not tested on IE
+ * This version should work in all recent versions of the major browsers until the 
+ * browser vendors screw things up again (It may work with IE8, 7 and 6, but was 
+ * only tested on IE9)
  *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
  * different way for interacting with the DOM. In abstract terms, it takes the DOM 
@@ -162,10 +164,9 @@ _$ = function(selector) {
 
 _$$ = function(selector) {
 
-    return document.querySelectorAll(selector);
-    
-}	
-	
+    return document.querySelectorAll(selector);   
+}
+
 // define the global idom object
 idom = {};
 
@@ -217,12 +218,21 @@ idom.cache = function() {
 		!("innerHTML" in document.createElementNS("http://www.w3.org/1999/xhtml", "_")) ||
 		typeof document.querySelector == 'undefined' || 
 		typeof document.querySelectorAll == 'undefined' ||
-		typeof Object.keys == 'undefined'
+		typeof Object.keys == 'undefined' ||
+		typeof JSON == 'undefined'
 		) {
 		
 		var err = new Error;
 			
-		err.message = "Browser is not supported: some basic browser objects, methods or properties are missing"
+		err.message = "Browser is not supported: some basic browser objects, methods or properties are missing: \n" +
+					"!Element || \n" +
+					"!NodeList || \n" + 
+					"!('outerHTML' in document.createElementNS('http://www.w3.org/1999/xhtml', '_')) ||\n" +
+					"!('innerHTML' in document.createElementNS('http://www.w3.org/1999/xhtml', '_')) ||\n" +
+					"typeof document.querySelector == 'undefined' ||\n" + 
+					"typeof document.querySelectorAll == 'undefined' ||\n" +
+					"typeof Object.keys == 'undefined' ||\n" +
+					"typeof JSON == 'undefined'\n"		
 					 
 		throw err.message + '\n' + err.stack;
 	}
@@ -259,7 +269,7 @@ idom.cache = function() {
 			
 			err.message = "Node must have idom-node-id attribute set to a non-empty string value"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 		
 		if (nid.match(idom.regex)) {
@@ -268,7 +278,7 @@ idom.cache = function() {
 			
 			err.message = "idom-node-id must not contain a special variable. "
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 		
 		if (nid.indexOf('@') != -1) {
@@ -277,7 +287,7 @@ idom.cache = function() {
 			
 			err.message = "idom-node-id must not contain special character @ at time of caching"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 			
 		}
 		
@@ -287,7 +297,7 @@ idom.cache = function() {
 			
 			err.message = "idom-node-id is in use by another Node"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 		
 		if (el.tagName.toLowerCase() == "iframe") {
@@ -296,7 +306,7 @@ idom.cache = function() {
 			
 			err.message = "iframe is not supported as Node. You must load and use idom from within the iframe"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 		
 		if (typeof el.outerHTML == 'undefined' || typeof el.innerHTML == 'undefined') {
@@ -305,26 +315,9 @@ idom.cache = function() {
 			
 			err.message = "this element type is not supported by idom"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 			
 		}
-		
-		if (Object.keys(el).join(",").match("(jQuery)")) {
-			
-			var err = new Error;
-			
-			err.message = "Cannot instantiate jQuery object on an idom node before it's cached.\n" +
-							"The recommended way is to instntiate jQuery plugin/jQuery UI widget on a populated node instance in a cloned idom node\n" +
-							"and use 'node' and/or 'proto' mode to populate attribbutes on the containing node or on the plugin/widget node\n" +
-							"instance, e.g. adding in-line style rules to override the jQuery added CSS classes "
-			
-			throw err.message + getPathTo(el)
-			
-		}
-		
-		// verify only one Node Prototype exists 
-		// verify no @idom linked nodes exist outside of Node Prototype 
-		// (linked nodes must be at root level within the Node Prototype) 
 		
 		
 		if (el.children.length != 1) { 
@@ -334,10 +327,24 @@ idom.cache = function() {
 			err.message = "At the time of caching, node must contain just one child element as the Node Prototype." + 
 							"You may use any block level element and encapsulate other elements within it."
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 		
-		var commentNodes = el._idomElementsByNodeType(8);
+		if (Object.keys(el).join(",").match("(jQuery)") || Object.keys(el.children[0]).join(",").match("(jQuery)")) {
+			
+			var err = new Error;
+			
+			err.message = "Cannot instantiate jQuery object on an idom node or node prototype.\n" +
+							"The right way is to instntiate jQuery plugin/jQuery UI widget on a populated node instance in a cloned node\n" +
+							"and use 'node' mode to populate the attributes of the containing node or 'proto' mode to populate the node\n" +
+							"instance, e.g. by adding 'idom-style' in-line CSS style text with idom$ variables to override the jQuery added\n" + 
+							"CSS classes "
+			
+			throw err.message + '\n' + getPathTo(el)
+			
+		}
+		
+		var commentNodes = getElementsByNodeType(el, 8);
 		
 		if (commentNodes.length) {
 			
@@ -349,7 +356,7 @@ idom.cache = function() {
 			
 					err.message = "@idom linked nodes must be placed inside the Node Prototype (the direct child of the Node)"
 					
-					throw err.message + getPathTo(el)
+					throw err.message + '\n' + getPathTo(el)
 				}
 				
 				// remove comments from cached copy of template
@@ -357,27 +364,38 @@ idom.cache = function() {
 			}
 		}
 		
-		if (el.innerHTML.match(/(idom-node-id\=)/)) {
+		if (el.innerHTML.match(/(idom-node-id)/)) {
 				
 			var err = new Error;
 			
 			err.message = "Node must not have any descendants with idom-node-id at time of caching\n" +
 							"you may dynamically link-in other Nodes by inserting <!-- @idom [the idom-node-id for node you wish to nest without the brackets] --> anywhere inside the Node Prototype"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
+		}
+		
+		if (el.outerHTML.match(/([ ])(style)([ ]+|)(\=)/)) {
+			
+			var err = new Error;
+			
+			err.message = "Using style attribute on the node or in its node prototype is restricted because of IE bug (use idom-style instead and it will be mapped\n" +
+							"to in-line style with each idom$ call"
+			
+			throw err.message + '\n' + getPathTo(el)
 		}
 		
 		// using 'id' is problematic when the node gets linked and/or cloned as you'll have duplicate id's. idom deals with this by 
 		// changing the idom-node-id and idom-instance-name's attribute in Linked Nodes inside the host Node Prototype by adding the 
 		// link and clone reference
 		
-		if (el.getAttribute("id" || el.children[0].getAttribute("id"))) {
+		if (el.outerHTML.match(/([ ])(id)([ ]+|)(\=)/)) {
 			
 			var err = new Error;
 			
-			err.message = "Node or Node Prototype should not have an 'id' attribute (to query the DOM for the element, you may use document.querySelector with '[idom-node-id=\"someString\"]' or '[idom-instance-id=\"someString\"]'"
+			err.message = "Node should not have an 'id' attribute anywhere within its HTML (to query the DOM for the element, you may use document.querySelector with\n" + 
+							"'[idom-node-id=\"someString\"]' or, for populated node instances, with '[idom-instance-id=\"someString\"]'"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 			
 		if (el.outerHTML.match("(idom-instance-name)")) {
@@ -386,7 +404,7 @@ idom.cache = function() {
 			
 			err.message = "idom-instance-name not expected at time of caching (created automatically for node prototype instances during idom operations)"
 			
-			throw err.message + getPathTo(el)
+			throw err.message + '\n' + getPathTo(el)
 		}
 				
 		// cache the virgin innerHTML of node 
@@ -854,30 +872,6 @@ String.prototype._idomMapNodeAttributes = String.prototype._idomMapNodeAttribute
 	}); 		
 };
 
-Element.prototype._idomElementsByNodeType =  Element.prototype._idomElementsByNodeType || function() {
-    
-    var elem = this;
-    var childNodeType = arguments[0];
-    var deep = arguments[1];
-    var childNodes = elem.childNodes;
-    var result = [];
-    
-    for (var i = 0; i < childNodes.length; i++) {
-    
-      if (childNodes[i].nodeType == Number(childNodeType)) {
-    
-        result.push(childNodes[i]);
-      } 
-    
-      if (deep && (childNodes[i].nodeType == 1)) {
-    
-        result = result.concat(childNodes[i]._idomElementsByNodeType(childNodeType, deep));
-      }
-    }
-    
-    return result;
-};
-
 // Main method
 
 Element.prototype.idom$ = Element.prototype.idom$ || function() {
@@ -1023,6 +1017,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		
 		var isCloned = true;
 	}
+	
 		
 	// if only populating node's style and class attributes
 	if (settings.mode == 'node') {
@@ -1124,17 +1119,14 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			throw err.message + '\n' + err.stack;			
 		} 
 		
-		
 		//all error paths handled in this case, so 
-		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": instanceName, "nid": nid, "forClone": forClone});
-						
+		this.innerHTML = idomDOM.cache[nid]._idomMapValues(json, {"instanceName": instanceName, "nid": nid, "forClone": forClone})
+		
 		setInstanceId(this.children[0], instanceName);
 		
 		// insert Linked Nodes
 		insertLinkedNodes(this.children[0]);
-		
-		// see after else for continuation
-		
+
 	// (general case)					
 	} else {
 		 
@@ -1204,7 +1196,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			newChild = document.createElement(this.tagName); 
 			
 			newChild.innerHTML = content;
-			
+		
 			// Create document fragment to hold the populated instance
 			frag = document.createDocumentFragment();
 			
@@ -1230,6 +1222,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 								setInstanceId(newEl[n], instanceName);
 								
 								insertLinkedNodes(newEl[n]);
+								
 							}
 							
 						} else {
@@ -1243,6 +1236,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 							setInstanceId(newEl[0], instanceName);
 							
 							insertLinkedNodes(newEl[0]);	
+		
 						}
 						
 					} else {
@@ -1254,6 +1248,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						setInstanceId(newEl[0], instanceName);
 						
 						insertLinkedNodes(newEl[0]);
+		
 					}
 			
 				break;
@@ -1289,6 +1284,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 						setInstanceId(newEl[0], instanceName);
 		
 						insertLinkedNodes(newEl[0]);
+		
 					}
 				    
 				break;
@@ -1633,7 +1629,51 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 };
 
 
-// encapsulated functions.. probably should move to idom.internal{}
+// encapsulated functions.. 
+
+function importIdomStyle() {
+    
+    var elem = arguments[0];
+    var childElements = elem.children;
+    var result = [];
+    
+    for (var i = 0; i < childElements.length; i++) {
+      
+      var a = childElements[i].getAttribute("idom-style");
+      
+      if (a) {
+    
+        childElements[i].style.cssText = a;
+      } 
+    
+      importIdomStyle(childElements[i]);
+     
+    }
+};
+
+function getElementsByNodeType() {
+    
+    var elem = arguments[0];
+    var childNodeType = arguments[1];
+    var deep = arguments[2];
+    var childNodes = elem.childNodes;
+    var result = [];
+    
+    for (var i = 0; i < childNodes.length; i++) {
+    
+      if (childNodes[i].nodeType == Number(childNodeType)) {
+    
+        result.push(childNodes[i]);
+      } 
+    
+      if (deep && (childNodes[i].nodeType == 1)) {
+    
+        result = result.concat(getElementsByNodeType(childNodes[i], childNodeType, deep));
+      }
+    }
+    
+    return result;
+};
 	
 function setInstanceId(elem, instanceName) {
 
@@ -1652,7 +1692,7 @@ function setInstanceId(elem, instanceName) {
 
 function insertLinkedNodes(elem) {
 	
-	var nestedCommentNodes = elem._idomElementsByNodeType(8, true);
+	var nestedCommentNodes = getElementsByNodeType(elem, 8, true);
 	
 	if (nestedCommentNodes[0]) {
 	
@@ -1788,6 +1828,11 @@ function populateInner(el, forClone, targetInstanceName, nid, json) {
 					}
 			  }
 		}
+		
+		targetInstanceList[n].style.cssText = targetInstanceList[n].getAttribute("idom-style");
+		
+		importIdomStyle(targetInstanceList[n]);
+
 	}	
 }
 	
@@ -1806,6 +1851,8 @@ function populateOuter(el, forClone, nid, json) {
 				}
 		  }
 	};
+	
+	el.style.cssText = el.getAttribute("idom-style")
 };
 
 function getNodeId(el) { 
@@ -1841,6 +1888,31 @@ function getInstanceId(el) {
     
     return null;
 };
+
+function getPathTo(element) {
+	
+  	switch (element.tagName.toLowerCase()) {
+    
+        case "html" : case "body" : return element.tagName;  
+    }
+   
+    var n = 0;
+    
+    var siblings= element.parentNode.childNodes;
+    
+    for (var i= 0; i<siblings.length; i++) {
+    
+        var sibling= siblings[i];
+    
+        if (sibling === element)
+    
+            return getPathTo(element.parentNode) + '/' + element.tagName + '[' + (n + 1) + ']';
+    
+        if (sibling.nodeType === 1 && sibling.tagName === element.tagName)
+            
+        	n++;
+    }
+}
 
 
 // this block is needed only for jQuery elements

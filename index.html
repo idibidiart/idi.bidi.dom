@@ -187,10 +187,10 @@ Example:
 
 &lt;div style='display: none'>
 &lt;!-- Start of Node -->
-&lt;div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams; idom$cssTransform'>
+&lt;div idom-node-id='teamInfo' class='idom$teamsClass' idom-style='background-color: idom$bgColorTeams; idom$cssTransform'>
 	
 	&lt;!-- Start of Node Prototype -->	
-	&lt;div class='idom$teamsProtoClass' style='background-color: idom$instanceColorTeams'>
+	&lt;div class='idom$teamsProtoClass' idom-style='background-color: idom$instanceColorTeams;'>
 		&lt;div style='padding: 5px;'>idom$caption&lt;/div>
 		
 		&lt;!-- @idom userInfo -->
@@ -202,14 +202,19 @@ Example:
 &lt;!-- End of Node -->
 
 &lt;!-- Start of Node -->
-&lt;div idom-node-id='userInfo' class='idom$usersClass' style='background-color: idom$bgColorUsers'>
+&lt;div idom-node-id='userInfo' class='idom$usersClass' idom-style='background-color: idom$bgColorUsers'>
 	
 	&lt;!-- Start of Node Prototype -->
-	&lt;div class='idom$usersProtoClass' style='border: idom$borderStyle;'> 
+	&lt;div class='idom$usersProtoClass' idom-style='border: idom$borderStyle;'> 
+		
 		&lt;div onclick='idom$someHandler'>user: idom$username&nbsp;&nbsp;&nbsp;id: idom$id&lt;/div>
-		&lt;div class='idom$usersExtendedClass' style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
+		
+		&lt;div class='idom$usersExtendedClass' idom-style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
+		
 			&lt;div>last name: idom$lastName&lt;br>work: idom$work&lt;/div>
+				
 		&lt;/div>
+				
 	&lt;/div>
 	&lt;!-- End of Node Prototype -->
 	
@@ -331,11 +336,11 @@ position: absolute;
 
 <div style='display: none'>
 <!-- Start of Node -->
-<div idom-node-id='teamInfo' class='idom$teamsClass' style='background-color: idom$bgColorTeams; idom$cssTransform'>
+<div idom-node-id='teamInfo' class='idom$teamsClass' idom-style='background-color: idom$bgColorTeams; idom$cssTransform'>
 	
 	<!-- Start of Node Prototype -->	
-	<div class='idom$teamsProtoClass' style='background-color: idom$instanceColorTeams;'>
-		<div style='padding: 5px;'>idom$caption</div>
+	<div class='idom$teamsProtoClass' idom-style='background-color: idom$instanceColorTeams;'>
+		<div idom-style='padding: 5px;'>idom$caption</div>
 		
 		<!-- @idom userInfo -->
 				 
@@ -346,14 +351,14 @@ position: absolute;
 <!-- End of Node -->
 
 <!-- Start of Node -->
-<div idom-node-id='userInfo' class='idom$usersClass' style='background-color: idom$bgColorUsers'>
+<div idom-node-id='userInfo' class='idom$usersClass' idom-style='background-color: idom$bgColorUsers'>
 	
 	<!-- Start of Node Prototype -->
-	<div class='idom$usersProtoClass' style='border: idom$borderStyle;'> 
+	<div class='idom$usersProtoClass' idom-style='border: idom$borderStyle;'> 
 		
 		<div onclick='idom$someHandler'>user: idom$username&nbsp;&nbsp;&nbsp;id: idom$id</div>
 		
-		<div class='idom$usersExtendedClass' style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
+		<div class='idom$usersExtendedClass' idom-style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
 		
 			<div>last name: idom$lastName<br>work: idom$work</div>
 				

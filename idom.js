@@ -35,10 +35,8 @@
  * 
  * README:
  * 
- * This version should work in all recent versions of the major browsers until the 
- * browser vendors screw things up again (It may work with IE8, 7 and 6, but was 
- * only tested on IE9)
- *
+ * This version should work in all recent versions of the major browsers
+ * 
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
  * different way for interacting with the DOM. In abstract terms, it takes the DOM 
  * and adds variables, variable memoization, encapsulation, multiple-inheritance and 

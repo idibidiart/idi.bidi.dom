@@ -1,10 +1,9 @@
 /*! idi.bidi.dom 
 * 
 * 
-* idom v0.15
+* idom v0.16
 * 
 * Key-value JSON API for template-based HTML view nesting and compositing 
-*
 * 
 * ****************************************************************************
 * 
@@ -93,25 +92,23 @@
  * settings: {mode: 'replace'|'after'|'before'|'node'|'proto', targetInstanceName: 
  * value, instanceName: value} ... replace is default mode
  *
- * if there no populated instances of the Node then after/before/replace 
- * will create a new instance of the Node (so if a targetInstanceName is supplied 
- * in this case it will throw an error, so call .$isPopulated() first to be sure before 
- * invoking this method with targetInstanceName, unless you know the node is populated)
+ * if there are no populated instances of the Node then after/before/replace will create 
+ * a new instance of the Node (so if a targetInstanceName is supplied in this case it will 
+ * throw an error, so call .$isPopulated() first to be sure before invoking this method with 
+ * targetInstanceName, unless you know the node is populated)
  * 
  * If 'mode' is set to 'node' in settings then no other settings param is expected 
  * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
  * to populate only the attributes in the node itself and does not create any populated 
- * instances of its node prototype. idom also offers a way to populate the class and style 
- * attributes of each of the node instances inside the node, by setting mode to 'proto' and 
- * specifying targetInstanceName or none for all instances. Both 'proto' and 'node' modes
- * exist for performance reasons and for working with node attributes or the node instance
- * attributes where a jQuery plugin/widget is instantiated (after template caching) on a
- * node instance within the node. 
+ * instances of its node prototype. idom also offers a way to populate just the attributes 
+ * of each node instance by setting mode to 'proto' and specifying targetInstanceName or none 
+ * for all node instances in a given node. Both 'proto' and 'node' modes may be useful when 
+ * working with the node attributes or the node instance attributes where a jQuery plugin/
+ * widget is instantiated (after caching) on a given node instance. 
  *
- * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
- * insert _at_ when in after and before modes. If null, insert after/before the last/first 
- * previously populated instance of the Node, or as the first instance if none were previously 
- * populated.
+ * targetInstanceName: (1) idom-instance-name value for the instance of the Node to insert at 
+ * in after and before modes. If null, insert after/before the last/first previously populated 
+ * instance of the Node, or as the first instance if none were previously populated.
  *
  * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
  * replace when in replace mode. If null, replace all instances.
@@ -316,7 +313,6 @@ idom.cache = function() {
 			err.message = "this element type is not supported by idom"
 			
 			throw err.message + '\n' + getPathTo(el)
-			
 		}
 		
 		
@@ -368,18 +364,8 @@ idom.cache = function() {
 				
 			var err = new Error;
 			
-			err.message = "Node must not have any descendants with idom-node-id at time of caching\n" +
+			err.message = "node must not have any descendants with idom-node-id at time of caching\n" +
 							"you may dynamically link-in other Nodes by inserting <!-- @idom [the idom-node-id for node you wish to nest without the brackets] --> anywhere inside the Node Prototype"
-			
-			throw err.message + '\n' + getPathTo(el)
-		}
-		
-		if (el.outerHTML.match(/([ ])(style)([ ]+|)(\=)/)) {
-			
-			var err = new Error;
-			
-			err.message = "Using style attribute on the node or in its node prototype is restricted because of IE bug (use idom-style instead and it will be mapped\n" +
-							"to in-line style with each idom$ call"
 			
 			throw err.message + '\n' + getPathTo(el)
 		}
@@ -392,7 +378,7 @@ idom.cache = function() {
 			
 			var err = new Error;
 			
-			err.message = "Node should not have an 'id' attribute anywhere within its HTML (to query the DOM for the element, you may use document.querySelector with\n" + 
+			err.message = "node should not have an 'id' attribute anywhere within its HTML (to query the DOM for the element, you may use document.querySelector with\n" + 
 							"'[idom-node-id=\"someString\"]' or, for populated node instances, with '[idom-instance-id=\"someString\"]'"
 			
 			throw err.message + '\n' + getPathTo(el)
@@ -402,16 +388,33 @@ idom.cache = function() {
 			
 			var err = new Error;
 			
-			err.message = "idom-instance-name not expected at time of caching (created automatically for node prototype instances during idom operations)"
+			err.message = "idom-instance-name is not expected at time of caching (it's added automatically when node prototype instances are created)"
 			
 			throw err.message + '\n' + getPathTo(el)
 		}
-				
+		
+		var outerOnly = el.outerHTML.replace(el.innerHTML, "");
+			
+		// lookbehind in Javascript RegExp
+		if (outerOnly.replace("idom-node-id=", "").match(/^(?:(?!([\s\n\r]{1,})idom-\w+([ ]{0,})=([ ]{0,})(\w+|\"|\')).)*\w+([ ]{0,})=([ ]{0,})(\w+|\"|\')/)) {
+			
+			var err = new Error;
+			
+			err.message = "you must prefix all in-line attributes with 'idom-' (incl. any class, style data- attributes and inline events)\n" +
+						  "The non-prefixed attributes will be generated automatically after the idom-prefixed attributes are populated (this\n" +
+						  "is to get around the IE 'style' issue and SVG validation"
+						  
+			throw err.message + '\n' + '\n' + getPathTo(el)
+		}
+		
+		// implements the above for nested elements
+		checkAttributes(el);
+			
 		// cache the virgin innerHTML of node 
 		idomDOM.cache[nid] = el.innerHTML;	
 		
 		// cache the virgin outerHTML of node (minus the innerHTML)
-		idomDOM.nodeShell[nid]	= el.cloneNode(false).outerHTML;
+		idomDOM.nodeShell[nid]	= outerOnly;
 		
 		// cache the node attributes
 		for (var i = 0; i < el.attributes.length; i++) {
@@ -438,7 +441,6 @@ idom.cache = function() {
 	els = null;
 	
 	idomDOM.cacheDone = true;
-	
 };
 
 idom.baseSelector = function(sel) {
@@ -1042,7 +1044,7 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 		}
 		
-		populateOuter(this, forClone, nid, json);
+		populateNodeAttributes(this, forClone, nid, json);
 		
 		return;
 	};
@@ -1050,16 +1052,6 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 	
 	// if only populating node instance' style and class attributes
 	if (settings.mode == 'proto') {
-		
-		if (!isPopulated) {
-			
-			var err = new Error;
-			
-			err.message = "invalid operation: this node currently has no populated instances of its node prototype";
-			 
-			throw err.message + '\n' + err.stack;	
-			
-		}
 		
 		if (settings.instanceName) {
 			
@@ -1072,8 +1064,18 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 			
 		}
 		
+		if (!isPopulated) {
+			
+			var err = new Error;
+			
+			err.message = "invalid operation: this node currently has no populated instances of its node prototype";
+			 
+			throw err.message + '\n' + err.stack;	
+			
+		}
+		
 		// may or may not contain targetInstanceName
-		populateInner(this, forClone, settings.targetInstanceName, nid, json);
+		populateInstanceAttributes(this, forClone, settings.targetInstanceName, nid, json, true);
 		
 		return;
 	};
@@ -1126,6 +1128,9 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 		
 		// insert Linked Nodes
 		insertLinkedNodes(this.children[0]);
+		
+		// map idom attributes to normal attributes for all descendants of node instance
+		mapNestedAttributes(this.children[0]);
 
 	// (general case)					
 	} else {
@@ -1324,13 +1329,21 @@ Element.prototype.idom$ = Element.prototype.idom$ || function() {
 					throw err.message + '\n' + err.stack;	
 			}
 			
-			frag = null; 			
+			frag = null; 
+			
+			for (var i = 0; i < newEl.length; i++) {
+				
+				mapNestedAttributes(newEl[i]);
+			}
+			
+			newEl = null;
 	};
 	
+	// populate/cache node instance attribute values and map to normal attributes
+	populateNodeAttributes(this, forClone, nid, json);	
 	
-	populateOuter(this, forClone, nid, json);	
-	
-	populateInner(this, forClone, instanceName, nid, json);
+	// cache (already populated) node instance attribute values and map to normal attributes
+	populateInstanceAttributes(this, forClone, instanceName, nid, json, false);
 	
 };
 
@@ -1342,7 +1355,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		var err = new Error;
 			
-		err.message = "you must run idom.cache() from window.onload or $(document).ready before invoking .idom$ methods";
+		err.message = "must run idom.cache() before invoking .idom$ methods";
 					 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1356,7 +1369,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		// node was added after idom.cache() 
 		var err = new Error;
 			
-		err.message = "the node prototype was not cached";
+		err.message = "node prototype was not cached";
 					 
 		throw err.message + '\n' + err.stack;	
 	}
@@ -1366,7 +1379,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		// node was added after idom.cache() 
 		var err = new Error;
 			
-		err.message = "the node was not cached";
+		err.message = "node was not cached";
 					 
 		throw err.message + '\n' + err.stack;	
 	}
@@ -1376,7 +1389,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		var err = new Error;
 		
-		err.message = "error cloning linked node: you may only clone the base node"  
+		err.message = "can't clone a linked node"  
 		 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1385,7 +1398,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		var err = new Error;
 		
-		err.message = "error cloning already cloned node: you may only clone the base node" 
+		err.message = "can't clone an already cloned node" 
 		 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1394,7 +1407,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		var err = new Error;
 		
-		err.message = "you must provide a clone id"
+		err.message = "clone id missing"
 		 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1403,7 +1416,7 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 	 				
 		var err = new Error;
 		
-		err.message = "the node must be populated before it may be cloned"
+		err.message = "node must be populated before it may be cloned"
 		 
 		throw err.message + '\n' + err.stack;
 	}
@@ -1623,33 +1636,12 @@ Element.prototype.idom$dePopulate = Element.prototype.idom$dePopulate || functio
 	} else {
 		
 		//dePopulate (nodeShell includes node-level markup only, no innerHTML)
-		this.outerHTML = idomDOM.nodeShell[nid].replace(idom.regex, "").replace(idom.baseSelector(nodeId), nodeId);
+		this.outerHTML = idomDOM.nodeShell[nid].replace(idom.baseSelector(nodeId), nodeId);
 		
 	}
 };
 
-
-// encapsulated functions.. 
-
-function importIdomStyle() {
-    
-    var elem = arguments[0];
-    var childElements = elem.children;
-    var result = [];
-    
-    for (var i = 0; i < childElements.length; i++) {
-      
-      var a = childElements[i].getAttribute("idom-style");
-      
-      if (a) {
-    
-        childElements[i].style.cssText = a;
-      } 
-    
-      importIdomStyle(childElements[i]);
-     
-    }
-};
+// encapsulated functions
 
 function getElementsByNodeType() {
     
@@ -1777,7 +1769,54 @@ function insertLinkedNodes(elem) {
 	}
 }; 
 
-function populateInner(el, forClone, targetInstanceName, nid, json) {
+function checkAttributes() {
+    
+    var elem = arguments[0];
+ 
+    var childElements = elem.children;
+
+    for (var i = 0; i < childElements.length; i++) {
+      
+    	var outerOnly = childElements[i].outerHTML.replace(childElements[i].innerHTML, "");
+    	
+    	// can't touch this! --MC who?
+		if (outerOnly.match(/^(?:(?!([\s\n\r]{1,})idom-\w+([ ]{0,})=([ ]{0,})(\w+|\"|\')).)*\w+([ ]{0,})=([ ]{0,})(\w+|\"|\')/)) {
+			
+			var err = new Error;
+			
+			err.message = "you must prefix all in-line element attributes, including any event handlers, with 'idom-'\n";
+			
+			throw err.message + '\n' + getPathTo(childElements[i])
+		}
+    
+        checkAttributes(childElements[i]);
+    }
+};
+
+function mapNestedAttributes() {
+    
+    var elem = arguments[0];
+    var childElements = elem.children;
+    
+    for (var i = 0; i < childElements.length; i++) {
+			
+		for (var n = 0; n < childElements[i].attributes.length; n++) {
+		
+			  var attrib = childElements[i].attributes[n];
+	 
+			if (attrib.specified == true && 
+					  attrib.name != 'idom-instance-name' && 
+					  attrib.name != 'idom-node-id') {
+				
+				  		if (attrib.name.match("^(idom\-)")) childElements[i].setAttribute(attrib.name.replace("idom-", ""), childElements[i].getAttribute(attrib.name));
+					}
+		}
+		
+		mapNestedAttributes(childElements[i]);
+	}
+};
+
+function populateInstanceAttributes(el, forClone, targetInstanceName, nid, json, populate) {
 	
 	var targetInstanceList = [];
 	
@@ -1822,21 +1861,19 @@ function populateInner(el, forClone, targetInstanceName, nid, json) {
 				
 				  if (idomDOM.instanceAttributes[nid + '@' + attrib.name]) {
 						
+					    // store the current attribute values in the instance attribute cache 
 						var newAttribValue = idomDOM.instanceAttributes[nid + '@' + attrib.name]._idomMapInstanceAttributes(json, {"nid": nid, "targetInstanceName": instanceName, "attribName": attrib.name, "forClone": forClone});
 						
-						targetInstanceList[n].setAttribute(attrib.name, newAttribValue)
+						if (populate) targetInstanceList[n].setAttribute(attrib.name, newAttribValue);
+						
+						targetInstanceList[n].setAttribute(attrib.name.replace("idom-", ""), targetInstanceList[n].getAttribute(attrib.name));
 					}
 			  }
 		}
-		
-		targetInstanceList[n].style.cssText = targetInstanceList[n].getAttribute("idom-style");
-		
-		importIdomStyle(targetInstanceList[n]);
-
 	}	
 }
 	
-function populateOuter(el, forClone, nid, json) {
+function populateNodeAttributes(el, forClone, nid, json) {
 
 	for (var i = 0; i < el.attributes.length; i++) {
 		  var attrib = el.attributes[i];
@@ -1847,12 +1884,12 @@ function populateOuter(el, forClone, nid, json) {
 					
 					var newAttribValue = idomDOM.nodeAttributes[nid + '@' + attrib.name]._idomMapNodeAttributes(json, {"nid": nid, "attribName": attrib.name, "forClone": forClone});
 					
-					el.setAttribute(attrib.name, newAttribValue)
+					el.setAttribute(attrib.name, newAttribValue);
+					
+					el.setAttribute(attrib.name.replace("idom-", ""), el.getAttribute(attrib.name));
 				}
 		  }
 	};
-	
-	el.style.cssText = el.getAttribute("idom-style")
 };
 
 function getNodeId(el) { 
@@ -1894,7 +1931,7 @@ function getPathTo(element) {
   	switch (element.tagName.toLowerCase()) {
     
         case "html" : case "body" : return element.tagName;  
-    }
+    };
    
     var n = 0;
     

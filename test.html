@@ -131,7 +131,7 @@
 /*! idi.bidi.dom 
 * 
 * 
-* idom v0.14
+* idom v0.16
 * 
 * Key-value JSON API for template-based HTML view nesting and compositing 
 *
@@ -187,11 +187,11 @@ Example:
 
 &lt;div style='display: none'>
 &lt;!-- Start of Node -->
-&lt;div idom-node-id='teamInfo' class='idom$teamsClass' idom-style='background-color: idom$bgColorTeams; idom$cssTransform'>
+&lt;div idom-node-id='teamInfo' idom-class='idom$teamsClass' idom-style='background-color: idom$bgColorTeams; idom$cssTransform'>
 	
 	&lt;!-- Start of Node Prototype -->	
-	&lt;div class='idom$teamsProtoClass' idom-style='background-color: idom$instanceColorTeams;'>
-		&lt;div style='padding: 5px;'>idom$caption&lt;/div>
+	&lt;div idom-class='idom$teamsProtoClass' idom-style='background-color: idom$instanceColorTeams;'>
+		&lt;div idom-style='padding: 5px;'>idom$caption&lt;/div>
 		
 		&lt;!-- @idom userInfo -->
 				 
@@ -202,14 +202,14 @@ Example:
 &lt;!-- End of Node -->
 
 &lt;!-- Start of Node -->
-&lt;div idom-node-id='userInfo' class='idom$usersClass' idom-style='background-color: idom$bgColorUsers'>
+&lt;div idom-node-id='userInfo' idom-class='idom$usersClass' idom-style='background-color: idom$bgColorUsers'>
 	
 	&lt;!-- Start of Node Prototype -->
-	&lt;div class='idom$usersProtoClass' idom-style='border: idom$borderStyle;'> 
+	&lt;div idom-class='idom$usersProtoClass' idom-style='border: idom$borderStyle;'> 
 		
-		&lt;div onclick='idom$someHandler'>user: idom$username&nbsp;&nbsp;&nbsp;id: idom$id&lt;/div>
+		&lt;div idom-onclick='idom$someHandler'>user: idom$username&nbsp;&nbsp;&nbsp;id: idom$id&lt;/div>
 		
-		&lt;div class='idom$usersExtendedClass' idom-style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
+		&lt;div idom-class='idom$usersExtendedClass' idom-style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
 		
 			&lt;div>last name: idom$lastName&lt;br>work: idom$work&lt;/div>
 				
@@ -336,10 +336,10 @@ position: absolute;
 
 <div style='display: none'>
 <!-- Start of Node -->
-<div idom-node-id='teamInfo' class='idom$teamsClass' idom-style='background-color: idom$bgColorTeams; idom$cssTransform'>
+<div idom-node-id='teamInfo' idom-class='idom$teamsClass' idom-style='background-color: idom$bgColorTeams; idom$cssTransform'>
 	
 	<!-- Start of Node Prototype -->	
-	<div class='idom$teamsProtoClass' idom-style='background-color: idom$instanceColorTeams;'>
+	<div idom-class='idom$teamsProtoClass' idom-style='background-color: idom$instanceColorTeams;'>
 		<div idom-style='padding: 5px;'>idom$caption</div>
 		
 		<!-- @idom userInfo -->
@@ -351,14 +351,14 @@ position: absolute;
 <!-- End of Node -->
 
 <!-- Start of Node -->
-<div idom-node-id='userInfo' class='idom$usersClass' idom-style='background-color: idom$bgColorUsers'>
+<div idom-node-id='userInfo' idom-class='idom$usersClass' idom-style='background-color: idom$bgColorUsers'>
 	
 	<!-- Start of Node Prototype -->
-	<div class='idom$usersProtoClass' idom-style='border: idom$borderStyle;'> 
+	<div idom-class='idom$usersProtoClass' idom-style='border: idom$borderStyle;'> 
 		
-		<div onclick='idom$someHandler'>user: idom$username&nbsp;&nbsp;&nbsp;id: idom$id</div>
+		<div idom-onclick='idom$someHandler'>user: idom$username&nbsp;&nbsp;&nbsp;id: idom$id</div>
 		
-		<div class='idom$usersExtendedClass' idom-style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
+		<div idom-class='idom$usersExtendedClass' idom-style='background-color: idom$bgColorUsersExtended; display: idom$displayStatus'> 
 		
 			<div>last name: idom$lastName<br>work: idom$work</div>
 				
@@ -1147,11 +1147,13 @@ function rndColor() {
 
 </div>
 	
-/******************************************************************************
+******************************************************************************
  * 
  * README:
  * 
- * This version works in Gecko and Webkit, not tested on IE
+ * This version should work in all recent versions of the major browsers until the 
+ * browser vendors screw things up again (It may work with IE8, 7 and 6, but was 
+ * only tested on IE9)
  *
  * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
  * different way for interacting with the DOM. In abstract terms, it takes the DOM 
@@ -1191,7 +1193,7 @@ function rndColor() {
  *
  * Usage:
  *
- * format: _$('#someNode').idom$(data [, settings])
+ * format: document.querySelector('#someNode').idom$(data [, settings])
  * 
  * output: creates a new instance of the Node using 'data' (json) to populate the 
  * special variables in the Node, then after/before to (or replace) existing 
@@ -1206,25 +1208,23 @@ function rndColor() {
  * settings: {mode: 'replace'|'after'|'before'|'node'|'proto', targetInstanceName: 
  * value, instanceName: value} ... replace is default mode
  *
- * if there no populated instances of the Node then after/before/replace 
- * will create a new instance of the Node (so if a targetInstanceName is supplied 
- * in this case it will throw an error, so call .$isPopulated() first to be sure before 
- * invoking this method with targetInstanceName, unless you know the node is populated)
+ * if there are no populated instances of the Node then after/before/replace will create 
+ * a new instance of the Node (so if a targetInstanceName is supplied in this case it will 
+ * throw an error, so call .$isPopulated() first to be sure before invoking this method with 
+ * targetInstanceName, unless you know the node is populated)
  * 
  * If 'mode' is set to 'node' in settings then no other settings param is expected 
  * and only the node's attributes are populated. Setting mode to 'node' will cause idom 
  * to populate only the attributes in the node itself and does not create any populated 
- * instances of its node prototype. idom also offers a way to populate the class and style 
- * attributes of each of the node instances inside the node, by setting mode to 'proto' and 
- * specifying targetInstanceName or none for all instances. Both 'proto' and 'node' modes
- * exist for performance reasons and for working with node attributes or the node instance
- * attributes where a jQuery plugin/widget is instantiated (after template caching) on a
- * node instance within the node. 
+ * instances of its node prototype. idom also offers a way to populate just the attributes 
+ * of each node instance by setting mode to 'proto' and specifying targetInstanceName or none 
+ * for all node instances in a given node. Both 'proto' and 'node' modes may be useful when 
+ * working with the node attributes or the node instance attributes where a jQuery plugin/
+ * widget is instantiated (after caching) on a given node instance. 
  *
- * targetInstanceName: (1) idom-instance-name value for the instance of the Node to 
- * insert _at_ when in after and before modes. If null, insert after/before the last/first 
- * previously populated instance of the Node, or as the first instance if none were previously 
- * populated.
+ * targetInstanceName: (1) idom-instance-name value for the instance of the Node to insert at 
+ * in after and before modes. If null, insert after/before the last/first previously populated 
+ * instance of the Node, or as the first instance if none were previously populated.
  *
  * targetInstanceName: (2) dom-instance-name value for instance(s) of the Node Protoype to 
  * replace when in replace mode. If null, replace all instances.
@@ -1267,7 +1267,6 @@ function rndColor() {
  *  
  * 
  *********************************************************************************/
-
 
 
 	

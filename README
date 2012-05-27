@@ -1,9 +1,9 @@
 /*! idi.bidi.dom 
 * 
 * 
-* idom v0.16
+* idom v0.17
 * 
-* Key-value JSON API for template-based HTML view nesting and compositing 
+* Key-value JSON API for template-based HTML view compositing 
 *
 * 
 * ****************************************************************************

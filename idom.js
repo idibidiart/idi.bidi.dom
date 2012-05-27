@@ -1,9 +1,9 @@
 /*! idi.bidi.dom 
 * 
 * 
-* idom v0.16
+* idom v0.17
 * 
-* Key-value JSON API for template-based HTML view nesting and compositing 
+* Key-value JSON API for template-based HTML view compositing 
 * 
 * ****************************************************************************
 * 
@@ -37,41 +37,34 @@
  * 
  * This version should work in all recent versions of the major browsers
  *
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a new and
  * different way for interacting with the DOM. In abstract terms, it takes the DOM 
- * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
+ * and adds variables, scope, variable memoization, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, it offers a list-based API for creating, populating, and de-populating 
+ * terms, it offers a flat JSON API for creating, populating, and de-populating 
  * predetermined DOM structures with the ability to link, directly access, populate
- * and de-populate other predetermined DOM structures at any depth within them, thus 
- * giving us a simple and consistent alternative to the DOM's native API while allowing 
- * us to reduce the amount of HTML as well as separate the HTML from the presentation 
- * logic.
+ * and de-populate other such DOM structures at any depth within them. It gives us 
+ * a simpler alternative to the browser's hierarchical DOM manipulation API while 
+ * allowing us to reduce the amount of HTML as well as separate the HTML from the 
+ * presentation logic.
  *  
  * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
  * JSON API between presentation logic and the DOM
  * 
- * How does it work?
+ * What does it do?
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype 
  * with data-injected variables in their markup. Multiple instances of each Node (i.e. 
  * data populated versions, each with its own persisted data) may be created, populated 
- * with data, and inserted into --and deleted from-- the Node (with the ability to target 
+ * with data, and inserted into --or deleted from-- the Node (with the ability to target 
  * specific, previously inserted instances of the Node or all such instances). Each Node 
- * may embed any number of other Nodes, at any depth within its markup.
+ * may embed any number of other Nodes, at any depth within its Node Prototype's markup.
  * 
- * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any populated Linked Nodes that were embedded into the 
- * host's Node Prototype) This means that we could re-use the same host Node to create 
- * any number of differently populated Clones with nested Nodes, which allows us to
- * composite and nest DOM views.  
- *
- * Unlike other data-driven DOM rendering frameworks, idi.bidi.dom does not attempt 
- * to take the place of Javascript itself nor does it add its own boilerplate; it 
- * simply gives Javascript more power by offering a simple and consistent interface
- * to the DOM. 
+ * Additionally, idi.bidi.dom allows us to clone populated Nodes to create copies of the 
+ * Node (and any Linked Nodes within it) which can be re-populated and de-populated in 
+ * direct fashion.
  *
  * Usage:
  *
@@ -1432,13 +1425,13 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 		
 		for (var n = 0; n < linkedNodes.length; n++) {
 			
-			linkedNodes[n].setAttribute("idom-node-id", linkedNodes[n].getAttribute("idom-node-id").replace(/\@link\@(.*)$/, "") + "@clone@" + cloneId)
+			linkedNodes[n].setAttribute("idom-node-id", linkedNodes[n].getAttribute("idom-node-id") + "@clone@" + cloneId)
 			
 		}
 		
 	} else if (typeof linkedNodes.style != 'undefined') {
 			
-			linkedNodes.setAttribute("idom-node-id", linkedNodes.getAttribute("idom-node-id").replace(/\@link\@(.*)$/, "") + "@clone@" + cloneId)
+			linkedNodes.setAttribute("idom-node-id", linkedNodes.getAttribute("idom-node-id") + "@clone@" + cloneId)
 	}
     
 	var els = el.querySelectorAll("[idom-instance-name]");
@@ -1447,12 +1440,12 @@ Element.prototype.idom$clone = Element.prototype.idom$clone || function() {
 
 			for (var n = 0; n < els.length; n++) {
 				
-				els[n].setAttribute("idom-instance-name", els[n].getAttribute("idom-instance-name").replace(/\@link\@(.*)$/, "") + "@clone@" + cloneId)
+				els[n].setAttribute("idom-instance-name", els[n].getAttribute("idom-instance-name") + "@clone@" + cloneId)
 			}
 	
 	} else if (typeof els.style != 'undefined') {
 		
-		els.setAttribute("idom-instance-name", els.getAttribute("idom-instance-name").replace(/\@link\@(.*)$/, "") + "@clone@" + cloneId)
+		els.setAttribute("idom-instance-name", els.getAttribute("idom-instance-name") + "@clone@" + cloneId)
 	} 
 	
 	return el;
@@ -1687,16 +1680,19 @@ function insertLinkedNodes(elem) {
 	if (nestedCommentNodes[0]) {
 	
 		var linkedNodeIDList = '';
+		var copy = 0;
 		
 		for (var n = 0; n < nestedCommentNodes.length; n++) {
-		
-			var id = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/) ? nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/)[3] : null;
+			
+			var match = nestedCommentNodes[n].textContent.match(/(@idom)([\s+])(\w+)/);
+			var id = match ? match[3] : null;
+			
 	
 			if (id.indexOf('@') != -1) {
 				
 				var err = new Error;
 		
-				err.message = "bad <--! @ id --> // id for node to be linked may not contain any link or clone references (link base node instead)"
+				err.message = "bad <--! @idom id --> // id for node to be linked may not contain any link or clone references (link base node instead)"
 				 
 				throw err.message + '\n' + err.stack;	
 			}
@@ -1705,15 +1701,13 @@ function insertLinkedNodes(elem) {
 								
 				if (linkedNodeIDList.indexOf(id) != -1) {
 					
-					var err = new Error;
+					copy++;
 					
-					err.message = "cannot link the same node more than once into the same host node: use idom$cloneBase('version id') to create a new version of the base node before linking (coming in v0.12)";
-					 
-					throw err.message + '\n' + err.stack;
-				}
+				} else {
+					
+					linkedNodeIDList += id + ",";
+				}	
 				
-				linkedNodeIDList += id + ",";
-					
 				var linkedNode = document.querySelector('[idom-node-id=' + id + ']');
 				
 				if (!linkedNode) {
@@ -1735,13 +1729,11 @@ function insertLinkedNodes(elem) {
 					throw err.message + '\n' + err.stack;
 				}
 				
-				
-			    // use the HTML, Luke!
 				if (idomDOM.cache[id].indexOf('@idom') != -1) {
 					
 						var err = new Error;
 						
-						err.message = "can't nest linked nodes within each other (bad idea)... \n";
+						err.message = "can't nest linked nodes within each other";
 						 
 						throw err.message + '\n' + err.stack;	
 				}
@@ -1752,12 +1744,12 @@ function insertLinkedNodes(elem) {
 			   	
 			   	var elemInstanceId = elem.getAttribute("idom-instance-name");
 			   	
-				for (var n = 0; n < el.children.length || n < 1; n++) {
+				for (var i = 0; i < el.children.length; i++) {
 								
-					el.children[n].setAttribute("idom-instance-name", el.children[n].getAttribute("idom-instance-name") + "@link@" + elemInstanceId);
+					el.children[i].setAttribute("idom-instance-name", el.children[i].getAttribute("idom-instance-name") + "@link@" + elemInstanceId + '@copy@' + copy);
 				} 
 				
-				el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@link@"  + elemInstanceId);
+				el.setAttribute("idom-node-id", el.getAttribute("idom-node-id") + "@link@"  + elemInstanceId + '@copy@' + copy);
 			} 
 		}
 		

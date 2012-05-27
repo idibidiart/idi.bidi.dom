@@ -131,7 +131,7 @@
 /*! idi.bidi.dom 
 * 
 * 
-* idom v0.16
+* idom v0.17
 * 
 * Key-value JSON API for template-based HTML view nesting and compositing 
 *
@@ -166,16 +166,16 @@
 <img src= "idom.png";/>
 <br>
 /* 
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
- * different way for interfating with the DOM. In abstract terms, it takes the DOM 
- * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a new and
+ * different way for interacting with the DOM. In abstract terms, it takes the DOM 
+ * and adds variables, scope, variable memoization, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, it offers a list-based API for creating, populating, and de-populating 
+ * terms, it offers a flat JSON API for creating, populating, and de-populating 
  * predetermined DOM structures with the ability to link, directly access, populate
- * and de-populate other predetermined DOM structures at any depth within them, thus 
- * giving us a simple and consistent alternative to the DOM's native API while allowing 
- * us to reduce the amount of HTML as well as separate the HTML from the presentation 
- * logic.
+ * and de-populate other such DOM structures at any depth within them. It gives us 
+ * a simpler alternative to the browser's hierarchical DOM manipulation API while 
+ * allowing us to reduce the amount of HTML as well as separate the HTML from the 
+ * presentation logic.
  *
  */
 <br>
@@ -569,7 +569,7 @@ function button1() {
 	// node prototype of the original node the clone is copied from)
 	// when operating on a clone, we discard the forClone argument
 	
-	_$('[idom-node-id="userInfo@clone@clone2"]').idom$( 
+	_$('[idom-node-id="userInfo@link@teamInfo2@clone@clone2"]').idom$( 
 		{
 			someHandler: "" //null value removes the handler
 		},
@@ -602,7 +602,7 @@ function button2() {
 	// node prototype of the original node the clone is copied from)
 	// when operating on a clone, we discard the forClone argument
 	
-	_$('[idom-node-id="userInfo@clone@clone2"]').idom$( 
+	_$('[idom-node-id="userInfo@link@teamInfo2@clone@clone2"]').idom$( 
 		{
 			someHandler: "idom.eventHandler(event, this, changeInstance)" 
 		},
@@ -759,6 +759,7 @@ function rndColor() {
 </div>
 
 <pre>	
+<br>
 <a href="javascript:_$('#code1').style.display='block'">Show Code for Example 1</a>
 <a href="javascript:_$('#code1').style.display='none'">Hide Code for Example 1</a>
 
@@ -1147,47 +1148,40 @@ function rndColor() {
 
 </div>
 	
-******************************************************************************
+/******************************************************************************
  * 
  * README:
  * 
- * This version should work in all recent versions of the major browsers 
+ * This version should work in all recent versions of the major browsers
  *
- * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a radically
+ * idi.bidi.dom - Anti-Templating Framework For Javascript -- offers a new and
  * different way for interacting with the DOM. In abstract terms, it takes the DOM 
- * and adds variables, variable memoization, encapsulation, multiple-inheritance and 
+ * and adds variables, scope, variable memoization, multiple-inheritance and 
  * type polymorphism (with the Node Prototype as the user defined type) In logical 
- * terms, it offers a list-based API for creating, populating, and de-populating 
+ * terms, it offers a flat JSON API for creating, populating, and de-populating 
  * predetermined DOM structures with the ability to link, directly access, populate
- * and de-populate other predetermined DOM structures at any depth within them, thus 
- * giving us a simple and consistent alternative to the DOM's native API while allowing 
- * us to reduce the amount of HTML as well as separate the HTML from the presentation 
- * logic.
+ * and de-populate other such DOM structures at any depth within them. It gives us 
+ * a simpler alternative to the browser's hierarchical DOM manipulation API while 
+ * allowing us to reduce the amount of HTML as well as separate the HTML from the 
+ * presentation logic.
  *  
  * Why use it?
  * 
  * idi.bidi.dom reduces HTML on a page to a minimum and places a simple and consistent
  * JSON API between presentation logic and the DOM
  * 
- * How does it work?
+ * What does it do?
  * 
  * idi.bidi.dom allows the DOM to be decomposed into Nodes each having a Node Prototype 
  * with data-injected variables in their markup. Multiple instances of each Node (i.e. 
  * data populated versions, each with its own persisted data) may be created, populated 
- * with data, and inserted into --and deleted from-- the Node (with the ability to target 
+ * with data, and inserted into --or deleted from-- the Node (with the ability to target 
  * specific, previously inserted instances of the Node or all such instances). Each Node 
- * may embed any number of other Nodes, at any depth within its markup.
+ * may embed any number of other Nodes, at any depth within its Node Prototype's markup.
  * 
- * Additionally, idi.bidi.dom allows the cloning of each Node and all the populated
- * instances within it (including any populated Linked Nodes that were embedded into the 
- * host's Node Prototype) This means that we could re-use the same host Node to create 
- * any number of differently populated Clones with nested Nodes, which allows us to
- * composite and nest DOM views.  
- *
- * Unlike other data-driven DOM rendering frameworks, idi.bidi.dom does not attempt 
- * to take the place of Javascript itself nor does it add its own boilerplate; it 
- * simply gives Javascript more power by offering a simple and consistent interface
- * to the DOM. 
+ * Additionally, idi.bidi.dom allows us to clone populated Nodes to create copies of the 
+ * Node (and any Linked Nodes within it) which can be re-populated and de-populated in 
+ * direct fashion.
  *
  * Usage:
  *

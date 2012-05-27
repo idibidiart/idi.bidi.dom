@@ -3,7 +3,8 @@
 * 
 * idom v0.17
 * 
-* Key-value JSON API for template-based HTML view compositing 
+* Key-value JSON API for template-based HTML &amp; SVG view compositing 
+*
 * 
 * ****************************************************************************
 * 

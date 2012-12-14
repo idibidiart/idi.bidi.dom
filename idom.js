@@ -3,7 +3,7 @@
 * 
 * idom v0.17
 * 
-* Key-value JSON API for template-based HTML &amp; SVG view compositing 
+* Key-value JSON API for template-based HTML view compositing 
 * 
 * ****************************************************************************
 * 
@@ -393,7 +393,7 @@ idom.cache = function() {
 			
 			err.message = "you must prefix all in-line attributes with 'idom-' (incl. any class, style data- attributes and inline events)\n" +
 						  "The non-prefixed attributes will be generated automatically after the idom-prefixed attributes are populated (this\n" +
-						  "is to get around the IE 'style' issue and SVG validation"
+						  "is to get around the IE 'style' issue"
 						  
 			throw err.message + '\n' + '\n' + getPathTo(el)
 		}
